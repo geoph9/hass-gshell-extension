@@ -57,26 +57,32 @@ const MyPopup = GObject.registerClass(
 
             pmItem.connect('activate', () => {
                 log('clicked');
-                let path = test_cmd(`${base_url}api/states/sensor.livingroom_temperature`);
+                let path = send_request(`${base_url}api/states/sensor.livingroom_temperature`);
                 let json_result = read_json(path);
-                log("test_cmd done.");
             });
 
             this.menu.addMenuItem(new PopupMenu.PopupSeparatorMenuItem());
 
             this.menu.addMenuItem(
-            new PopupMenu.PopupMenuItem(
-                "User cannot click on this item",
-                {reactive : false},
-            )
+                new PopupMenu.PopupMenuItem(
+                    `Livingroom Temperature: ${getWeatherSensorData('livingroom', 'temperature')}`,
+                    {reactive : false},
+                )
+            );
+
+            this.menu.addMenuItem(
+                new PopupMenu.PopupMenuItem(
+                    `Livingroom Humidity: ${getWeatherSensorData('livingroom', 'humidity')}`,
+                    {reactive : false},
+                )
             );
 
             this.menu.connect('open-state-changed', (menu, open) => {
-            if (open) {
-                log('opened');
-            } else {
-                log('closed');
-            }
+                if (open) {
+                    log('opened');
+                } else {
+                    log('closed');
+                }
             });
 
             // sub menu
@@ -92,8 +98,8 @@ const MyPopup = GObject.registerClass(
 
             // image item
             let popupImageMenuItem = new PopupMenu.PopupImageMenuItem(
-            'Menu Item with Icon',
-            'security-high-symbolic',
+                'Menu Item with Icon',
+                'security-high-symbolic',
             );
             this.menu.addMenuItem(popupImageMenuItem);
 
@@ -105,8 +111,17 @@ const MyPopup = GObject.registerClass(
     }
 );
 
+function getWeatherSensorData(area, sensor_name) {
+    let path = send_request(`${base_url}api/states/sensor.${area}_${sensor_name}`);
+    let json_result = read_json(path);
+    if (!json_result) {
+        return false;
+    }
+    return `${json_result.state} ${json_result.attributes.unit_of_measurement}`;
+}
+
 // Credits: https://stackoverflow.com/questions/43357370/gnome-extensions-run-shell-command#44535210
-function test_cmd(url, type='GET') {
+function send_request(url, type='GET') {
     let name = url.split("/");
     name = name[name.length - 1];
     name = type.toLowerCase() + "_" + name;
@@ -119,20 +134,18 @@ function test_cmd(url, type='GET') {
 
 function read_json(path) {
     let text = GLib.file_get_contents(path)[1];
-    let json_result = JSON.parse(text);
+    let json_result;
+    try {
+        json_result = JSON.parse(text);
+    } catch (e) {
+        log("ERROR:")
+        log(e);
+        return false;
+    }
     return json_result;
 }
 
 function init() {
-    // Create a Button with "Hello World" text
-    panelButton = new St.Bin({
-        style_class : "panel-button",
-    });
-    let panelButtonText = new St.Label({
-        text : "Hello World",
-        y_align: Clutter.ActorAlign.CENTER,
-    });
-    panelButton.set_child(panelButtonText);
 }
 
 function enable () {
@@ -140,14 +153,6 @@ function enable () {
     // Can also use settings.set_string('...', '...');
     base_url = settings.get_string('hass-url');
     access_token = settings.get_string('hass-access-token');
-    
-    // let _httpSession = new Soup.Session();
-    // let message = Soup.form_request_new_from_hash('GET', url, {});
-    // message.request_headers.append("X-Authorization-key", TW_AUTH_KEY);
-
-
-    // Add the button to the panel
-    Main.panel._rightBox.insert_child_at_index(panelButton, 0);
 
     // Popup menu
     myPopup = new MyPopup();
@@ -172,9 +177,6 @@ function enable () {
 }
 
 function disable () {
-    // Remove the added button from panel
-    Main.panel._rightBox.remove_child(panelButton);
-
     myPopup.destroy();
 
     // Disable shortcut
