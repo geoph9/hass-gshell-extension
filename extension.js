@@ -1,3 +1,5 @@
+// Taken from: https://www.codeproject.com/Articles/5271677/How-to-Create-A-GNOME-Extension
+
 const Me = imports.misc.extensionUtils.getCurrentExtension();
 const Gio = imports.gi.Gio;
 
@@ -51,7 +53,7 @@ function enable () {
     // Can also use settings.set_string('...', '...');
     // settings.get_string('hass-url');
     // settings.get_string('hass-access-token');
-    
+
     // Add the button to the panel
     Main.panel._rightBox.insert_child_at_index(panelButton, 0);
 }
