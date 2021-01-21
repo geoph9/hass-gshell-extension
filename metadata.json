@@ -1,0 +1,10 @@
+{
+    "name" : "Home Assistant Extension",
+    "description" : "A simple gnome shell extension for Home Assistant.",
+    "shell-version" : [
+        "3.38"
+    ],
+    "url" : "",
+    "uuid" : "hass-simple-extension",
+    "version" : 0.0.1
+}
