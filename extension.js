@@ -6,9 +6,18 @@ const Gio = imports.gi.Gio;
 const {St, Clutter} = imports.gi;
 const Main = imports.ui.main;
 
+const GObject = imports.gi.GObject;
+const PanelMenu = imports.ui.panelMenu;
+const PopupMenu = imports.ui.popupMenu;
+
+const Utils = Me.imports.utils;
+const Soup = imports.gi.Soup;
+
 let panelButton;
 
-let container;
+let url, access_token;
+
+let myPopup;
 
 // const GLib = imports.gi.GLib;
 // let now = GLib.DateTime.new_now_local();
@@ -24,19 +33,74 @@ let container;
 // // remove mainloop
 // Mainloop.source_remove(timeout);
 
-function getSettings () {
-  let GioSSS = Gio.SettingsSchemaSource;
-  let schemaSource = GioSSS.new_from_directory(
-    Me.dir.get_child("schemas").get_path(),
-    GioSSS.get_default(),
-    false
-  );
-  let schemaObj = schemaSource.lookup('org.gnome.shell.extensions.hass-data', true);
-  if (!schemaObj) {
-    throw new Error('cannot find schemas');
-  }
-  return new Gio.Settings({ settings_schema : schemaObj });
-}
+const MyPopup = GObject.registerClass(
+    class MyPopup extends PanelMenu.Button {
+
+        _init () {
+
+            super._init(0);
+
+            let icon = new St.Icon({
+                gicon : Gio.icon_new_for_string( Me.dir.get_path() + '/icons/hass-main.png' ),
+                style_class : 'system-status-icon',
+            });
+
+            this.add_child(icon);
+
+            let pmItem = new PopupMenu.PopupMenuItem('Normal Menu Item');
+            pmItem.add_child(
+                new St.Label({
+                    text : 'Label added to the end'
+                })
+            );
+            this.menu.addMenuItem(pmItem);
+
+            pmItem.connect('activate', () => {
+                log('clicked');
+            });
+
+            this.menu.addMenuItem(new PopupMenu.PopupSeparatorMenuItem());
+
+            this.menu.addMenuItem(
+            new PopupMenu.PopupMenuItem(
+                "User cannot click on this item",
+                {reactive : false},
+            )
+            );
+
+            this.menu.connect('open-state-changed', (menu, open) => {
+            if (open) {
+                log('opened');
+            } else {
+                log('closed');
+            }
+            });
+
+            // sub menu
+            let subItem = new PopupMenu.PopupSubMenuMenuItem('sub menu item');
+            this.menu.addMenuItem(subItem);
+            subItem.menu.addMenuItem(new PopupMenu.PopupMenuItem('item 1'));
+            subItem.menu.addMenuItem(new PopupMenu.PopupMenuItem('item 2'), 0);
+
+            // section
+            let popupMenuSection = new PopupMenu.PopupMenuSection();
+            popupMenuSection.actor.add_child(new PopupMenu.PopupMenuItem('section'));
+            this.menu.addMenuItem(popupMenuSection);
+
+            // image item
+            let popupImageMenuItem = new PopupMenu.PopupImageMenuItem(
+            'Menu Item with Icon',
+            'security-high-symbolic',
+            );
+            this.menu.addMenuItem(popupImageMenuItem);
+
+            // you can close, open and toggle the menu with
+            // this.menu.close();
+            // this.menu.open();
+            // this.menu.toggle();
+        }
+    }
+);
 
 function init () {
     // Create a Button with "Hello World" text
@@ -48,56 +112,30 @@ function init () {
         y_align: Clutter.ActorAlign.CENTER,
     });
     panelButton.set_child(panelButtonText);
-
-    // Another Panel
-    
-    let pMonitor = Main.layoutManager.primaryMonitor;
-
-    container = new St.Bin({
-        style_class : 'bg-color',
-        reactive : true,
-        can_focus : true,
-        track_hover : true,
-        height : 30,
-        width : pMonitor.width,
-    });
-
-    container.set_position(0, pMonitor.height - 30);
-
-    container.connect("enter-event", () => {
-        log('entered');
-    });
-
-    container.connect("leave-event", () => {
-        log('left');
-    });
-
-    container.connect("button-press-event", () => {
-        log('clicked');
-    });
 }
 
 function enable () {
-    let settings = getSettings();
+    let settings = Utils.getSettings();
     // Can also use settings.set_string('...', '...');
-    // settings.get_string('hass-url');
-    // settings.get_string('hass-access-token');
+    url = settings.get_string('hass-url');
+    access_token = settings.get_string('hass-access-token');
+    
+    // let _httpSession = new Soup.Session();
+    // let message = Soup.form_request_new_from_hash('GET', url, {});
+    // message.request_headers.append("X-Authorization-key", TW_AUTH_KEY);
+
 
     // Add the button to the panel
     Main.panel._rightBox.insert_child_at_index(panelButton, 0);
 
-    // For the container
-
-    Main.layoutManager.addChrome(container, {
-        affectsInputRegion : true,
-        affectsStruts : true,
-        trackFullscreen : true,
-    });
+    // Popup menu
+    myPopup = new MyPopup();
+    Main.panel.addToStatusArea('myPopup', myPopup, 1);
 }
 
 function disable () {
     // Remove the added button from panel
     Main.panel._rightBox.remove_child(panelButton);
 
-    Main.layoutManager.removeChrome(container);
+    myPopup.destroy();
 }
