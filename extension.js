@@ -1,9 +1,8 @@
 // Taken from: https://www.codeproject.com/Articles/5271677/How-to-Create-A-GNOME-Extension
 
 const Me = imports.misc.extensionUtils.getCurrentExtension();
-const Gio = imports.gi.Gio;
 
-const {St, Clutter} = imports.gi;
+const {Gio, Shell, Meta, St, Clutter} = imports.gi;
 const Main = imports.ui.main;
 
 const GObject = imports.gi.GObject;
@@ -11,15 +10,16 @@ const PanelMenu = imports.ui.panelMenu;
 const PopupMenu = imports.ui.popupMenu;
 
 const Utils = Me.imports.utils;
+const Util = imports.misc.util;
 const Soup = imports.gi.Soup;
 
 let panelButton;
 
-let url, access_token;
+let base_url, access_token;
 
 let myPopup;
 
-// const GLib = imports.gi.GLib;
+const GLib = imports.gi.GLib;
 // let now = GLib.DateTime.new_now_local();
 // let nowString = now.format("%Y-%m-%d %H:%M:%S");
 
@@ -57,6 +57,9 @@ const MyPopup = GObject.registerClass(
 
             pmItem.connect('activate', () => {
                 log('clicked');
+                let path = test_cmd(`${base_url}api/states/sensor.livingroom_temperature`);
+                let json_result = read_json(path);
+                log("test_cmd done.");
             });
 
             this.menu.addMenuItem(new PopupMenu.PopupSeparatorMenuItem());
@@ -102,7 +105,25 @@ const MyPopup = GObject.registerClass(
     }
 );
 
-function init () {
+// Credits: https://stackoverflow.com/questions/43357370/gnome-extensions-run-shell-command#44535210
+function test_cmd(url, type='GET') {
+    let name = url.split("/");
+    name = name[name.length - 1];
+    name = type.toLowerCase() + "_" + name;
+    name = name.replace(".", "_");  // because the entity_id contains a dot.
+    path = `${Me.dir.get_path()}/data/${name}.json`;
+    log("Pinging URL: " + url);
+    Util.spawnCommandLine(`/usr/bin/curl -X ${type} -H "Authorization: Bearer ${access_token}" -H "Content-Type: application/json" ${url} -o ${path}`);
+    return path;
+}
+
+function read_json(path) {
+    let text = GLib.file_get_contents(path)[1];
+    let json_result = JSON.parse(text);
+    return json_result;
+}
+
+function init() {
     // Create a Button with "Hello World" text
     panelButton = new St.Bin({
         style_class : "panel-button",
@@ -115,9 +136,9 @@ function init () {
 }
 
 function enable () {
-    let settings = Utils.getSettings();
+    let settings = Utils.getSettings('hass-data');
     // Can also use settings.set_string('...', '...');
-    url = settings.get_string('hass-url');
+    base_url = settings.get_string('hass-url');
     access_token = settings.get_string('hass-access-token');
     
     // let _httpSession = new Soup.Session();
@@ -131,6 +152,23 @@ function enable () {
     // Popup menu
     myPopup = new MyPopup();
     Main.panel.addToStatusArea('myPopup', myPopup, 1);
+
+    // For the Shortcut
+    // Shell.ActionMode.NORMAL
+    // Shell.ActionMode.OVERVIEW
+    // Shell.ActionMode.LOCK_SCREEN
+    let mode = Shell.ActionMode.ALL;
+
+    // Meta.KeyBindingFlags.PER_WINDOW
+    // Meta.KeyBindingFlags.BUILTIN
+    // Meta.KeyBindingFlags.IGNORE_AUTOREPEAT
+    let flag = Meta.KeyBindingFlags.NONE;
+
+    let shortcut_settings = Utils.getSettings('hass-shortcut');
+
+    Main.wm.addKeybinding("hass-shortcut", shortcut_settings, flag, mode, () => {
+        log('shortcut is working');
+    });
 }
 
 function disable () {
@@ -138,4 +176,7 @@ function disable () {
     Main.panel._rightBox.remove_child(panelButton);
 
     myPopup.destroy();
+
+    // Disable shortcut
+    Main.wm.removeKeybinding("hass-shortcut");
 }

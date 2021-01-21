@@ -1,5 +1,8 @@
 // For the GET Requests
 const Soup = imports.gi.Soup;
+const Gio = imports.gi.Gio;
+const GLib = imports.gi.GLib;
+const Me = imports.misc.extensionUtils.getCurrentExtension();
 // new sesssion
 var soupSyncSession = new Soup.SessionSync();
 
@@ -18,4 +21,19 @@ function setNewState(url) {
         }
     }
     return -1;
+}
+
+function getSettings (schema_name) {
+  let GioSSS = Gio.SettingsSchemaSource;
+  let schemaSource = GioSSS.new_from_directory(
+    Me.dir.get_child("schemas").get_path(),
+    GioSSS.get_default(),
+    false
+  );
+  let schemaObj = schemaSource.lookup(
+    `org.gnome.shell.extensions.${schema_name}`, true);
+  if (!schemaObj) {
+    throw new Error('cannot find schemas');
+  }
+  return new Gio.Settings({ settings_schema : schemaObj });
 }
