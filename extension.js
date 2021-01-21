@@ -8,6 +8,8 @@ const Main = imports.ui.main;
 
 let panelButton;
 
+let container;
+
 // const GLib = imports.gi.GLib;
 // let now = GLib.DateTime.new_now_local();
 // let nowString = now.format("%Y-%m-%d %H:%M:%S");
@@ -46,6 +48,33 @@ function init () {
         y_align: Clutter.ActorAlign.CENTER,
     });
     panelButton.set_child(panelButtonText);
+
+    // Another Panel
+    
+    let pMonitor = Main.layoutManager.primaryMonitor;
+
+    container = new St.Bin({
+        style_class : 'bg-color',
+        reactive : true,
+        can_focus : true,
+        track_hover : true,
+        height : 30,
+        width : pMonitor.width,
+    });
+
+    container.set_position(0, pMonitor.height - 30);
+
+    container.connect("enter-event", () => {
+        log('entered');
+    });
+
+    container.connect("leave-event", () => {
+        log('left');
+    });
+
+    container.connect("button-press-event", () => {
+        log('clicked');
+    });
 }
 
 function enable () {
@@ -56,9 +85,19 @@ function enable () {
 
     // Add the button to the panel
     Main.panel._rightBox.insert_child_at_index(panelButton, 0);
+
+    // For the container
+
+    Main.layoutManager.addChrome(container, {
+        affectsInputRegion : true,
+        affectsStruts : true,
+        trackFullscreen : true,
+    });
 }
 
 function disable () {
     // Remove the added button from panel
     Main.panel._rightBox.remove_child(panelButton);
+
+    Main.layoutManager.removeChrome(container);
 }
