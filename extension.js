@@ -13,6 +13,9 @@ const Utils = Me.imports.utils;
 const Util = imports.misc.util;
 const Soup = imports.gi.Soup;
 
+// MainLoop for updating the time every X seconds.
+const Mainloop = imports.mainloop;
+
 let panelButton;
 
 let base_url, access_token;
@@ -33,6 +36,15 @@ const GLib = imports.gi.GLib;
 // // remove mainloop
 // Mainloop.source_remove(timeout);
 
+
+// Taken from tv-switch-gnome-shell-extension repo
+let refreshTimeout;
+// Weather-Related Variables / Endpoints
+let currentStats;  // a dictionary with 2 keys (temperature and humidity).
+let weatherStatsPanel;
+let weatherStatsPanelText;
+
+// POPUP MENU
 const MyPopup = GObject.registerClass(
     class MyPopup extends PanelMenu.Button {
 
@@ -111,6 +123,25 @@ const MyPopup = GObject.registerClass(
     }
 );
 
+
+/* =======================================================
+   ===================== WEATHER =========================
+   =======================================================
+*/
+// TODO: The humidity is not so important and so there should be an option at prefs.js in order to remove it.
+function _refreshWeatherStats() {
+    temperature = getWeatherSensorData('livingroom', 'temperature');
+    humidity = getWeatherSensorData('livingroom', 'humidity');
+    try {
+        weatherStatsPanelText.text = `${temperature} | ${humidity}`;
+    } catch (error) {
+        logError(error);
+        disable();
+    }
+    // will execute this function only once and abort. Remove in order to make the Main loop work
+    return false; 
+}
+
 function getWeatherSensorData(area, sensor_name) {
     let path = send_request(`${base_url}api/states/sensor.${area}_${sensor_name}`);
     let json_result = read_json(path);
@@ -119,6 +150,11 @@ function getWeatherSensorData(area, sensor_name) {
     }
     return `${json_result.state} ${json_result.attributes.unit_of_measurement}`;
 }
+
+/* =======================================================
+   ================= REQUESTS TO HASS ====================
+   =======================================================
+*/
 
 // Credits: https://stackoverflow.com/questions/43357370/gnome-extensions-run-shell-command#44535210
 function send_request(url, type='GET') {
@@ -146,9 +182,43 @@ function read_json(path) {
 }
 
 function init() {
+    // Add the temperature in the panel
+    weatherStatsPanel = new St.Bin({
+        style_class : "panel-button",
+        reactive : true,
+        can_focus : true,
+        track_hover : true,
+        height : 30,
+    });
 }
 
 function enable () {
+    /**
+     * ===== Weather Area ======
+     */
+    weatherStatsPanelText = new St.Label({
+        text : "-°C",
+        y_align: Clutter.ActorAlign.CENTER,
+    });
+    _refreshWeatherStats();
+    weatherStatsPanel.set_child(weatherStatsPanelText);
+    weatherStatsPanel.connect("button-press-event", () => {
+        _refreshWeatherStats();
+    });
+
+    // Update weather stats every 1 minute
+    refreshTimeout = Mainloop.timeout_add_seconds(160, () => {
+            _refreshWeatherStats();
+        }    
+    );
+
+    Main.panel._rightBox.insert_child_at_index(weatherStatsPanel, 1);
+
+    /* =======================================================
+       ================== POPUP MENU AREA ====================
+       =======================================================
+    */
+    
     let settings = Utils.getSettings('hass-data');
     // Can also use settings.set_string('...', '...');
     base_url = settings.get_string('hass-url');
@@ -181,4 +251,9 @@ function disable () {
 
     // Disable shortcut
     Main.wm.removeKeybinding("hass-shortcut");
+
+    Main.panel._rightBox.remove_child(weatherStatsPanel);
+    // TODO: Not sure if the timeout_add_seconds function stops refresing when disable is called. Check it.
+    // remove mainloop
+    Mainloop.source_remove(refreshTimeout);
 }
