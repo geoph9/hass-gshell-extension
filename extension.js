@@ -36,6 +36,8 @@ const GLib = imports.gi.GLib;
 // // remove mainloop
 // Mainloop.source_remove(timeout);
 
+let soupSyncSession = new Soup.SessionSync();
+
 
 // Taken from tv-switch-gnome-shell-extension repo
 let refreshTimeout;
@@ -69,8 +71,7 @@ const MyPopup = GObject.registerClass(
 
             pmItem.connect('activate', () => {
                 log('clicked');
-                let path = send_request(`${base_url}api/states/sensor.livingroom_temperature`);
-                let json_result = read_json(path);
+                // send_request(`${base_url}api/states/sensor.livingroom_temperature`, 'GET')
             });
 
             this.menu.addMenuItem(new PopupMenu.PopupSeparatorMenuItem());
@@ -143,8 +144,7 @@ function _refreshWeatherStats() {
 }
 
 function getWeatherSensorData(area, sensor_name) {
-    let path = send_request(`${base_url}api/states/sensor.${area}_${sensor_name}`);
-    let json_result = read_json(path);
+    let json_result = send_request(`${base_url}api/states/sensor.${area}_${sensor_name}`);
     if (!json_result) {
         return false;
     }
@@ -156,29 +156,49 @@ function getWeatherSensorData(area, sensor_name) {
    =======================================================
 */
 
-// Credits: https://stackoverflow.com/questions/43357370/gnome-extensions-run-shell-command#44535210
-function send_request(url, type='GET') {
-    let name = url.split("/");
-    name = name[name.length - 1];
-    name = type.toLowerCase() + "_" + name;
-    name = name.replace(".", "_");  // because the entity_id contains a dot.
-    path = `${Me.dir.get_path()}/data/${name}.json`;
-    log("Pinging URL: " + url);
-    Util.spawnCommandLine(`/usr/bin/curl -X ${type} -H "Authorization: Bearer ${access_token}" -H "Content-Type: application/json" ${url} -o ${path}`);
-    return path;
-}
+// // Credits: https://stackoverflow.com/questions/43357370/gnome-extensions-run-shell-command#44535210
+// function send_request(url, type='GET') {
+//     let name = url.split("/");
+//     name = name[name.length - 1];
+//     name = type.toLowerCase() + "_" + name;
+//     name = name.replace(".", "_");  // because the entity_id contains a dot.
+//     path = `${Me.dir.get_path()}/data/${name}.json`;
+//     log("Pinging URL: " + url);
+//     Util.spawnCommandLine(`/usr/bin/curl -X ${type} -H "Authorization: Bearer ${access_token}" -H "Content-Type: application/json" ${url} -o ${path}`);
+//     return path;
+// }
 
-function read_json(path) {
-    let text = GLib.file_get_contents(path)[1];
-    let json_result;
-    try {
-        json_result = JSON.parse(text);
-    } catch (e) {
-        log("ERROR:")
-        log(e);
-        return false;
+// function read_json(path) {
+//     let text = GLib.file_get_contents(path)[1];
+//     let json_result;
+//     try {
+//         json_result = JSON.parse(text);
+//     } catch (e) {
+//         log("ERROR:")
+//         log(e);
+//         return false;
+//     }
+//     return json_result;
+// }
+
+// Credits: https://stackoverflow.com/questions/65830466/gnome-shell-extension-send-request-with-authorization-bearer-headers/65841700
+function send_request(url, type='GET') {
+    let message = Soup.Message.new(type, url);
+    message.request_headers.append(
+        'Authorization',
+        `Bearer ${access_token}`
+    )
+    message.request_headers.set_content_type("application/json", null);
+    let responseCode = soupSyncSession.send_message(message);
+
+    if(responseCode == 200) {
+        try {
+            return JSON.parse(message['response-body'].data);
+        } catch(error) {
+            log("ERROR OCCURRED WHILE SENDING GET REQUEST TO " + url + ". ERROR WAS: " + error);
+        }
     }
-    return json_result;
+    return false;
 }
 
 function init() {
@@ -193,27 +213,6 @@ function init() {
 }
 
 function enable () {
-    /**
-     * ===== Weather Area ======
-     */
-    weatherStatsPanelText = new St.Label({
-        text : "-°C",
-        y_align: Clutter.ActorAlign.CENTER,
-    });
-    _refreshWeatherStats();
-    weatherStatsPanel.set_child(weatherStatsPanelText);
-    weatherStatsPanel.connect("button-press-event", () => {
-        _refreshWeatherStats();
-    });
-
-    // Update weather stats every 1 minute
-    refreshTimeout = Mainloop.timeout_add_seconds(160, () => {
-            _refreshWeatherStats();
-        }    
-    );
-
-    Main.panel._rightBox.insert_child_at_index(weatherStatsPanel, 1);
-
     /* =======================================================
        ================== POPUP MENU AREA ====================
        =======================================================
@@ -244,6 +243,27 @@ function enable () {
     Main.wm.addKeybinding("hass-shortcut", shortcut_settings, flag, mode, () => {
         log('shortcut is working');
     });
+
+    /**
+     * ===== Weather Area ======
+     */
+    weatherStatsPanelText = new St.Label({
+        text : "-°C",
+        y_align: Clutter.ActorAlign.CENTER,
+    });
+    _refreshWeatherStats();
+    weatherStatsPanel.set_child(weatherStatsPanelText);
+    weatherStatsPanel.connect("button-press-event", () => {
+        _refreshWeatherStats();
+    });
+
+    // Update weather stats every 1 minute
+    // refreshTimeout = Mainloop.timeout_add_seconds(160, () => {
+    //         _refreshWeatherStats();
+    //     }    
+    // );
+
+    Main.panel._rightBox.insert_child_at_index(weatherStatsPanel, 1);
 }
 
 function disable () {
@@ -255,5 +275,5 @@ function disable () {
     Main.panel._rightBox.remove_child(weatherStatsPanel);
     // TODO: Not sure if the timeout_add_seconds function stops refresing when disable is called. Check it.
     // remove mainloop
-    Mainloop.source_remove(refreshTimeout);
+    // Mainloop.source_remove(refreshTimeout);
 }
