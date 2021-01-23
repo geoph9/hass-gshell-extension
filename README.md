@@ -10,3 +10,4 @@ My implementation is based on [this codeproject tutorial](https://www.codeprojec
 
 1. You may need to create a `data` directory (in the same directory where `extension.js` is).
 2. TODO: Add the schema. The reason it is not there now is because the Long Live Access token is visible.
+3. You will need to have a file named `org.gnome.shell.extensions.hass-data.gschema.xml` under the `schemas` directory (todo: This should be done by `prefs.js`). After creating it, make sure you have compiled the file with the following command: `glib-compile-schemas schemas/`.

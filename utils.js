@@ -7,9 +7,7 @@ const Me = imports.misc.extensionUtils.getCurrentExtension();
 var soupSyncSession = new Soup.SessionSync();
 
 function setNewState(url) {
-	let message = Soup.Message.new(
-        type, url
-    );
+    let message = Soup.Message.new(type, url);
     let responseCode = soupSyncSession.send_message(message);
 
     if(responseCode == 200) {

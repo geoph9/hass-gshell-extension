@@ -1,2 +1,3 @@
 schemas/org.gnome.shell.extensions.hass-data.gschema.xml
 data/
+myextensions.code-workspace

@@ -18,7 +18,7 @@ const Mainloop = imports.mainloop;
 
 let panelButton;
 
-let base_url, access_token;
+let base_url, access_token, togglable_ent_ids;
 
 let myPopup;
 
@@ -36,6 +36,8 @@ const GLib = imports.gi.GLib;
 // // remove mainloop
 // Mainloop.source_remove(timeout);
 
+let soupSyncSession = new Soup.SessionSync();
+
 
 // Taken from tv-switch-gnome-shell-extension repo
 let refreshTimeout;
@@ -48,7 +50,7 @@ let weatherStatsPanelText;
 const MyPopup = GObject.registerClass(
     class MyPopup extends PanelMenu.Button {
 
-        _init () {
+        _init (toggle_area) {
 
             super._init(0);
 
@@ -59,19 +61,26 @@ const MyPopup = GObject.registerClass(
 
             this.add_child(icon);
 
-            let pmItem = new PopupMenu.PopupMenuItem('Normal Menu Item');
-            pmItem.add_child(
-                new St.Label({
-                    text : 'Label added to the end'
-                })
-            );
-            this.menu.addMenuItem(pmItem);
+            let pmItem, ent_id, switch_name;
+            for (ent_id of togglable_ent_ids) {
+                // Capitalize every word
+                switch_name = ent_id.split(".")[1].
+                                     split("_").
+                                     map(word => word.charAt(0).toUpperCase() + word.slice(1)).
+                                     join(" ");
+                pmItem = new PopupMenu.PopupMenuItem('Toggle:');
+                pmItem.add_child(
+                    new St.Label({
+                        text : switch_name
+                    })
+                );
+                this.menu.addMenuItem(pmItem);
 
-            pmItem.connect('activate', () => {
-                log('clicked');
-                let path = send_request(`${base_url}api/states/sensor.livingroom_temperature`);
-                let json_result = read_json(path);
-            });
+                pmItem.connect('activate', () => {
+                    log("cloccccc")
+                    _toggleEntity("switch.sonoff_basic_relay")
+                });
+            }
 
             this.menu.addMenuItem(new PopupMenu.PopupSeparatorMenuItem());
 
@@ -123,6 +132,43 @@ const MyPopup = GObject.registerClass(
     }
 );
 
+/* =======================================================
+   ===================== HASS API ========================
+   =======================================================
+*/
+
+function _toggleEntity(entity_id) {
+    let data = `{"entity_id": "${entity_id}"}`;
+    let result = send_request(`${base_url}api/services/switch/toggle`, 'POST', data);
+    if (!result) {
+        return false;
+    }
+    return true;    
+}
+
+function _startHass() {
+    let result = send_request(`${base_url}api/events/homeassistant_start`, 'POST');
+    if (!result) {
+        return false;
+    }
+    return true;
+}
+
+function _stopHass() {
+    let result = send_request(`${base_url}api/events/homeassistant_stop`, 'POST');
+    if (!result) {
+        return false;
+    }
+    return true;
+}
+
+function _closeHass() {
+    let result = send_request(`${base_url}api/events/homeassistant_close`, 'POST');
+    if (!result) {
+        return false;
+    }
+    return true;
+}
 
 /* =======================================================
    ===================== WEATHER =========================
@@ -143,8 +189,7 @@ function _refreshWeatherStats() {
 }
 
 function getWeatherSensorData(area, sensor_name) {
-    let path = send_request(`${base_url}api/states/sensor.${area}_${sensor_name}`);
-    let json_result = read_json(path);
+    let json_result = send_request(`${base_url}api/states/sensor.${area}_${sensor_name}`);
     if (!json_result) {
         return false;
     }
@@ -156,29 +201,54 @@ function getWeatherSensorData(area, sensor_name) {
    =======================================================
 */
 
-// Credits: https://stackoverflow.com/questions/43357370/gnome-extensions-run-shell-command#44535210
-function send_request(url, type='GET') {
-    let name = url.split("/");
-    name = name[name.length - 1];
-    name = type.toLowerCase() + "_" + name;
-    name = name.replace(".", "_");  // because the entity_id contains a dot.
-    path = `${Me.dir.get_path()}/data/${name}.json`;
-    log("Pinging URL: " + url);
-    Util.spawnCommandLine(`/usr/bin/curl -X ${type} -H "Authorization: Bearer ${access_token}" -H "Content-Type: application/json" ${url} -o ${path}`);
-    return path;
-}
+// // Credits: https://stackoverflow.com/questions/43357370/gnome-extensions-run-shell-command#44535210
+// function send_request(url, type='GET') {
+//     let name = url.split("/");
+//     name = name[name.length - 1];
+//     name = type.toLowerCase() + "_" + name;
+//     name = name.replace(".", "_");  // because the entity_id contains a dot.
+//     path = `${Me.dir.get_path()}/data/${name}.json`;
+//     log("Pinging URL: " + url);
+//     Util.spawnCommandLine(`/usr/bin/curl -X ${type} -H "Authorization: Bearer ${access_token}" -H "Content-Type: application/json" ${url} -o ${path}`);
+//     return path;
+// }
 
-function read_json(path) {
-    let text = GLib.file_get_contents(path)[1];
-    let json_result;
-    try {
-        json_result = JSON.parse(text);
-    } catch (e) {
-        log("ERROR:")
-        log(e);
-        return false;
+// function read_json(path) {
+//     let text = GLib.file_get_contents(path)[1];
+//     let json_result;
+//     try {
+//         json_result = JSON.parse(text);
+//     } catch (e) {
+//         log("ERROR:")
+//         log(e);
+//         return false;
+//     }
+//     return json_result;
+// }
+
+// Credits: https://stackoverflow.com/questions/65830466/gnome-shell-extension-send-request-with-authorization-bearer-headers/65841700
+function send_request(url, type='GET', data=null) {
+    let message = Soup.Message.new(type, url);
+    message.request_headers.append(
+        'Authorization',
+        `Bearer ${access_token}`
+    )
+    if (data !== null){
+        // Set body data: Should be in json format, e.g. '{"entity_id": "switch.some_relay"}'
+        // TODO: Maybe perform a check here
+        message.set_request('application/json', 2, data);
     }
-    return json_result;
+    message.request_headers.set_content_type("application/json", null);
+    let responseCode = soupSyncSession.send_message(message);
+    
+    if(responseCode == 200) {
+        try {
+            return JSON.parse(message['response-body'].data);
+        } catch(error) {
+            log("ERROR OCCURRED WHILE SENDING GET REQUEST TO " + url + ". ERROR WAS: " + error);
+        }
+    }
+    return false;
 }
 
 function init() {
@@ -193,39 +263,26 @@ function init() {
 }
 
 function enable () {
-    /**
-     * ===== Weather Area ======
-     */
-    weatherStatsPanelText = new St.Label({
-        text : "-°C",
-        y_align: Clutter.ActorAlign.CENTER,
-    });
-    _refreshWeatherStats();
-    weatherStatsPanel.set_child(weatherStatsPanelText);
-    weatherStatsPanel.connect("button-press-event", () => {
-        _refreshWeatherStats();
-    });
-
-    // Update weather stats every 1 minute
-    refreshTimeout = Mainloop.timeout_add_seconds(160, () => {
-            _refreshWeatherStats();
-        }    
-    );
-
-    Main.panel._rightBox.insert_child_at_index(weatherStatsPanel, 1);
-
     /* =======================================================
        ================== POPUP MENU AREA ====================
        =======================================================
     */
     
-    let settings = Utils.getSettings('hass-data');
-    // Can also use settings.set_string('...', '...');
-    base_url = settings.get_string('hass-url');
-    access_token = settings.get_string('hass-access-token');
+    try {
+        let settings = Utils.getSettings('hass-data');
+        // Can also use settings.set_string('...', '...');
+        base_url = settings.get_string('hass-url');
+        access_token = settings.get_string('hass-access-token');
+        togglable_ent_ids = settings.get_strv("hass-togglable-entities");
+    } catch (e) {
+        log("Error:  Occurred while getting schema keys...")
+        log("\tMake sure you have the following keys: 'hass-url', 'hass-access-token', 'hass-togglable-entities'.")
+        log("\tCheck the org.gnome.shell.extensions.examle.gschema.xml file under the 'schemas' directory for an example.")
+        throw e;
+    }
 
     // Popup menu
-    myPopup = new MyPopup();
+    myPopup = new MyPopup("Kitchen Lights");
     Main.panel.addToStatusArea('myPopup', myPopup, 1);
 
     // For the Shortcut
@@ -244,6 +301,27 @@ function enable () {
     Main.wm.addKeybinding("hass-shortcut", shortcut_settings, flag, mode, () => {
         log('shortcut is working');
     });
+
+    /**
+     * ===== Weather Area ======
+     */
+    weatherStatsPanelText = new St.Label({
+        text : "-°C",
+        y_align: Clutter.ActorAlign.CENTER,
+    });
+    _refreshWeatherStats();
+    weatherStatsPanel.set_child(weatherStatsPanelText);
+    weatherStatsPanel.connect("button-press-event", () => {
+        _refreshWeatherStats();
+    });
+
+    // Update weather stats every 1 minute
+    // refreshTimeout = Mainloop.timeout_add_seconds(160, () => {
+    //         _refreshWeatherStats();
+    //     }    
+    // );
+
+    Main.panel._rightBox.insert_child_at_index(weatherStatsPanel, 1);
 }
 
 function disable () {
@@ -255,5 +333,5 @@ function disable () {
     Main.panel._rightBox.remove_child(weatherStatsPanel);
     // TODO: Not sure if the timeout_add_seconds function stops refresing when disable is called. Check it.
     // remove mainloop
-    Mainloop.source_remove(refreshTimeout);
+    // Mainloop.source_remove(refreshTimeout);
 }
