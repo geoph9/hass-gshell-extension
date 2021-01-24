@@ -61,42 +61,34 @@ const MyPopup = GObject.registerClass(
 
             this.add_child(icon);
 
-            let pmItem, ent_id, switch_name;
+            let ent_id, switch_name;
+            // I am using an array of objects because I want to get a full copy of the 
+            // pmItem and the ent_id. If I don't do that then the pmItem will be connected 
+            // only to the laste entry of 'togglable_ent_ids' which means that whichever entry
+            // of the menu you press, you will always toggle the same button
+            var pmItems = [];
             for (ent_id of togglable_ent_ids) {
                 // Capitalize every word
                 switch_name = ent_id.split(".")[1].
                                      split("_").
                                      map(word => word.charAt(0).toUpperCase() + word.slice(1)).
                                      join(" ");
-                pmItem = new PopupMenu.PopupMenuItem('Toggle:');
+                let pmItem = new PopupMenu.PopupMenuItem('Toggle:');
                 pmItem.add_child(
                     new St.Label({
                         text : switch_name
                     })
                 );
                 this.menu.addMenuItem(pmItem);
-
-                pmItem.connect('activate', () => {
-                    log("cloccccc")
-                    _toggleEntity("switch.sonoff_basic_relay")
+                pmItems.push({item: pmItem, entity: ent_id});
+            }
+            for (let item of pmItems) {
+                item.item.connect('activate', () => {
+                    _toggleEntity(item.entity)
                 });
             }
 
             this.menu.addMenuItem(new PopupMenu.PopupSeparatorMenuItem());
-
-            this.menu.addMenuItem(
-                new PopupMenu.PopupMenuItem(
-                    `Livingroom Temperature: ${getWeatherSensorData('livingroom', 'temperature')}`,
-                    {reactive : false},
-                )
-            );
-
-            this.menu.addMenuItem(
-                new PopupMenu.PopupMenuItem(
-                    `Livingroom Humidity: ${getWeatherSensorData('livingroom', 'humidity')}`,
-                    {reactive : false},
-                )
-            );
 
             this.menu.connect('open-state-changed', (menu, open) => {
                 if (open) {
@@ -107,10 +99,17 @@ const MyPopup = GObject.registerClass(
             });
 
             // sub menu
-            let subItem = new PopupMenu.PopupSubMenuMenuItem('sub menu item');
+            let subItem = new PopupMenu.PopupSubMenuMenuItem('HASS Events');
             this.menu.addMenuItem(subItem);
-            subItem.menu.addMenuItem(new PopupMenu.PopupMenuItem('item 1'));
-            subItem.menu.addMenuItem(new PopupMenu.PopupMenuItem('item 2'), 0);
+            let start_hass_item = new PopupMenu.PopupMenuItem('Start Home Assistant');
+            let stop_hass_item = new PopupMenu.PopupMenuItem('Stop Home Assistant');
+            let close_hass_item = new PopupMenu.PopupMenuItem('Close Home Assistant');
+            subItem.menu.addMenuItem(start_hass_item, 0);
+            subItem.menu.addMenuItem(stop_hass_item, 1);
+            subItem.menu.addMenuItem(close_hass_item, 2);
+            start_hass_item.connect('activate', _startHass);
+            stop_hass_item.connect('activate', _stopHass);
+            close_hass_item.connect('activate', _closeHass);
 
             // section
             let popupMenuSection = new PopupMenu.PopupMenuSection();
