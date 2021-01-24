@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<schemalist>
+
+  <enum id="org.gnome.shell.extensions.hass-data.enum-sample">
+    <value value="0" nick="TOP"/>
+    <value value="1" nick="BOTTOM"/>
+    <value value="2" nick="RIGHT"/>
+    <value value="3" nick="LEFT"/>
+  </enum>
+
+  <schema id="org.gnome.shell.extensions.hass-data" path="/org/gnome/shell/extensions/hass-data/">
+
+    <key type="s" name="hass-access-token">
+      <default>"My Long Live Access Token taken from my profile on hass"</default>
+      <summary>Long Live Access Token for Home Assistant</summary>
+      <description>Long Live Access Token for Home Assistant</description>
+    </key>
+
+    <key type="s" name="hass-url">
+      <default>"http://my_url:8123/"</default>
+      <summary>The url where the hass instance is hosted.</summary>
+      <description>The url where the hass instance is hosted.</description>
+    </key>
+
+    <key type="as" name="hass-togglable-entities">
+      <default>['switch.kitchen_lights', 'switch.bedroom_lights']</default>
+      <summary>Entity ids for home-assistant switches.</summary>
+      <description>Entity ids for home-assistant switches. E.g. switch.bedroom_lights</description>
+    </key>
+
+    <key name="my-position"
+
+      enum="org.gnome.shell.extensions.hass-data.enum-sample">
+      <default>'LEFT'</default>
+      <summary>summary</summary>
+      <description>description</description>
+    </key>
+
+  </schema>
+
+  <schema id="org.gnome.shell.extensions.hass-shortcut"
+
+    path="/org/gnome/shell/extensions/hass-shortcut/">
+
+    <key type="as" name="hass-shortcut">
+      <default><![CDATA[['<Super>g']]]></default>
+      <summary>Home Assistant Extension - Shortcut Key</summary>
+      <description>
+        You can create GTK entry in prefs and set it as CDATA.
+      </description>
+    </key>
+
+  </schema>
+
+</schemalist>
