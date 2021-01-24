@@ -259,6 +259,13 @@ function init() {
         track_hover : true,
         height : 30,
     });
+
+    // Check if compiled schema exists and if not try to compile it
+    try {
+        GLib.file_get_contents(`${Me.dir.get_path()}/schemas/gschemas.compiled`)
+    } catch (e) {
+        Util.spawnCommandLine(`/usr/bin/glib-compile-schemas ${Me.dir.get_path()}/schemas/`);
+    }
 }
 
 function enable () {
