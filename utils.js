@@ -21,17 +21,21 @@ function setNewState(url) {
     return -1;
 }
 
-function getSettings (schema_name) {
+function getSettings(schema_name) {
+  if (schema_name !== undefined) {
+    schema_name = `org.gnome.shell.extensions.${schema_name}`;
+  } else {
+    schema_name = Me.metadata['settings-schema'];
+  }
   let GioSSS = Gio.SettingsSchemaSource;
   let schemaSource = GioSSS.new_from_directory(
     Me.dir.get_child("schemas").get_path(),
     GioSSS.get_default(),
     false
   );
-  let schemaObj = schemaSource.lookup(
-    `org.gnome.shell.extensions.${schema_name}`, true);
+  let schemaObj = schemaSource.lookup(schema_name, true);
   if (!schemaObj) {
-    throw new Error('cannot find schemas');
+    throw new Error('Schema ' + schema + ' could not be found for extension ' + Me.metadata.uuid + '. Please check your installation.');
   }
   return new Gio.Settings({ settings_schema : schemaObj });
 }

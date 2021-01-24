@@ -111,14 +111,14 @@ const MyPopup = GObject.registerClass(
             stop_hass_item.connect('activate', _stopHass);
             close_hass_item.connect('activate', _closeHass);
 
-            // section
-            let popupMenuSection = new PopupMenu.PopupMenuSection();
-            popupMenuSection.actor.add_child(new PopupMenu.PopupMenuItem('section'));
-            this.menu.addMenuItem(popupMenuSection);
+            // // section
+            // let popupMenuSection = new PopupMenu.PopupMenuSection();
+            // popupMenuSection.actor.add_child(new PopupMenu.PopupMenuItem('section'));
+            // this.menu.addMenuItem(popupMenuSection);
 
             // image item
             let popupImageMenuItem = new PopupMenu.PopupImageMenuItem(
-                'Menu Item with Icon',
+                "Preferences (Doesn't work)",
                 'security-high-symbolic',
             );
             this.menu.addMenuItem(popupImageMenuItem);

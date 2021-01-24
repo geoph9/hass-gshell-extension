@@ -5,6 +5,7 @@
         "3.38"
     ],
     "url" : "",
+    "settings-schema": "org.gnome.shell.extensions.hass-data",
     "uuid" : "hass-simple-extension",
     "version" : 0.1
 }

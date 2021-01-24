@@ -1,13 +1,25 @@
 const GObject = imports.gi.GObject;
 const Gtk = imports.gi.Gtk;
+const Gio = imports.gi.Gio;
+const Config = imports.misc.config;
+const ExtensionUtils = imports.misc.extensionUtils;
+const Me = ExtensionUtils.getCurrentExtension();
 
-function init () {}
+const Convenience = Me.imports.utils;
 
-function buildPrefsWidget () {
-  let widget = new MyPrefsWidget();
-  widget.show_all();
-  return widget;
-}
+const HASS_ACCESS_TOKEN = 'hass-access-token';
+const HASS_URL = 'hass-url';
+const HASS_TOGGLABLE_ENTITIES = 'hass-togglable-entities';
+// const HASS_SHORTCUT = 'hass-shortcut';
+const SHOW_NOTIFICATIONS_KEY = 'show-notifications';
+
+const Columns = {
+  APPINFO: 0,
+  DISPLAY_NAME: 1,
+  ICON: 2
+};
+
+let ShellVersion = parseInt(Config.PACKAGE_VERSION.split(".")[1]);
 
 const MyPrefsWidget = GObject.registerClass(
 class MyPrefsWidget extends Gtk.Box {
@@ -15,6 +27,9 @@ class MyPrefsWidget extends Gtk.Box {
   _init (params) {
 
     super._init(params);
+
+    this._settings = Convenience.getSettings();
+    // this._settings.connect('changed', this._refresh.bind(this));
 
     this.margin = 20;
     this.set_spacing(15);
@@ -46,3 +61,212 @@ class MyPrefsWidget extends Gtk.Box {
   }
 
 });
+
+// Taken from the Caffeine extension:
+//  https://github.com/eonpatapon/gnome-shell-extension-caffeine/blob/master/caffeine%40patapon.info/prefs.js
+class HassWidget {
+  constructor(params) {
+      this.w = new Gtk.Grid(params);
+      this.w.set_orientation(Gtk.Orientation.VERTICAL);
+
+      this._settings = Convenience.getSettings();
+      this._settings.connect('changed', this._refresh.bind(this));
+      this._changedPermitted = false;
+
+
+      let showHassBox = new Gtk.Box({orientation: Gtk.Orientation.HORIZONTAL,
+                              margin: 7});
+
+      let showHassLabel = new Gtk.Label({label: "Show Hass in top panel",
+                                         xalign: 0});
+
+      let showHassSwitch = new Gtk.Switch({active: this._settings.get_boolean(SHOW_NOTIFICATIONS_KEY)});
+      showHassSwitch.connect('notify::active', button => {
+          this._settings.set_boolean(SHOW_NOTIFICATIONS_KEY, button.active);
+      });
+
+      showHassBox.pack_start(showHassLabel, true, true, 0);
+      showHassBox.add(showHassSwitch);
+
+      this.w.add(showHassBox);
+
+      // let togglableEntitiesBox = new Gtk.Box({orientation: Gtk.Orientation.HORIZONTAL, margin: 7});
+
+      // let togglableEntitiesLabel = new Gtk.Label({label: "Switch Entities:", xalign: 0});
+
+      // let togglableEntitiesEntry = new Gtk.Entry({
+      //       hexpand: true,
+      //       halign: Gtk.Align.END
+      //   });
+      // this._settings.bind(HASS_TOGGLABLE_ENTITIES, togglableEntitiesEntry, "text",  Gio.SettingsBindFlags.DEFAULT)
+
+      // showHassSwitch.connect('notify::active', button => {
+      //     this._settings.set_boolean(SHOW_NOTIFICATIONS_KEY, button.active);
+      // });
+
+      // showHassBox.pack_start(showHassLabel, true, true, 0);
+      // showHassBox.add(showHassSwitch);
+
+      // this.w.add(showHassBox);
+
+      /*  =========================================
+          ======= ENABLE NOTIFICATION AREA ========
+          =========================================
+      */
+
+      // const notificationsBox = new Gtk.Box({orientation: Gtk.Orientation.HORIZONTAL,
+      //                         margin: 7});
+
+      // const notificationsLabel = new Gtk.Label({label: "Enable notifications",
+      //                            xalign: 0});
+
+      // const notificationsSwitch = new Gtk.Switch({active: this._settings.get_boolean(SHOW_NOTIFICATIONS_KEY)});
+      // notificationsSwitch.connect('notify::active', button => {
+      //     this._settings.set_boolean(SHOW_NOTIFICATIONS_KEY, button.active);
+      // });
+
+      // notificationsBox.pack_start(notificationsLabel, true, true, 0);
+      // notificationsBox.add(notificationsSwitch);
+
+      // this.w.add(notificationsBox);
+
+      /*  =========================================
+          ========= ADD APPLICATION AREA ==========
+          =========================================
+      */
+
+
+      let addNewEntityBox = new Gtk.Box({orientation: Gtk.Orientation.HORIZONTAL, margin: 7});
+
+      let addNewEntityLabel = new Gtk.Label({label: "New Entity ID:", xalign: 0});
+
+      let addNewEntityEntry = new Gtk.Entry();
+      let addNewEntityButton = new Gtk.Button({ label: "Add Entity ID"});
+      addNewEntityButton.connect('clicked', this._createNew.bind(addNewEntityEntry.get_text()));
+
+      addNewEntityBox.pack_start(addNewEntityLabel, true, true, 0);
+      addNewEntityBox.add(addNewEntityEntry);
+      addNewEntityBox.add(addNewEntityButton);
+
+      this.w.add(addNewEntityBox);
+
+      //
+
+      this._store = new Gtk.ListStore();
+      this._store.set_column_types([Gio.AppInfo, GObject.TYPE_STRING, Gio.Icon]);
+
+      this._treeView = new Gtk.TreeView({ model: this._store,
+                                          hexpand: true, vexpand: true });
+      this._treeView.get_selection().set_mode(Gtk.SelectionMode.SINGLE);
+
+      const entityColumn = new Gtk.TreeViewColumn({ expand: true, sort_column_id: Columns.DISPLAY_NAME,
+                                               title: "Home Assistant Entity Ids that can be toggled:" });
+      const idRenderer = new Gtk.CellRendererText;
+      entityColumn.pack_start(idRenderer, true);
+      entityColumn.add_attribute(idRenderer, "text", 0);
+      this._treeView.append_column(entityColumn);
+
+      this.w.add(this._treeView);
+
+      const toolbar = new Gtk.Toolbar();
+      toolbar.get_style_context().add_class(Gtk.STYLE_CLASS_INLINE_TOOLBAR);
+      this.w.add(toolbar);
+
+      const delButton = new Gtk.ToolButton({ stock_id: Gtk.STOCK_DELETE, label: "Delete Entity ID" });
+      delButton.connect('clicked', this._deleteSelected.bind(this));
+      toolbar.add(delButton);
+
+      this._changedPermitted = true;
+      this._refresh();
+  }
+
+  _createNew(entity_id) {
+
+    this._changedPermitted = false;
+    if (!this._appendItem(entity_id)) {
+        this._changedPermitted = true;
+        return;
+    }
+    let iter = this._store.append();
+
+    this._store.set(iter,
+                    [0],
+                    [entity_id]);
+    this._changedPermitted = true;
+  }
+
+  _deleteSelected() {
+      const [any, , iter] = this._treeView.get_selection().get_selected();
+
+      if (any) {
+          const entityInfo = this._store.get_value(iter, 0);
+
+          this._changedPermitted = false;
+          this._removeItem(entityInfo.get_id());
+          this._store.remove(iter);
+          this._changedPermitted = true;
+      }
+  }
+
+  _refresh() {
+      if (!this._changedPermitted)
+          // Ignore this notification, model is being modified outside
+          return;
+
+      this._store.clear();
+
+      const currentItems = this._settings.get_strv(HASS_TOGGLABLE_ENTITIES);
+      const validItems = [ ];
+      for (let i = 0; i < currentItems.length; i++) {
+          validItems.push(currentItems[i]);
+          log("CURRENT ITEM:::")
+          log(currentItems[i])
+          const iter = this._store.append();
+          this._store.set(iter,
+                          [0],
+                          [currentItems[i]]);
+      }
+
+      if (validItems.length != currentItems.length) // some items were filtered out
+          this._settings.set_strv(INHIBIT_APPS_KEY, validItems);
+  }
+
+  _appendItem(entity_id) {
+      const currentItems = this._settings.get_strv(HASS_TOGGLABLE_ENTITIES);
+
+      if (currentItems.includes(entity_id)) {
+          printerr("Already have an item for this entity_id.");
+          return false;
+      }
+
+      currentItems.push(entity_id);
+      this._settings.set_strv(HASS_TOGGLABLE_ENTITIES, currentItems);
+      return true;
+  }
+
+  _removeItem(entity_id) {
+      const currentItems = this._settings.get_strv(HASS_TOGGLABLE_ENTITIES);
+      const index = currentItems.indexOf(entity_id);
+
+      if (index < 0)
+          return;
+
+      currentItems.splice(index, 1);
+      this._settings.set_strv(HASS_TOGGLABLE_ENTITIES, currentItems);
+  }
+}
+
+
+function init() {
+  
+}
+
+function buildPrefsWidget() {
+  const widget = new HassWidget();
+  widget.w.show_all();
+
+  return widget.w;
+  // let widget = new MyPrefsWidget();
+  // widget.show_all();
+  // return widget;
+}
