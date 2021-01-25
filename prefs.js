@@ -76,30 +76,16 @@ class HassWidget {
       this._changedPermitted = false;
 
 
-      // let showWeatherStatsBox = new Gtk.Box({orientation: Gtk.Orientation.HORIZONTAL, margin: 7});
-
-      // let showWeatherStatsLabel = new Gtk.Label({label: "Show Weather Statistics",
-      //                                    xalign: 0});
-
-      // let showWeatherStatsSwitch = new Gtk.Switch({active: this._settings.get_boolean(SHOW_WEATHER_STATS)});
-      // // showWeatherStatsSwitch.connect('notify::active', button => {
-      // //     this._settings.set_boolean(SHOW_WEATHER_STATS, button.active);
-      // // });
-
-      // showWeatherStatsBox.pack_start(showWeatherStatsLabel, true, true, 0);
-      // showWeatherStatsBox.add(showWeatherStatsSwitch);
-
-      // this.w.add(showWeatherStatsBox);
-
       this.w.add(this.make_row_switch(SHOW_WEATHER_STATS));
       this.w.add(this.make_row_switch(SHOW_HUMIDITY));
 
       /*  =========================================
-          ========== ACCESS TOKEN AREA ============
+          ======== HASS PROFILE SPECIFICS =========
           =========================================
       */
 
-      this.w.add(this.make_token_row())
+      this.w.add(this.make_hass_user_row(HASS_ACCESS_TOKEN))
+      this.w.add(this.make_hass_user_row(HASS_URL))
 
 
       /*  =========================================
@@ -270,7 +256,7 @@ class HassWidget {
 
       let hbox = new Gtk.Box({
           orientation: Gtk.Orientation.HORIZONTAL,
-          margin: 12,
+          margin: 7,
       });
 
       row.add(hbox);
@@ -308,11 +294,11 @@ class HassWidget {
       return row;
   }
 
-  make_token_row() {
+  make_hass_user_row(name) {
     let schema = this._settings.settings_schema;
 
     let row = new Gtk.ListBoxRow();
-    let hbox = new Gtk.Box({orientation: Gtk.Orientation.HORIZONTAL, margin: 12});
+    let hbox = new Gtk.Box({orientation: Gtk.Orientation.HORIZONTAL, margin: 7});
     row.add(hbox);
     let vbox = new Gtk.Box({orientation: Gtk.Orientation.VERTICAL});
     hbox.pack_start(vbox, true, true, 6);
@@ -321,10 +307,10 @@ class HassWidget {
     let addTokenButton = new Gtk.Button({valign: Gtk.Align.CENTER, label: "Add"});
     hbox.add(addTokenButton);
     addTokenButton.connect('clicked', () => {
-      this._settings.set_string(HASS_ACCESS_TOKEN, accessTokenEntry.get_text())
+      this._settings.set_string(name, accessTokenEntry.get_text())
     });
 
-    let key = schema.get_key(HASS_ACCESS_TOKEN);
+    let key = schema.get_key(name);
     let summary = new Gtk.Label({label: `<span size='medium'><b>${key.get_summary()}</b></span>`, hexpand: true, 
                                  halign: Gtk.Align.START, use_markup: true})
     vbox.pack_start(summary, false, false, 0);
@@ -337,7 +323,7 @@ class HassWidget {
     description.get_style_context().add_class('dim-label');
     vbox.add(description);
 
-    let accessTokenEntry = new Gtk.Entry({margin: 7});
+    let accessTokenEntry = new Gtk.Entry({margin: 7, text: key.get_default_value().get_string()[0]});
     vbox.add(accessTokenEntry);
 
     return row;
