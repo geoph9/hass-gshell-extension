@@ -323,7 +323,12 @@ class HassWidget {
     description.get_style_context().add_class('dim-label');
     vbox.add(description);
 
-    let accessTokenEntry = new Gtk.Entry({margin: 7, text: key.get_default_value().get_string()[0]});
+    let default_val = key.get_default_value().get_string()[0];
+    if (default_val === "") {
+      default_val = this._settings.get_string(name)
+    }
+
+    let accessTokenEntry = new Gtk.Entry({margin: 7, text: default_val});
     vbox.add(accessTokenEntry);
 
     return row;
