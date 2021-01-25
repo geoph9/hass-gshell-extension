@@ -85,7 +85,6 @@ class HassWidget {
       // // showWeatherStatsSwitch.connect('notify::active', button => {
       // //     this._settings.set_boolean(SHOW_WEATHER_STATS, button.active);
       // // });
-      // this._settings.bind(SHOW_WEATHER_STATS, showWeatherStatsSwitch, 'active', Gio.SettingsBindFlags.DEFAULT);
 
       // showWeatherStatsBox.pack_start(showWeatherStatsLabel, true, true, 0);
       // showWeatherStatsBox.add(showWeatherStatsSwitch);
@@ -94,6 +93,14 @@ class HassWidget {
 
       this.w.add(this.make_row_switch(SHOW_WEATHER_STATS));
       this.w.add(this.make_row_switch(SHOW_HUMIDITY));
+
+      /*  =========================================
+          ========== ACCESS TOKEN AREA ============
+          =========================================
+      */
+
+      this.w.add(this.make_token_row())
+
 
       /*  =========================================
           ======= ENABLE NOTIFICATION AREA ========
@@ -135,7 +142,7 @@ class HassWidget {
         this._createNew(addNewEntityEntry.get_text())
       });
 
-      addNewEntityBox.pack_start(addNewEntityLabel, true, true, 0);
+      addNewEntityBox.pack_start(addNewEntityLabel, true, true, 6);
       addNewEntityBox.add(addNewEntityEntry);
       addNewEntityBox.add(addNewEntityButton);
 
@@ -299,6 +306,42 @@ class HassWidget {
       this._settings.bind(name, sw, 'active',
                           Gio.SettingsBindFlags.DEFAULT);
       return row;
+  }
+
+  make_token_row() {
+    let schema = this._settings.settings_schema;
+
+    let row = new Gtk.ListBoxRow();
+    let hbox = new Gtk.Box({orientation: Gtk.Orientation.HORIZONTAL, margin: 12});
+    row.add(hbox);
+    let vbox = new Gtk.Box({orientation: Gtk.Orientation.VERTICAL});
+    hbox.pack_start(vbox, true, true, 6);
+
+
+    let addTokenButton = new Gtk.Button({valign: Gtk.Align.CENTER, label: "Add"});
+    hbox.add(addTokenButton);
+    addTokenButton.connect('clicked', () => {
+      this._settings.set_string(HASS_ACCESS_TOKEN, accessTokenEntry.get_text())
+    });
+
+    let key = schema.get_key(HASS_ACCESS_TOKEN);
+    let summary = new Gtk.Label({label: `<span size='medium'><b>${key.get_summary()}</b></span>`, hexpand: true, 
+                                 halign: Gtk.Align.START, use_markup: true})
+    vbox.pack_start(summary, false, false, 0);
+    let description = new Gtk.Label({
+        label: `<span size='small'>${key.get_description()}</span>`,
+        hexpand: true,
+        halign: Gtk.Align.START,
+        use_markup: true
+    });
+    description.get_style_context().add_class('dim-label');
+    vbox.add(description);
+
+    let accessTokenEntry = new Gtk.Entry({margin: 7});
+    vbox.add(accessTokenEntry);
+
+    return row;
+
   }
 }
 
