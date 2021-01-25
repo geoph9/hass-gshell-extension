@@ -8,6 +8,8 @@ My implementation is based on [this codeproject tutorial](https://www.codeprojec
 
 ## Notes:
 
-1. You may need to create a `data` directory (in the same directory where `extension.js` is).
-2. TODO: Add the schema. The reason it is not there now is because the Long Live Access token is visible.
-3. You will need to have a file named `org.gnome.shell.extensions.hass-data.gschema.xml` under the `schemas` directory (todo: This should be done by `prefs.js`). After creating it, make sure you have compiled the file with the following command: `glib-compile-schemas schemas/`. If you are going to use the same file then change the word `example` with `hass-data` for the whole file...
+1. Before starting check the preferences page by opening the widget (pressing the home assistant button on the panel) and pressing `Preferences`. There you can add as many (valid) entities as you want. 
+2. The entities should include a dot (`.`) and at least one underscore (`_`). For example, an entity id could be: `switch.kitchen_lights_relay`.
+3. After you add your entities, you should restart your session. 
+    - If you are on Wayland then you will have to logout and re-login. 
+    - On Xorg, you simply have to press `Alt+F2` and then `r`.

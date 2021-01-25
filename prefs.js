@@ -135,6 +135,9 @@ class HassWidget {
           =========================================
       */
 
+      this._store = new Gtk.ListStore();
+      this._store.set_column_types([GObject.TYPE_STRING]);
+
 
       let addNewEntityBox = new Gtk.Box({orientation: Gtk.Orientation.HORIZONTAL, margin: 7});
 
@@ -142,7 +145,9 @@ class HassWidget {
 
       let addNewEntityEntry = new Gtk.Entry();
       let addNewEntityButton = new Gtk.Button({ label: "Add Entity ID"});
-      addNewEntityButton.connect('clicked', this._createNew.bind(addNewEntityEntry.get_text()));
+      addNewEntityButton.connect('clicked', () => {
+        this._createNew(addNewEntityEntry.get_text())
+      });
 
       addNewEntityBox.pack_start(addNewEntityLabel, true, true, 0);
       addNewEntityBox.add(addNewEntityEntry);
@@ -151,9 +156,6 @@ class HassWidget {
       this.w.add(addNewEntityBox);
 
       //
-
-      this._store = new Gtk.ListStore();
-      this._store.set_column_types([Gio.AppInfo, GObject.TYPE_STRING, Gio.Icon]);
 
       this._treeView = new Gtk.TreeView({ model: this._store,
                                           hexpand: true, vexpand: true });
@@ -200,9 +202,10 @@ class HassWidget {
 
       if (any) {
           const entityInfo = this._store.get_value(iter, 0);
-
+          log("EntityINDO:")
+          log(entityInfo)
           this._changedPermitted = false;
-          this._removeItem(entityInfo.get_id());
+          this._removeItem(entityInfo);
           this._store.remove(iter);
           this._changedPermitted = true;
       }
@@ -218,17 +221,21 @@ class HassWidget {
       const currentItems = this._settings.get_strv(HASS_TOGGLABLE_ENTITIES);
       const validItems = [ ];
       for (let i = 0; i < currentItems.length; i++) {
-          validItems.push(currentItems[i]);
-          log("CURRENT ITEM:::")
-          log(currentItems[i])
+          let item = currentItems[i];
+          if (item === "")
+            continue
+          if (!item.includes(".")){
+            item += " (INVALID)"
+          }
+          validItems.push(item);
           const iter = this._store.append();
           this._store.set(iter,
                           [0],
-                          [currentItems[i]]);
+                          [item]);
       }
 
       if (validItems.length != currentItems.length) // some items were filtered out
-          this._settings.set_strv(INHIBIT_APPS_KEY, validItems);
+          this._settings.set_strv(HASS_TOGGLABLE_ENTITIES, validItems);
   }
 
   _appendItem(entity_id) {
@@ -239,12 +246,18 @@ class HassWidget {
           return false;
       }
 
+      if (!entity_id.includes(".")){
+        entity_id += " (INVALID)"
+      }
       currentItems.push(entity_id);
       this._settings.set_strv(HASS_TOGGLABLE_ENTITIES, currentItems);
       return true;
   }
 
   _removeItem(entity_id) {
+      if (entity_id.includes(" (INVALID)")) {
+        entity_id = entity_id.replace(" (INVALID)", "")
+      }
       const currentItems = this._settings.get_strv(HASS_TOGGLABLE_ENTITIES);
       const index = currentItems.indexOf(entity_id);
 

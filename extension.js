@@ -69,9 +69,10 @@ const MyPopup = GObject.registerClass(
             // of the menu you press, you will always toggle the same button
             var pmItems = [];
             for (ent_id of togglable_ent_ids) {
+                if (ent_id === "" || !ent_id.includes("."))
+                    continue
                 // Capitalize every word
-                switch_name = ent_id.split(".")[1].
-                                     split("_").
+                switch_name = ent_id.split(".")[1].split("_").
                                      map(word => word.charAt(0).toUpperCase() + word.slice(1)).
                                      join(" ");
                 let pmItem = new PopupMenu.PopupMenuItem('Toggle:');
