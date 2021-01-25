@@ -7,19 +7,45 @@ you can also use this extension in order to send `start`, `stop` or `close` even
 
 ## Installation
 
-TODO
+In order to install the extension you will have to clone this repository and move it under the directory where your other extensions are. The following commands should make it work
+
+```bash
+# Create the extensions directory in case it doesn't exist
+mkdir -p $HOME/.local/share/gnome-shell/extensions
+git clone https://github.com/geoph9/hass-gshell-extension.git $HOME/.local/share/gnome-shell/extensions/hass-gshell-extension
+```
+
+### Updating
+
+In order to update you will have to pull the changes from the master branch as follows:
+
+```bash
+cd $HOME/.local/share/gnome-shell/extensions/hass-gshell-extension && git pull origin master
+```
+
+*TODO: Maybe add an update button on the settings menu.*
+
+### Removing the Extension
+
+If you followed the installation instructions above then you can do the following:
+
+```bash
+rm -rf $HOME/.local/share/gnome-shell/extensions/hass-gshell-extension
+```
+
+You will also (probably) have to restart your session in order to have the panel buttons dissapear.
 
 ## How to Use
+
+### Manage your Preferences
+
+After installing the extension, you can use the preferences widget in order to customize it. In order to do that, you can either open `gnome-tweaks` and go to the `Extensions` tab and select the settings for this extension, or you can simply open the panel menu by pressing on the home assistant icon and then press `Preferences`.
 
 **Note:** Whenever you make any changes to your preferences/settings you will need to restart your session. 
 - On `Xorg` you can do that by pressing `Alt+F2` and then `r`.
 - On `Wayland` you will have to logout and re-login.
 
 If you are unsure about whether you have `Xorg` or `Wayland` then simply try the `Xorg` option and see if it works.
-
-### Manage your Preferences
-
-After installing the extension, you can use the preferences widget in order to customize it. In order to do that, you can either open `gnome-tweaks` and go to the `Extensions` tab and select the settings for this extension, or you can simply open the panel menu by pressing on the home assistant icon and then press `Preferences`.
 
 ### Authentication
 
