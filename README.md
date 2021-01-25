@@ -12,8 +12,10 @@ In order to install the extension you will have to clone this repository and mov
 ```bash
 # Create the extensions directory in case it doesn't exist
 mkdir -p $HOME/.local/share/gnome-shell/extensions
-git clone https://github.com/geoph9/hass-gshell-extension.git $HOME/.local/share/gnome-shell/extensions/hass-gshell-extension
+git clone https://github.com/geoph9/hass-gshell-extension.git $HOME/.local/share/gnome-shell/extensions/hass-simple-extension
 ```
+
+Then open Gnome Tweaks (or install it if you don't have it) and enable the extension.
 
 ### Updating
 
