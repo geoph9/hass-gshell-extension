@@ -1,6 +1,7 @@
 // Taken from: https://www.codeproject.com/Articles/5271677/How-to-Create-A-GNOME-Extension
 
-const Me = imports.misc.extensionUtils.getCurrentExtension();
+const ExtensionUtils = imports.misc.extensionUtils;
+const Me = ExtensionUtils.getCurrentExtension();
 
 const {Gio, Shell, Meta, St, Clutter} = imports.gi;
 const Main = imports.ui.main;
@@ -118,9 +119,13 @@ const MyPopup = GObject.registerClass(
 
             // image item
             let popupImageMenuItem = new PopupMenu.PopupImageMenuItem(
-                "Preferences (Doesn't work)",
+                "Preferences",
                 'security-high-symbolic',
             );
+            popupImageMenuItem.connect('activate', () => {
+                log("Opening Preferences...");
+                ExtensionUtils.openPrefs();
+            });
             this.menu.addMenuItem(popupImageMenuItem);
 
             // you can close, open and toggle the menu with
