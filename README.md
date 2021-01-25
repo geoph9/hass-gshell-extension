@@ -89,11 +89,13 @@ By pressing `Hass Events` a new sublist will appear:
 By pressing the `Preferences` button you will get the following:
 
 
-![Preferences](screenshots/preferences_menu.png?raw=true "How the preferences/settings appear.")
+![Preferences](screenshots/preferences_menu_up.png?raw=true "How the preferences/settings appear.")
 
 Here, you can see the entity ids of my kitchen lights and my tv switch. 
 
 In order to add a new entity id, you can simply copy the id in the text box after the `New Entity ID` text and then press `Add Entity ID`.
+
+On the other hand, if you want to delete an entity then you simply have to select it and then press the delete icon (on the bottom left).
 
 ### Handle Weather Statistics
 

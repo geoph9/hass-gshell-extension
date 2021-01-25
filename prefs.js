@@ -14,6 +14,8 @@ const HASS_TOGGLABLE_ENTITIES = 'hass-togglable-entities';
 const SHOW_NOTIFICATIONS_KEY = 'show-notifications';
 const SHOW_WEATHER_STATS = 'show-weather-stats';
 const SHOW_HUMIDITY = 'show-humidity';
+const TEMPERATURE_ID = 'temp-entity-id';
+const HUMIDITY_ID = 'humidity-entity-id';
 
 const Columns = {
   APPINFO: 0,
@@ -21,48 +23,7 @@ const Columns = {
   ICON: 2
 };
 
-let ShellVersion = parseInt(Config.PACKAGE_VERSION.split(".")[1]);
-
-const MyPrefsWidget = GObject.registerClass(
-class MyPrefsWidget extends Gtk.Box {
-
-  _init (params) {
-
-    super._init(params);
-
-    this._settings = Convenience.getSettings();
-    // this._settings.connect('changed', this._refresh.bind(this));
-
-    this.margin = 20;
-    this.set_spacing(15);
-    this.set_orientation(Gtk.Orientation.VERTICAL);
-
-    this.connect('destroy', Gtk.main_quit);
-
-    let myLabel = new Gtk.Label({
-      label : "Translated Text"    
-    });
-
-    let spinButton = new Gtk.SpinButton();
-    spinButton.set_sensitive(true);
-    spinButton.set_range(-60, 60);
-    spinButton.set_value(0);
-    spinButton.set_increments(1, 2);
-
-    spinButton.connect("value-changed", function (w) {
-      log(w.get_value_as_int());
-    });
-
-    let hBox = new Gtk.Box();
-    hBox.set_orientation(Gtk.Orientation.HORIZONTAL);
-
-    hBox.pack_start(myLabel, false, false, 0);
-    hBox.pack_end(spinButton, false, false, 0);
-
-    this.add(hBox);
-  }
-
-});
+// let ShellVersion = parseInt(Config.PACKAGE_VERSION.split(".")[1]);
 
 // Taken from the Caffeine extension:
 //  https://github.com/eonpatapon/gnome-shell-extension-caffeine/blob/master/caffeine%40patapon.info/prefs.js
@@ -83,6 +44,9 @@ class HassWidget {
           ======== HASS PROFILE SPECIFICS =========
           =========================================
       */
+
+      this.w.add(this.make_hass_user_row(TEMPERATURE_ID));
+      this.w.add(this.make_hass_user_row(HUMIDITY_ID));
 
       this.w.add(this.make_hass_user_row(HASS_ACCESS_TOKEN))
       this.w.add(this.make_hass_user_row(HASS_URL))
@@ -346,7 +310,4 @@ function buildPrefsWidget() {
   widget.w.show_all();
 
   return widget.w;
-  // let widget = new MyPrefsWidget();
-  // widget.show_all();
-  // return widget;
 }
