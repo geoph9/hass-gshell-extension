@@ -1,0 +1,86 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<schemalist>
+
+  <enum id="org.gnome.shell.extensions.hass-data.enum-sample">
+    <value value="0" nick="TOP"/>
+    <value value="1" nick="BOTTOM"/>
+    <value value="2" nick="RIGHT"/>
+    <value value="3" nick="LEFT"/>
+  </enum>
+
+  <schema id="org.gnome.shell.extensions.hass-data"
+    path="/org/gnome/shell/extensions/hass-data/">
+
+    <key type="b" name="show-notifications">
+        <default>true</default>
+        <summary>Show notifications</summary>
+        <description>Show notifications when enabled/disabled</description>
+    </key>
+
+    <key type="b" name="show-weather-stats">
+        <default>true</default>
+        <summary>Show Weather</summary>
+        <description>Whether to show the weather on the top panel</description>
+    </key>
+
+    <key type="b" name="show-humidity">
+        <default>true</default>
+        <summary>Show Humidity</summary>
+        <description>Whether to show humidity value or not.</description>
+    </key>
+
+    <key type="s" name="temp-entity-id">
+      <default>"sensor.livingroom_temperature"</default>
+      <summary>Temperature ID</summary>
+      <description>Your Home Assistant EntityID for the temperature sensor.</description>
+    </key>
+
+    <key type="s" name="humidity-entity-id">
+      <default>"sensor.livingroom_humidity"</default>
+      <summary>Humidity ID</summary>
+      <description>Your Home Assistant EntityID for the humidity sensor.</description>
+    </key>
+
+    <key type="s" name="hass-access-token">
+      <default>""</default>
+      <summary>Access Token</summary>
+      <description>Long Live Access Token for Home Assistant.</description>
+    </key>
+
+    <key type="s" name="hass-url">
+      <default>""</default>
+      <summary>URL</summary>
+      <description>The url where your hass instance is hosted.</description>
+    </key>
+
+    <key type="as" name="hass-togglable-entities">
+      <default>['switch.kitchen_lights', 'switch.livingroom_tv_relay']</default>
+      <summary>Entity ids for home-assistant switches.</summary>
+      <description>Entity ids for home-assistant switches. E.g. switch.livingroom_lights_relay</description>
+    </key>
+
+    <key name="my-position"
+
+      enum="org.gnome.shell.extensions.hass-data.enum-sample">
+      <default>'LEFT'</default>
+      <summary>summary</summary>
+      <description>description</description>
+    </key>
+
+  </schema>
+
+  <schema id="org.gnome.shell.extensions.hass-shortcut"
+
+    path="/org/gnome/shell/extensions/hass-shortcut/">
+
+    <key type="as" name="hass-shortcut">
+      <default><![CDATA[['<Super>g']]]></default>
+      <summary>Home Assistant Extension - Shortcut Key</summary>
+      <description>
+        You can create GTK entry in prefs and set it as CDATA.
+      </description>
+    </key>
+
+  </schema>
+
+</schemalist>
