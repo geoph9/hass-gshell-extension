@@ -47,6 +47,10 @@ let currentStats;  // a dictionary with 2 keys (temperature and humidity).
 let weatherStatsPanel;
 let weatherStatsPanelText;
 
+// Configurable variables from the preferences menu.
+let showHumidity, showWeatherStats;
+let tempEntityID, humidityEntityID;
+
 // POPUP MENU
 const MyPopup = GObject.registerClass(
     class MyPopup extends PanelMenu.Button {
@@ -181,20 +185,28 @@ function _closeHass() {
 */
 // TODO: The humidity is not so important and so there should be an option at prefs.js in order to remove it.
 function _refreshWeatherStats() {
-    temperature = getWeatherSensorData('livingroom', 'temperature');
-    humidity = getWeatherSensorData('livingroom', 'humidity');
     try {
-        weatherStatsPanelText.text = `${temperature} | ${humidity}`;
+        if (showWeatherStats === true) {
+            let out = "";
+            // if showWeatherStats is true then the temperature must be shown (the humidity can be turned off)
+            temperature = getWeatherSensorData(tempEntityID);
+            out += temperature;
+            if (showHumidity === true) {
+                humidity = getWeatherSensorData(humidityEntityID);
+                out += ` | ${humidity}`;
+            }
+            weatherStatsPanelText.text = out;
+        }
     } catch (error) {
-        logError(error);
+        log(error);
         disable();
     }
     // will execute this function only once and abort. Remove in order to make the Main loop work
     return false; 
 }
 
-function getWeatherSensorData(area, sensor_name) {
-    let json_result = send_request(`${base_url}api/states/sensor.${area}_${sensor_name}`);
+function getWeatherSensorData(entity_id=null) {
+    let json_result = send_request(`${base_url}api/states/${entity_id}`);
     if (!json_result) {
         return false;
     }
@@ -257,21 +269,12 @@ function send_request(url, type='GET', data=null) {
 }
 
 function init() {
-    // Add the temperature in the panel
-    weatherStatsPanel = new St.Bin({
-        style_class : "panel-button",
-        reactive : true,
-        can_focus : true,
-        track_hover : true,
-        height : 30,
-    });
-
-    // Check if compiled schema exists and if not try to compile it
-    try {
-        GLib.file_get_contents(`${Me.dir.get_path()}/schemas/gschemas.compiled`)
-    } catch (e) {
-        Util.spawnCommandLine(`/usr/bin/glib-compile-schemas ${Me.dir.get_path()}/schemas/`);
-    }
+    // // Check if compiled schema exists and if not try to compile it
+    // try {
+    //     GLib.file_get_contents(`${Me.dir.get_path()}/schemas/gschemas.compiled`)
+    // } catch (e) {
+    //     Util.spawnCommandLine(`/usr/bin/glib-compile-schemas ${Me.dir.get_path()}/schemas/`);
+    // }
 }
 
 function enable () {
@@ -286,6 +289,10 @@ function enable () {
         base_url = settings.get_string('hass-url');
         access_token = settings.get_string('hass-access-token');
         togglable_ent_ids = settings.get_strv("hass-togglable-entities");
+        showWeatherStats = settings.get_boolean('show-weather-stats');
+        showHumidity = settings.get_boolean('show-humidity');
+        tempEntityID = settings.get_string("temp-entity-id");
+        humidityEntityID = settings.get_string("humidity-entity-id");
     } catch (e) {
         log("Error:  Occurred while getting schema keys...")
         log("\tMake sure you have the following keys: 'hass-url', 'hass-access-token', 'hass-togglable-entities'.")
@@ -314,26 +321,37 @@ function enable () {
         log('shortcut is working');
     });
 
-    /**
-     * ===== Weather Area ======
-     */
-    weatherStatsPanelText = new St.Label({
-        text : "-°C",
-        y_align: Clutter.ActorAlign.CENTER,
-    });
-    _refreshWeatherStats();
-    weatherStatsPanel.set_child(weatherStatsPanelText);
-    weatherStatsPanel.connect("button-press-event", () => {
+    if (showWeatherStats === true) {
+
+        /**
+         * ===== Weather Area ======
+         */
+        // Add the temperature in the panel
+        weatherStatsPanel = new St.Bin({
+            style_class : "panel-button",
+            reactive : true,
+            can_focus : true,
+            track_hover : true,
+            height : 30,
+        });
+        weatherStatsPanelText = new St.Label({
+            text : "-°C",
+            y_align: Clutter.ActorAlign.CENTER,
+        });
         _refreshWeatherStats();
-    });
+        weatherStatsPanel.set_child(weatherStatsPanelText);
+        weatherStatsPanel.connect("button-press-event", () => {
+            _refreshWeatherStats();
+        });
 
-    // Update weather stats every 1 minute
-    // refreshTimeout = Mainloop.timeout_add_seconds(160, () => {
-    //         _refreshWeatherStats();
-    //     }    
-    // );
+        // Update weather stats every 1 minute
+        // refreshTimeout = Mainloop.timeout_add_seconds(160, () => {
+        //         _refreshWeatherStats();
+        //     }    
+        // );
 
-    Main.panel._rightBox.insert_child_at_index(weatherStatsPanel, 1);
+        Main.panel._rightBox.insert_child_at_index(weatherStatsPanel, 1);
+    }
 }
 
 function disable () {
@@ -342,8 +360,8 @@ function disable () {
     // Disable shortcut
     Main.wm.removeKeybinding("hass-shortcut");
 
-    Main.panel._rightBox.remove_child(weatherStatsPanel);
-    // TODO: Not sure if the timeout_add_seconds function stops refresing when disable is called. Check it.
-    // remove mainloop
-    // Mainloop.source_remove(refreshTimeout);
+    if (showWeatherStats === true) {
+        Main.panel._rightBox.remove_child(weatherStatsPanel);
+        // Mainloop.source_remove(refreshTimeout);
+    }
 }

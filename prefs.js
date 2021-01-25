@@ -12,6 +12,8 @@ const HASS_URL = 'hass-url';
 const HASS_TOGGLABLE_ENTITIES = 'hass-togglable-entities';
 // const HASS_SHORTCUT = 'hass-shortcut';
 const SHOW_NOTIFICATIONS_KEY = 'show-notifications';
+const SHOW_WEATHER_STATS = 'show-weather-stats';
+const SHOW_HUMIDITY = 'show-humidity';
 
 const Columns = {
   APPINFO: 0,
@@ -74,40 +76,24 @@ class HassWidget {
       this._changedPermitted = false;
 
 
-      let showHassBox = new Gtk.Box({orientation: Gtk.Orientation.HORIZONTAL,
-                              margin: 7});
+      // let showWeatherStatsBox = new Gtk.Box({orientation: Gtk.Orientation.HORIZONTAL, margin: 7});
 
-      let showHassLabel = new Gtk.Label({label: "Show Hass in top panel",
-                                         xalign: 0});
+      // let showWeatherStatsLabel = new Gtk.Label({label: "Show Weather Statistics",
+      //                                    xalign: 0});
 
-      let showHassSwitch = new Gtk.Switch({active: this._settings.get_boolean(SHOW_NOTIFICATIONS_KEY)});
-      showHassSwitch.connect('notify::active', button => {
-          this._settings.set_boolean(SHOW_NOTIFICATIONS_KEY, button.active);
-      });
+      // let showWeatherStatsSwitch = new Gtk.Switch({active: this._settings.get_boolean(SHOW_WEATHER_STATS)});
+      // // showWeatherStatsSwitch.connect('notify::active', button => {
+      // //     this._settings.set_boolean(SHOW_WEATHER_STATS, button.active);
+      // // });
+      // this._settings.bind(SHOW_WEATHER_STATS, showWeatherStatsSwitch, 'active', Gio.SettingsBindFlags.DEFAULT);
 
-      showHassBox.pack_start(showHassLabel, true, true, 0);
-      showHassBox.add(showHassSwitch);
+      // showWeatherStatsBox.pack_start(showWeatherStatsLabel, true, true, 0);
+      // showWeatherStatsBox.add(showWeatherStatsSwitch);
 
-      this.w.add(showHassBox);
+      // this.w.add(showWeatherStatsBox);
 
-      // let togglableEntitiesBox = new Gtk.Box({orientation: Gtk.Orientation.HORIZONTAL, margin: 7});
-
-      // let togglableEntitiesLabel = new Gtk.Label({label: "Switch Entities:", xalign: 0});
-
-      // let togglableEntitiesEntry = new Gtk.Entry({
-      //       hexpand: true,
-      //       halign: Gtk.Align.END
-      //   });
-      // this._settings.bind(HASS_TOGGLABLE_ENTITIES, togglableEntitiesEntry, "text",  Gio.SettingsBindFlags.DEFAULT)
-
-      // showHassSwitch.connect('notify::active', button => {
-      //     this._settings.set_boolean(SHOW_NOTIFICATIONS_KEY, button.active);
-      // });
-
-      // showHassBox.pack_start(showHassLabel, true, true, 0);
-      // showHassBox.add(showHassSwitch);
-
-      // this.w.add(showHassBox);
+      this.w.add(this.make_row_switch(SHOW_WEATHER_STATS));
+      this.w.add(this.make_row_switch(SHOW_HUMIDITY));
 
       /*  =========================================
           ======= ENABLE NOTIFICATION AREA ========
@@ -120,9 +106,9 @@ class HassWidget {
       // const notificationsLabel = new Gtk.Label({label: "Enable notifications",
       //                            xalign: 0});
 
-      // const notificationsSwitch = new Gtk.Switch({active: this._settings.get_boolean(SHOW_NOTIFICATIONS_KEY)});
+      // const notificationsSwitch = new Gtk.Switch({active: this._settings.get_boolean(SHOW_WEATHER_STATS)});
       // notificationsSwitch.connect('notify::active', button => {
-      //     this._settings.set_boolean(SHOW_NOTIFICATIONS_KEY, button.active);
+      //     this._settings.set_boolean(SHOW_WEATHER_STATS, button.active);
       // });
 
       // notificationsBox.pack_start(notificationsLabel, true, true, 0);
@@ -266,6 +252,53 @@ class HassWidget {
 
       currentItems.splice(index, 1);
       this._settings.set_strv(HASS_TOGGLABLE_ENTITIES, currentItems);
+  }
+
+
+  // Taken from the GameMode gnome-shell-extension: https://extensions.gnome.org/extension/1852/gamemode/
+  make_row_switch(name) {
+      let schema = this._settings.settings_schema;
+
+      let row = new Gtk.ListBoxRow ();
+
+      let hbox = new Gtk.Box({
+          orientation: Gtk.Orientation.HORIZONTAL,
+          margin: 12,
+      });
+
+      row.add(hbox);
+
+      let vbox = new Gtk.Box({orientation: Gtk.Orientation.VERTICAL});
+      hbox.pack_start(vbox, true, true, 6);
+
+      let sw = new Gtk.Switch({valign: Gtk.Align.CENTER});
+
+      hbox.pack_start(sw, false, false, 0);
+
+      let key = schema.get_key(name);
+
+      let summary = new Gtk.Label({
+          label: `<span size='medium'><b>${key.get_summary()}</b></span>`,
+          hexpand: true,
+          halign: Gtk.Align.START,
+          use_markup: true
+      });
+
+      vbox.pack_start(summary, false, false, 0);
+
+      let description = new Gtk.Label({
+          label: `<span size='small'>${key.get_description()}</span>`,
+          hexpand: true,
+          halign: Gtk.Align.START,
+          use_markup: true
+      });
+      description.get_style_context().add_class('dim-label');
+
+      vbox.pack_start(description, false, false, 0);
+
+      this._settings.bind(name, sw, 'active',
+                          Gio.SettingsBindFlags.DEFAULT);
+      return row;
   }
 }
 
