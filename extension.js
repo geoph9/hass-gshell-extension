@@ -200,9 +200,11 @@ function _refreshWeatherStats() {
     } catch (error) {
         log(error);
         disable();
+        // will execute this function only once and abort. Remove in order to make the Main loop work
+        return false;
     }
-    // will execute this function only once and abort. Remove in order to make the Main loop work
-    return false; 
+    // By returning true, the function will continue refresing every X seconds
+    return true; 
 }
 
 function getWeatherSensorData(entity_id=null) {
