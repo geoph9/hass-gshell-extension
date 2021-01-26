@@ -345,10 +345,10 @@ function enable () {
         });
 
         // Update weather stats every 1 minute
-        // refreshTimeout = Mainloop.timeout_add_seconds(160, () => {
-        //         _refreshWeatherStats();
-        //     }    
-        // );
+        refreshTimeout = Mainloop.timeout_add_seconds(60, () => {
+                _refreshWeatherStats();
+            }    
+        );
 
         Main.panel._rightBox.insert_child_at_index(weatherStatsPanel, 1);
     }
@@ -362,6 +362,6 @@ function disable () {
 
     if (showWeatherStats === true) {
         Main.panel._rightBox.remove_child(weatherStatsPanel);
-        // Mainloop.source_remove(refreshTimeout);
+        Mainloop.source_remove(refreshTimeout);
     }
 }
