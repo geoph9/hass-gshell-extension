@@ -93,6 +93,8 @@ The names of these entries is always of the format: `Toggle: Name` where `Name` 
 
 So, for example, the entity id `switch.kitchen_lights` became `Kitchen Lights`.
 
+**NOTE:** The menu can also be opened (toglled)by using the `Super+G` shortcut.This may make it easier for you to toggle something without using the mouse/touchpad. It is not possible (currently) to change this shortcut key (unless you change the schema file and re-compile it).
+
 
 #### Home Assistant Events
 
@@ -125,6 +127,12 @@ Then, go to the `Temperature Entity ID` line and add the entity id of your tempe
 
 You can do the same for your humidity sensor and add it under the `Humidity Entity ID` line.
 
+### Refreshing Weather Statistics
+
+By default, the weather statistics will be refreshed only when you press their values. This can be changed by going to the `Preferences` and switching on the `Refresh Weather Statistics` option.
+
+In addition, you can also set the refresh rate (in seconds) for getting the new statistics from your Home Assistant Instance.
+
 #### Removing Weather Statistics
 
 If you don't have any temperature sensors then you can remove this panel by turning off the `Show Weather` switch (in the preferences menu). 
@@ -134,6 +142,8 @@ If you only want to see the temperature and not the humidity, then you can also 
 ## Security
 
 Since you are providing the extension with an `Access Token`, then you should know that the extension does not perform any kind of encryption on it. So, if someone gets access to your computer/user then they will also be able to see your token.
+
+In general, if you think that you have an exposed access token, then you should go to your profile and delete it. Pay attention to this especially if you are hosting your instance on the internet (and not locally).
 
 
 ## Notes:
