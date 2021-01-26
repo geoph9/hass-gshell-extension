@@ -11,6 +11,18 @@
   <schema id="org.gnome.shell.extensions.hass-data"
     path="/org/gnome/shell/extensions/hass-data/">
 
+    <key type="s" name="weather-refresh-seconds">
+      <default>"60"</default>
+      <summary>Refresh Rate</summary>
+      <description>The refresh rate for the weather statistics in seconds (works only if "Refresh Weather Statistics" is enabled)</description>
+    </key>
+
+    <key type="b" name="refresh-weather">
+        <default>false</default>
+        <summary>Refresh Weather Statistics</summary>
+        <description>Whether you want to refresh the weather statistics or not</description>
+    </key>
+
     <key type="b" name="show-notifications">
         <default>true</default>
         <summary>Show notifications</summary>
@@ -26,25 +38,25 @@
     <key type="b" name="show-humidity">
         <default>true</default>
         <summary>Show Humidity</summary>
-        <description>Whether to show humidity value or not.</description>
+        <description>Whether to show humidity value or not</description>
     </key>
 
     <key type="s" name="temp-entity-id">
       <default>"sensor.livingroom_temperature"</default>
       <summary>Temperature ID</summary>
-      <description>Your Home Assistant EntityID for the temperature sensor.</description>
+      <description>Your Home Assistant EntityID for the temperature sensor</description>
     </key>
 
     <key type="s" name="humidity-entity-id">
       <default>"sensor.livingroom_humidity"</default>
       <summary>Humidity ID</summary>
-      <description>Your Home Assistant EntityID for the humidity sensor.</description>
+      <description>Your Home Assistant EntityID for the humidity sensor</description>
     </key>
 
     <key type="s" name="hass-access-token">
       <default>""</default>
       <summary>Access Token</summary>
-      <description>Long Live Access Token for Home Assistant.</description>
+      <description>Long Live Access Token for Home Assistant</description>
     </key>
 
     <key type="s" name="hass-url">

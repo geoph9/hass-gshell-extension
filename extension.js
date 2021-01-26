@@ -43,12 +43,11 @@ let soupSyncSession = new Soup.SessionSync();
 // Taken from tv-switch-gnome-shell-extension repo
 let refreshTimeout;
 // Weather-Related Variables / Endpoints
-let currentStats;  // a dictionary with 2 keys (temperature and humidity).
 let weatherStatsPanel;
 let weatherStatsPanelText;
 
 // Configurable variables from the preferences menu.
-let showHumidity, showWeatherStats;
+let showHumidity, showWeatherStats, refreshSeconds, doRefresh;
 let tempEntityID, humidityEntityID;
 
 // POPUP MENU
@@ -95,7 +94,6 @@ const MyPopup = GObject.registerClass(
             }
 
             this.menu.addMenuItem(new PopupMenu.PopupSeparatorMenuItem());
-
             this.menu.connect('open-state-changed', (menu, open) => {
                 if (open) {
                     log('opened');
@@ -295,6 +293,8 @@ function enable () {
         showHumidity = settings.get_boolean('show-humidity');
         tempEntityID = settings.get_string("temp-entity-id");
         humidityEntityID = settings.get_string("humidity-entity-id");
+        refreshSeconds = Number(settings.get_string('weather-refresh-seconds'));
+        doRefresh = settings.get_boolean("refresh-weather");
     } catch (e) {
         log("Error:  Occurred while getting schema keys...")
         log("\tMake sure you have the following keys: 'hass-url', 'hass-access-token', 'hass-togglable-entities'.")
@@ -320,9 +320,9 @@ function enable () {
     let shortcut_settings = Utils.getSettings('hass-shortcut');
 
     Main.wm.addKeybinding("hass-shortcut", shortcut_settings, flag, mode, () => {
+        myPopup.menu.toggle();
         log('shortcut is working');
     });
-
     if (showWeatherStats === true) {
 
         /**
@@ -346,11 +346,10 @@ function enable () {
             _refreshWeatherStats();
         });
 
-        // Update weather stats every 1 minute
-        refreshTimeout = Mainloop.timeout_add_seconds(60, () => {
-                _refreshWeatherStats();
-            }    
-        );
+        if (doRefresh === true) {
+            // Update weather stats every X seconds
+            refreshTimeout = Mainloop.timeout_add_seconds(refreshSeconds,  _refreshWeatherStats);
+        }
 
         Main.panel._rightBox.insert_child_at_index(weatherStatsPanel, 1);
     }
@@ -364,6 +363,8 @@ function disable () {
 
     if (showWeatherStats === true) {
         Main.panel._rightBox.remove_child(weatherStatsPanel);
-        Mainloop.source_remove(refreshTimeout);
+        if (doRefresh === true) {
+            Mainloop.source_remove(refreshTimeout);
+        }
     }
 }
