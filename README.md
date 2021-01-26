@@ -107,7 +107,7 @@ By pressing `Hass Events` a new sublist will appear:
 By pressing the `Preferences` button you will get the following:
 
 
-![Preferences](screenshots/preferences_menu_up.png?raw=true "How the preferences/settings appear.")
+![Preferences](screenshots/preferences_menu.png?raw=true "How the preferences/settings appear.")
 
 Here, you can see the entity ids of my kitchen lights and my tv switch. 
 
