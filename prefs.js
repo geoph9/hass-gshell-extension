@@ -288,10 +288,10 @@ class HassWidget {
     description.get_style_context().add_class('dim-label');
     vbox.add(description);
 
-    let default_val = key.get_default_value().get_string()[0];
-    if (default_val === "") {
-      default_val = this._settings.get_string(name)
-    }
+    let default_val = this._settings.get_string(name);
+    // if (default_val === "") {
+    //   default_val = key.get_default_value().get_string()[0];
+    // }
 
     let textEntry = new Gtk.Entry({margin: 7, text: default_val});
     if (sameRowText){
