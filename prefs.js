@@ -16,6 +16,8 @@ const SHOW_WEATHER_STATS = 'show-weather-stats';
 const SHOW_HUMIDITY = 'show-humidity';
 const TEMPERATURE_ID = 'temp-entity-id';
 const HUMIDITY_ID = 'humidity-entity-id';
+const DO_REFRESH = 'refresh-weather';
+const REFRESH_RATE = 'weather-refresh-seconds';
 
 const Columns = {
   APPINFO: 0,
@@ -39,17 +41,19 @@ class HassWidget {
 
       this.w.add(this.make_row_switch(SHOW_WEATHER_STATS));
       this.w.add(this.make_row_switch(SHOW_HUMIDITY));
+      this.w.add(this.make_row_switch(DO_REFRESH));
+      this.w.add(this.make_text_row(REFRESH_RATE, true));
 
       /*  =========================================
           ======== HASS PROFILE SPECIFICS =========
           =========================================
       */
 
-      this.w.add(this.make_hass_user_row(TEMPERATURE_ID));
-      this.w.add(this.make_hass_user_row(HUMIDITY_ID));
+      this.w.add(this.make_text_row(TEMPERATURE_ID));
+      this.w.add(this.make_text_row(HUMIDITY_ID));
 
-      this.w.add(this.make_hass_user_row(HASS_ACCESS_TOKEN))
-      this.w.add(this.make_hass_user_row(HASS_URL))
+      this.w.add(this.make_text_row(HASS_ACCESS_TOKEN))
+      this.w.add(this.make_text_row(HASS_URL))
 
 
       /*  =========================================
@@ -145,8 +149,6 @@ class HassWidget {
 
       if (any) {
           const entityInfo = this._store.get_value(iter, 0);
-          log("EntityINDO:")
-          log(entityInfo)
           this._changedPermitted = false;
           this._removeItem(entityInfo);
           this._store.remove(iter);
@@ -258,7 +260,7 @@ class HassWidget {
       return row;
   }
 
-  make_hass_user_row(name) {
+  make_text_row(name, sameRowText=false) {
     let schema = this._settings.settings_schema;
 
     let row = new Gtk.ListBoxRow();
@@ -268,10 +270,9 @@ class HassWidget {
     hbox.pack_start(vbox, true, true, 6);
 
 
-    let addTokenButton = new Gtk.Button({valign: Gtk.Align.CENTER, label: "Add"});
-    hbox.add(addTokenButton);
-    addTokenButton.connect('clicked', () => {
-      this._settings.set_string(name, accessTokenEntry.get_text())
+    let addButton = new Gtk.Button({valign: Gtk.Align.CENTER, label: "Add"});
+    addButton.connect('clicked', () => {
+      this._settings.set_string(name, textEntry.get_text())
     });
 
     let key = schema.get_key(name);
@@ -287,13 +288,20 @@ class HassWidget {
     description.get_style_context().add_class('dim-label');
     vbox.add(description);
 
-    let default_val = key.get_default_value().get_string()[0];
-    if (default_val === "") {
-      default_val = this._settings.get_string(name)
-    }
+    let default_val = this._settings.get_string(name);
+    // if (default_val === "") {
+    //   default_val = key.get_default_value().get_string()[0];
+    // }
 
-    let accessTokenEntry = new Gtk.Entry({margin: 7, text: default_val});
-    vbox.add(accessTokenEntry);
+    let textEntry = new Gtk.Entry({margin: 7, text: default_val});
+    if (sameRowText){
+      hbox.add(textEntry);
+      hbox.add(addButton);
+    } else {
+      hbox.add(addButton);
+      vbox.add(textEntry);
+    }
+    
 
     return row;
 
