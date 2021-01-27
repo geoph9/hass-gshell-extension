@@ -1,6 +1,5 @@
-const GObject = imports.gi.GObject;
-const Gtk = imports.gi.Gtk;
-const Gio = imports.gi.Gio;
+const {Gio, Gtk, GObject, Secret} = imports.gi;
+
 const Config = imports.misc.config;
 const ExtensionUtils = imports.misc.extensionUtils;
 const Me = ExtensionUtils.getCurrentExtension();
@@ -19,11 +18,13 @@ const HUMIDITY_ID = 'humidity-entity-id';
 const DO_REFRESH = 'refresh-weather';
 const REFRESH_RATE = 'weather-refresh-seconds';
 
-const Columns = {
-  APPINFO: 0,
-  DISPLAY_NAME: 1,
-  ICON: 2
-};
+
+const TOKEN_SCHEMA = Secret.Schema.new("org.gnome.hass-data.Password",
+	Secret.SchemaFlags.NONE,
+	{
+		"token_string": Secret.SchemaAttributeType.STRING,
+	}
+);
 
 // let ShellVersion = parseInt(Config.PACKAGE_VERSION.split(".")[1]);
 
@@ -52,8 +53,9 @@ class HassWidget {
       this.w.add(this.make_text_row(TEMPERATURE_ID));
       this.w.add(this.make_text_row(HUMIDITY_ID));
 
-      this.w.add(this.make_text_row(HASS_ACCESS_TOKEN))
-      this.w.add(this.make_text_row(HASS_URL))
+      // this.w.add(this.make_text_row(HASS_ACCESS_TOKEN));
+      this.w.add(this.make_hass_token_row_keyring());
+      this.w.add(this.make_text_row(HASS_URL));
 
 
       /*  =========================================
@@ -108,7 +110,7 @@ class HassWidget {
                                           hexpand: true, vexpand: true });
       this._treeView.get_selection().set_mode(Gtk.SelectionMode.SINGLE);
 
-      const entityColumn = new Gtk.TreeViewColumn({ expand: true, sort_column_id: Columns.DISPLAY_NAME,
+      const entityColumn = new Gtk.TreeViewColumn({ expand: true, sort_column_id: 0,
                                                title: "Home Assistant Entity Ids that can be toggled:" });
       const idRenderer = new Gtk.CellRendererText;
       entityColumn.pack_start(idRenderer, true);
@@ -302,6 +304,45 @@ class HassWidget {
       vbox.add(textEntry);
     }
     
+
+    return row;
+
+  }
+
+  make_hass_token_row_keyring(){
+    let schema = this._settings.settings_schema;
+
+    let row = new Gtk.ListBoxRow();
+    let hbox = new Gtk.Box({orientation: Gtk.Orientation.HORIZONTAL, margin: 7});
+    row.add(hbox);
+    let vbox = new Gtk.Box({orientation: Gtk.Orientation.VERTICAL});
+    hbox.pack_start(vbox, true, true, 6);
+
+
+    let addButton = new Gtk.Button({valign: Gtk.Align.CENTER, label: "Add"});
+    addButton.connect('clicked', () => {
+      // Synchronously (the UI will block): https://developer.gnome.org/libsecret/unstable/js-store-example.html
+      Secret.password_store_sync(TOKEN_SCHEMA, {"token_string": "user_token"}, Secret.COLLECTION_DEFAULT,
+      "long_live_access_token", textEntry.get_text(), null);
+    });
+
+    let key = schema.get_key(HASS_ACCESS_TOKEN);
+    let summary = new Gtk.Label({label: `<span size='medium'><b>${key.get_summary()}</b></span>`, hexpand: true, 
+                                 halign: Gtk.Align.START, use_markup: true})
+    vbox.pack_start(summary, false, false, 0);
+    let description = new Gtk.Label({
+        label: `<span size='small'>${key.get_description()}</span>`,
+        hexpand: true,
+        halign: Gtk.Align.START,
+        use_markup: true
+    });
+    description.get_style_context().add_class('dim-label');
+    vbox.add(description);
+
+    let textEntry = new Gtk.Entry({margin: 7, text: ""});
+
+    hbox.add(addButton);
+    vbox.add(textEntry);
 
     return row;
 

@@ -3,7 +3,7 @@
 const ExtensionUtils = imports.misc.extensionUtils;
 const Me = ExtensionUtils.getCurrentExtension();
 
-const {Gio, Shell, Meta, St, Clutter} = imports.gi;
+const {Gio, Shell, Meta, St, Clutter, Secret} = imports.gi;
 const Main = imports.ui.main;
 
 const GObject = imports.gi.GObject;
@@ -49,6 +49,14 @@ let weatherStatsPanelText;
 // Configurable variables from the preferences menu.
 let showHumidity, showWeatherStats, refreshSeconds, doRefresh;
 let tempEntityID, humidityEntityID;
+
+
+const TOKEN_SCHEMA = Secret.Schema.new("org.gnome.hass-data.Password",
+	Secret.SchemaFlags.NONE,
+	{
+		"token_string": Secret.SchemaAttributeType.STRING,
+	}
+);
 
 // POPUP MENU
 const MyPopup = GObject.registerClass(
@@ -248,7 +256,7 @@ function send_request(url, type='GET', data=null) {
     let message = Soup.Message.new(type, url);
     message.request_headers.append(
         'Authorization',
-        `Bearer ${access_token}`
+        `Bearer ${Secret.password_lookup_sync(TOKEN_SCHEMA, {"token_string": "user_token"}, null)}`
     )
     if (data !== null){
         // Set body data: Should be in json format, e.g. '{"entity_id": "switch.some_relay"}'
@@ -287,7 +295,7 @@ function enable () {
         let settings = Utils.getSettings('hass-data');
         // Can also use settings.set_string('...', '...');
         base_url = settings.get_string('hass-url');
-        access_token = settings.get_string('hass-access-token');
+        // access_token = settings.get_string('hass-access-token');
         togglable_ent_ids = settings.get_strv("hass-togglable-entities");
         showWeatherStats = settings.get_boolean('show-weather-stats');
         showHumidity = settings.get_boolean('show-humidity');
@@ -295,6 +303,9 @@ function enable () {
         humidityEntityID = settings.get_string("humidity-entity-id");
         refreshSeconds = Number(settings.get_string('weather-refresh-seconds'));
         doRefresh = settings.get_boolean("refresh-weather");
+        // if (access_token === "") {
+        //     access_token = Secret.password_lookup_sync(TOKEN_SCHEMA, {"token_string": "user_token"}, null);
+        // }
     } catch (e) {
         log("Error:  Occurred while getting schema keys...")
         log("\tMake sure you have the following keys: 'hass-url', 'hass-access-token', 'hass-togglable-entities'.")
