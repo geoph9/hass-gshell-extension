@@ -1,0 +1,24 @@
+# Example:
+curl -X POST -d '{"entity_id": "media_player.tv_name"}' http://URL/api/services/media_player/media_play_pause
+
+media_play
+media_pause
+media_play_pause
+media_stop
+media_next_track
+media_previous_track
+
+media_seek (entity_id PLUS seek_position:int)
+
+select_sound_mode
+
+volume_up
+volume_down
+volume_set
+volume_mute
+
+turn_on
+turn_off
+toggle
+
+
