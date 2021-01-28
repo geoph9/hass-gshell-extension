@@ -141,7 +141,7 @@ If you only want to see the temperature and not the humidity, then you can also 
 
 ## Security
 
-Since you are providing the extension with an `Access Token`, then you should know that the extension does not perform any kind of encryption on it. So, if someone gets access to your computer/user then they will also be able to see your token.
+I am using the `Secret` library in order to store the access token in the running secret service (like gnome-keyring or ksecretservice) [source](https://developer.gnome.org/libsecret/unstable/js-store-example.html). This makes it safer to use your access token since it is more difficult to have it stolen by a third party. So, your token is as safe as your current user (this means that if a third party knows your user password and has access to your machine then they can get the keyring, but if that is the case then you probably have more improtant things to worry about).
 
 In general, if you think that you have an exposed access token, then you should go to your profile and delete it. Pay attention to this especially if you are hosting your instance on the internet (and not locally).
 
