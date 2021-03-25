@@ -11,7 +11,7 @@ const PanelMenu = imports.ui.panelMenu;
 const PopupMenu = imports.ui.popupMenu;
 
 const Utils = Me.imports.utils;
-const Util = imports.misc.util;
+// const Util = imports.misc.util;
 const Soup = imports.gi.Soup;
 
 // MainLoop for updating the time every X seconds.

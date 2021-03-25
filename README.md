@@ -31,6 +31,8 @@ git clone https://github.com/geoph9/hass-gshell-extension.git $HOME/.local/share
 
 Then open Gnome Tweaks (or install it if you don't have it) and enable the extension.
 
+**Note:** In Gnome 40, `gnome-tweaks` no longer handles extensions. You will need to install the `Extensions` application (flatpak) for that (for example, with `flatpak install flathub org.gnome.Extensions`).
+
 ### Updating
 
 In order to update you will have to pull the changes from the master branch as follows:

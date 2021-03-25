@@ -64,7 +64,7 @@ class HassWidget {
       */
 
       // const notificationsBox = new Gtk.Box({orientation: Gtk.Orientation.HORIZONTAL,
-      //                         margin: 7});
+      //                         spacing: 7});
 
       // const notificationsLabel = new Gtk.Label({label: "Enable notifications",
       //                            xalign: 0});
@@ -224,7 +224,7 @@ class HassWidget {
 
       let hbox = new Gtk.Box({
           orientation: Gtk.Orientation.HORIZONTAL,
-          margin: 7,
+          spacing: 7,
       });
 
       row.add(hbox);
@@ -266,7 +266,7 @@ class HassWidget {
     let schema = this._settings.settings_schema;
 
     let row = new Gtk.ListBoxRow();
-    let hbox = new Gtk.Box({orientation: Gtk.Orientation.HORIZONTAL, margin: 7});
+    let hbox = new Gtk.Box({orientation: Gtk.Orientation.HORIZONTAL, spacing: 7});
     row.add(hbox);
     let vbox = new Gtk.Box({orientation: Gtk.Orientation.VERTICAL});
     hbox.pack_start(vbox, true, true, 6);
@@ -313,7 +313,7 @@ class HassWidget {
     let schema = this._settings.settings_schema;
 
     let row = new Gtk.ListBoxRow();
-    let hbox = new Gtk.Box({orientation: Gtk.Orientation.HORIZONTAL, margin: 7});
+    let hbox = new Gtk.Box({orientation: Gtk.Orientation.HORIZONTAL, spacing: 7});
     row.add(hbox);
     let vbox = new Gtk.Box({orientation: Gtk.Orientation.VERTICAL});
     hbox.pack_start(vbox, true, true, 6);
