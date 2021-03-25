@@ -39,23 +39,23 @@ class HassWidget {
       this._settings.connect('changed', this._refresh.bind(this));
       this._changedPermitted = false;
 
-
-      this.w.add(this.make_row_switch(SHOW_WEATHER_STATS));
-      this.w.add(this.make_row_switch(SHOW_HUMIDITY));
-      this.w.add(this.make_row_switch(DO_REFRESH));
-      this.w.add(this.make_text_row(REFRESH_RATE, true));
+      // attach or .insert_row
+      this.w.attach(this.make_row_switch(SHOW_WEATHER_STATS), 0, 0, 1, 2);
+      this.w.attach(this.make_row_switch(SHOW_HUMIDITY), 0, 1, 1, 2);
+      this.w.attach(this.make_row_switch(DO_REFRESH), 0, 2, 1, 2);
+      this.w.attach(this.make_text_row(REFRESH_RATE, true), 0, 3, 1, 3);
 
       /*  =========================================
           ======== HASS PROFILE SPECIFICS =========
           =========================================
       */
 
-      this.w.add(this.make_text_row(TEMPERATURE_ID));
-      this.w.add(this.make_text_row(HUMIDITY_ID));
+      this.w.attach(this.make_text_row(TEMPERATURE_ID), 0, 4, 2, 2);
+      this.w.attach(this.make_text_row(HUMIDITY_ID), 0, 5, 2, 2);
 
-      // this.w.add(this.make_text_row(HASS_ACCESS_TOKEN));
-      this.w.add(this.make_hass_token_row_keyring());
-      this.w.add(this.make_text_row(HASS_URL));
+      // this.w.attach(this.make_text_row(HASS_ACCESS_TOKEN));
+      this.w.attach(this.make_hass_token_row_keyring(), 0, 6, 2, 2);
+      this.w.attach(this.make_text_row(HASS_URL), 0, 7, 2, 2);
 
 
       /*  =========================================
@@ -77,7 +77,7 @@ class HassWidget {
       // notificationsBox.pack_start(notificationsLabel, true, true, 0);
       // notificationsBox.add(notificationsSwitch);
 
-      // this.w.add(notificationsBox);
+      // this.w.attach(notificationsBox);
 
       /*  =========================================
           ========= ADD APPLICATION AREA ==========
@@ -88,44 +88,44 @@ class HassWidget {
       this._store.set_column_types([GObject.TYPE_STRING]);
 
 
-      let addNewEntityBox = new Gtk.Box({orientation: Gtk.Orientation.HORIZONTAL, margin: 7});
+      // let addNewEntityBox = new Gtk.Box({orientation: Gtk.Orientation.HORIZONTAL});
 
-      let addNewEntityLabel = new Gtk.Label({label: "New Entity ID:", xalign: 0});
+      // let addNewEntityLabel = new Gtk.Label({label: "New Entity ID:", xalign: 0});
 
-      let addNewEntityEntry = new Gtk.Entry();
-      let addNewEntityButton = new Gtk.Button({ label: "Add Entity ID"});
-      addNewEntityButton.connect('clicked', () => {
-        this._createNew(addNewEntityEntry.get_text())
-      });
+      // let addNewEntityEntry = new Gtk.Entry();
+      // let addNewEntityButton = new Gtk.Button({ label: "Add Entity ID"});
+      // addNewEntityButton.connect('clicked', () => {
+      //   this._createNew(addNewEntityEntry.get_text())
+      // });
 
-      addNewEntityBox.pack_start(addNewEntityLabel, true, true, 6);
-      addNewEntityBox.add(addNewEntityEntry);
-      addNewEntityBox.add(addNewEntityButton);
+      // addNewEntityBox.prepend(addNewEntityLabel);
+      // addNewEntityBox.add(addNewEntityEntry);
+      // addNewEntityBox.add(addNewEntityButton);
 
-      this.w.add(addNewEntityBox);
+      // this.w.attach(addNewEntityBox, 0, 8, 1, 2);
 
-      //
+      // //
 
-      this._treeView = new Gtk.TreeView({ model: this._store,
-                                          hexpand: true, vexpand: true });
-      this._treeView.get_selection().set_mode(Gtk.SelectionMode.SINGLE);
+      // this._treeView = new Gtk.TreeView({ model: this._store,
+      //                                     hexpand: true, vexpand: true });
+      // this._treeView.get_selection().set_mode(Gtk.SelectionMode.SINGLE);
 
-      const entityColumn = new Gtk.TreeViewColumn({ expand: true, sort_column_id: 0,
-                                               title: "Home Assistant Entity Ids that can be toggled:" });
-      const idRenderer = new Gtk.CellRendererText;
-      entityColumn.pack_start(idRenderer, true);
-      entityColumn.add_attribute(idRenderer, "text", 0);
-      this._treeView.append_column(entityColumn);
+      // const entityColumn = new Gtk.TreeViewColumn({ expand: true, sort_column_id: 0,
+      //                                          title: "Home Assistant Entity Ids that can be toggled:" });
+      // const idRenderer = new Gtk.CellRendererText;
+      // entityColumn.prepend(idRenderer);
+      // entityColumn.add_attribute(idRenderer, "text", 0);
+      // this._treeView.append_column(entityColumn);
 
-      this.w.add(this._treeView);
+      // this.w.attach(this._treeView, 0, 9, 1, 1);
 
-      const toolbar = new Gtk.Toolbar();
-      toolbar.get_style_context().add_class(Gtk.STYLE_CLASS_INLINE_TOOLBAR);
-      this.w.add(toolbar);
+      // const toolbar = new Gtk.Toolbar();
+      // toolbar.get_style_context().add_class(Gtk.STYLE_CLASS_INLINE_TOOLBAR);
+      // this.w.attach(toolbar, 0, 10, 1, 1);
 
-      const delButton = new Gtk.ToolButton({ stock_id: Gtk.STOCK_DELETE, label: "Delete Entity ID" });
-      delButton.connect('clicked', this._deleteSelected.bind(this));
-      toolbar.add(delButton);
+      // const delButton = new Gtk.ToolButton({ stock_id: Gtk.STOCK_DELETE, label: "Delete Entity ID" });
+      // delButton.connect('clicked', this._deleteSelected.bind(this));
+      // toolbar.add(delButton);
 
       this._changedPermitted = true;
       this._refresh();
@@ -220,21 +220,29 @@ class HassWidget {
   make_row_switch(name) {
       let schema = this._settings.settings_schema;
 
-      let row = new Gtk.ListBoxRow ();
+      let row = new Gtk.ListBoxRow();
 
       let hbox = new Gtk.Box({
           orientation: Gtk.Orientation.HORIZONTAL,
           spacing: 7,
       });
 
-      row.add(hbox);
+      log("row is:")
+      log(typeof(row))
+      log("======")
+      getMethods(row)
+      log('=== INNER ====')
+      log(getMethods(row))
+      log('== FF ==')
+
+      row.set('1',hbox);
 
       let vbox = new Gtk.Box({orientation: Gtk.Orientation.VERTICAL});
-      hbox.pack_start(vbox, true, true, 6);
+      hbox.prepend(vbox);
 
       let sw = new Gtk.Switch({valign: Gtk.Align.CENTER});
 
-      hbox.pack_start(sw, false, false, 0);
+      hbox.prepend(sw);
 
       let key = schema.get_key(name);
 
@@ -245,7 +253,7 @@ class HassWidget {
           use_markup: true
       });
 
-      vbox.pack_start(summary, false, false, 0);
+      vbox.prepend(summary);
 
       let description = new Gtk.Label({
           label: `<span size='small'>${key.get_description()}</span>`,
@@ -255,7 +263,7 @@ class HassWidget {
       });
       description.get_style_context().add_class('dim-label');
 
-      vbox.pack_start(description, false, false, 0);
+      vbox.prepend(description);
 
       this._settings.bind(name, sw, 'active',
                           Gio.SettingsBindFlags.DEFAULT);
@@ -267,9 +275,10 @@ class HassWidget {
 
     let row = new Gtk.ListBoxRow();
     let hbox = new Gtk.Box({orientation: Gtk.Orientation.HORIZONTAL, spacing: 7});
-    row.add(hbox);
+    // or row.set_child(hbox)
+    row.set('1',hbox);
     let vbox = new Gtk.Box({orientation: Gtk.Orientation.VERTICAL});
-    hbox.pack_start(vbox, true, true, 6);
+    hbox.prepend(vbox);
 
 
     let addButton = new Gtk.Button({valign: Gtk.Align.CENTER, label: "Add"});
@@ -280,7 +289,7 @@ class HassWidget {
     let key = schema.get_key(name);
     let summary = new Gtk.Label({label: `<span size='medium'><b>${key.get_summary()}</b></span>`, hexpand: true, 
                                  halign: Gtk.Align.START, use_markup: true})
-    vbox.pack_start(summary, false, false, 0);
+    vbox.prepend(summary);
     let description = new Gtk.Label({
         label: `<span size='small'>${key.get_description()}</span>`,
         hexpand: true,
@@ -288,20 +297,20 @@ class HassWidget {
         use_markup: true
     });
     description.get_style_context().add_class('dim-label');
-    vbox.add(description);
+    vbox.prepend(description);
 
     let default_val = this._settings.get_string(name);
     // if (default_val === "") {
     //   default_val = key.get_default_value().get_string()[0];
     // }
 
-    let textEntry = new Gtk.Entry({margin: 7, text: default_val});
+    let textEntry = new Gtk.Entry({text: default_val});
     if (sameRowText){
-      hbox.add(textEntry);
-      hbox.add(addButton);
+      hbox.prepend(textEntry);
+      hbox.prepend(addButton);
     } else {
-      hbox.add(addButton);
-      vbox.add(textEntry);
+      hbox.prepend(addButton);
+      vbox.prepend(textEntry);
     }
     
 
@@ -314,9 +323,9 @@ class HassWidget {
 
     let row = new Gtk.ListBoxRow();
     let hbox = new Gtk.Box({orientation: Gtk.Orientation.HORIZONTAL, spacing: 7});
-    row.add(hbox);
+    row.set('1',hbox);
     let vbox = new Gtk.Box({orientation: Gtk.Orientation.VERTICAL});
-    hbox.pack_start(vbox, true, true, 6);
+    hbox.prepend(vbox);
 
 
     let addButton = new Gtk.Button({valign: Gtk.Align.CENTER, label: "Add"});
@@ -329,7 +338,7 @@ class HassWidget {
     let key = schema.get_key(HASS_ACCESS_TOKEN);
     let summary = new Gtk.Label({label: `<span size='medium'><b>${key.get_summary()}</b></span>`, hexpand: true, 
                                  halign: Gtk.Align.START, use_markup: true})
-    vbox.pack_start(summary, false, false, 0);
+    vbox.prepend(summary);
     let description = new Gtk.Label({
         label: `<span size='small'>${key.get_description()}</span>`,
         hexpand: true,
@@ -337,12 +346,12 @@ class HassWidget {
         use_markup: true
     });
     description.get_style_context().add_class('dim-label');
-    vbox.add(description);
+    vbox.prepend(description);
 
-    let textEntry = new Gtk.Entry({margin: 7, text: ""});
+    let textEntry = new Gtk.Entry({text: ""});
 
-    hbox.add(addButton);
-    vbox.add(textEntry);
+    hbox.prepend(addButton);
+    vbox.prepend(textEntry);
 
     return row;
 
@@ -356,7 +365,16 @@ function init() {
 
 function buildPrefsWidget() {
   const widget = new HassWidget();
-  widget.w.show_all();
+  // widget.w.show_all();  // shown by default in gtk4
 
   return widget.w;
+}
+
+const getMethods = (obj) => {
+  let properties = new Set()
+  let currentObj = obj
+  do {
+    Object.getOwnPropertyNames(currentObj).map(item => properties.add(item))
+  } while ((currentObj = Object.getPrototypeOf(currentObj)))
+  return [...properties.keys()].filter(item => typeof obj[item] === 'function')
 }
