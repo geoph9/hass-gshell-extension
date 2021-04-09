@@ -103,13 +103,13 @@ const MyPopup = GObject.registerClass(
             }
 
             this.menu.addMenuItem(new PopupMenu.PopupSeparatorMenuItem());
-            this.menu.connect('open-state-changed', (menu, open) => {
-                if (open) {
-                    log('opened');
-                } else {
-                    log('closed');
-                }
-            });
+            // this.menu.connect('open-state-changed', (menu, open) => {
+            //     if (open) {
+            //         log('opened');
+            //     } else {
+            //         log('closed');
+            //     }
+            // });
 
             // sub menu
             let subItem = new PopupMenu.PopupSubMenuMenuItem('HASS Events');
@@ -339,7 +339,7 @@ function enable () {
 
         Main.wm.addKeybinding("hass-shortcut", shortcut_settings, flag, mode, () => {
             myPopup.menu.toggle();
-            log('shortcut is working');
+            // log('shortcut is working');
         });
     } catch(error) {
         log("Error while adding shortcut from schema...");

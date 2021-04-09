@@ -120,17 +120,20 @@ class HassWidget {
       const entityColumn = new Gtk.TreeViewColumn({ expand: true, sort_column_id: 0,
                                                title: "Home Assistant Entity Ids that can be toggled:" });
       const idRenderer = new Gtk.CellRendererText;
-      entityColumn.prepend(idRenderer);
+      // entityColumn.prepend(idRenderer);
+      // entityColumn.add_attribute(idRenderer, "text", 0);
+      entityColumn.pack_start(idRenderer, true);
       entityColumn.add_attribute(idRenderer, "text", 0);
       this._treeView.append_column(entityColumn);
 
       this.w.attach(this._treeView, 0, 9, 1, 1);
 
-      const toolbar = new Gtk.Toolbar();
-      toolbar.get_style_context().add_class(Gtk.STYLE_CLASS_INLINE_TOOLBAR);
+      // const toolbar = new Gtk.Toolbar();
+      const toolbar = new Gtk.Box({orientation: Gtk.Orientation.HORIZONTAL, spacing: 0});
+      // toolbar.get_style_context().add_class(Gtk.STYLE_CLASS_INLINE_TOOLBAR);
 
       // const delButton = new Gtk.ToolButton({ stock_id: Gtk.STOCK_DELETE, label: "Delete Entity ID" });
-      const delButton = new Gtk.Button({ icon_name : 'list-remove-symbolic', label: "Delete Entity ID" });
+      const delButton = new Gtk.Button({ icon_name : 'list-remove-symbolic' });
       delButton.connect('clicked', this._deleteSelected.bind(this));
       // toolbar.add(delButton);
       toolbar.append(delButton);
