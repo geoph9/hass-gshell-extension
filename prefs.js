@@ -47,22 +47,22 @@ class HassWidget {
       this._changedPermitted = false;
 
       // attach or .insert_row
-      this.w.attach(this.make_row_switch(SHOW_WEATHER_STATS), 0, 0, 1, 2);
-      this.w.attach(this.make_row_switch(SHOW_HUMIDITY), 0, 1, 1, 2);
-      this.w.attach(this.make_row_switch(DO_REFRESH), 0, 2, 1, 2);
-      this.w.attach(this.make_text_row(REFRESH_RATE, true), 0, 3, 1, 3);
+      this.w.attach(this.make_row_switch(SHOW_WEATHER_STATS), 0, 0, 1, 1);
+      this.w.attach(this.make_row_switch(SHOW_HUMIDITY), 0, 1, 1, 1);
+      this.w.attach(this.make_row_switch(DO_REFRESH), 0, 2, 1, 1);
+      this.w.attach(this.make_text_row(REFRESH_RATE, true), 0, 3, 1, 1);
 
       /*  =========================================
           ======== HASS PROFILE SPECIFICS =========
           =========================================
       */
 
-      this.w.attach(this.make_text_row(TEMPERATURE_ID), 0, 4, 2, 2);
-      this.w.attach(this.make_text_row(HUMIDITY_ID), 0, 5, 2, 2);
+      this.w.attach(this.make_text_row(TEMPERATURE_ID), 0, 4, 2, 1);
+      this.w.attach(this.make_text_row(HUMIDITY_ID), 0, 5, 2, 1);
 
       // this.w.attach(this.make_text_row(HASS_ACCESS_TOKEN));
-      this.w.attach(this.make_hass_token_row_keyring(), 0, 6, 2, 2);
-      this.w.attach(this.make_text_row(HASS_URL), 0, 7, 2, 2);
+      this.w.attach(this.make_hass_token_row_keyring(), 0, 6, 2, 1);
+      this.w.attach(this.make_text_row(HASS_URL), 0, 7, 2, 1);
 
 
       /*  =========================================
@@ -109,7 +109,7 @@ class HassWidget {
       addNewEntityBox.append(addNewEntityEntry);
       addNewEntityBox.append(addNewEntityButton);
 
-      this.w.attach(addNewEntityBox, 0, 8, 1, 2);
+      this.w.attach(addNewEntityBox, 0, 8, 1, 1);
 
       //
 
@@ -239,25 +239,9 @@ class HassWidget {
           spacing: 7,
       });
 
-      log("row is:")
-      log(typeof(row))
-      log("======")
-      getMethods(row)
-      log('=== INNER ====')
-      log(getMethods(row))
-      log('== FF ==')
-
       // row.set('1', hbox);  // row.add(hbox);
       row.set_child(hbox);
       let vbox, sw;
-      try {
-        vbox = new Gtk.Box({orientation: Gtk.Orientation.VERTICAL});
-        hbox.prepend(vbox);
-      } catch(e) {
-        log("Error while adding vbox...");
-        throw e;
-      }
-
 
       try {
         sw = new Gtk.Switch({valign: Gtk.Align.CENTER});
@@ -268,16 +252,15 @@ class HassWidget {
       }
 
       try {
+        vbox = new Gtk.Box({orientation: Gtk.Orientation.VERTICAL, spacing: 7});
+        hbox.prepend(vbox);
+      } catch(e) {
+        log("Error while adding vbox...");
+        throw e;
+      }
+
+      try {
         let key = schema.get_key(name);
-
-        let summary = new Gtk.Label({
-            label: `<span size='medium'><b>${key.get_summary()}</b></span>`,
-            hexpand: true,
-            halign: Gtk.Align.START,
-            use_markup: true
-        });
-
-        vbox.prepend(summary);
 
         let description = new Gtk.Label({
             label: `<span size='small'>${key.get_description()}</span>`,
@@ -288,6 +271,15 @@ class HassWidget {
         description.get_style_context().add_class('dim-label');
 
         vbox.prepend(description);
+
+        let summary = new Gtk.Label({
+            label: `<span size='medium'><b>${key.get_summary()}</b></span>`,
+            hexpand: true,
+            halign: Gtk.Align.START,
+            use_markup: true
+        });
+
+        vbox.prepend(summary);
 
         this._settings.bind(name, sw, 'active',
                             Gio.SettingsBindFlags.DEFAULT);
@@ -307,8 +299,7 @@ class HassWidget {
     row.set_child(hbox);
     let vbox;
     try {
-      vbox = new Gtk.Box({orientation: Gtk.Orientation.VERTICAL});
-      hbox.prepend(vbox);
+      vbox = new Gtk.Box({orientation: Gtk.Orientation.VERTICAL, spacing: 7});
       
       let addButton = new Gtk.Button({valign: Gtk.Align.CENTER, label: "Add"});
       addButton.connect('clicked', () => {
@@ -318,7 +309,6 @@ class HassWidget {
       let key = schema.get_key(name);
       let summary = new Gtk.Label({label: `<span size='medium'><b>${key.get_summary()}</b></span>`, hexpand: true, 
                                   halign: Gtk.Align.START, use_markup: true})
-      vbox.prepend(summary);
       let description = new Gtk.Label({
           label: `<span size='small'>${key.get_description()}</span>`,
           hexpand: true,
@@ -326,7 +316,6 @@ class HassWidget {
           use_markup: true
       });
       description.get_style_context().add_class('dim-label');
-      vbox.prepend(description);
 
       let default_val = this._settings.get_string(name);
       // if (default_val === "") {
@@ -335,12 +324,15 @@ class HassWidget {
 
       let textEntry = new Gtk.Entry({text: default_val});
       if (sameRowText){
+        hbox.prepend(addButton);
         hbox.prepend(textEntry);
-        hbox.prepend(addButton);
       } else {
-        hbox.prepend(addButton);
         vbox.prepend(textEntry);
+        hbox.prepend(addButton);
       }
+      vbox.prepend(description);
+      vbox.prepend(summary);
+      hbox.prepend(vbox);
     } catch (e) {
       logError(e, "Error trying to add button...");
     }
@@ -358,7 +350,6 @@ class HassWidget {
       // row.set('1',hbox);
       row.set_child(hbox);
       let vbox = new Gtk.Box({orientation: Gtk.Orientation.VERTICAL});
-      hbox.prepend(vbox);
 
 
       let addButton = new Gtk.Button({valign: Gtk.Align.CENTER, label: "Add"});
@@ -371,7 +362,6 @@ class HassWidget {
       let key = schema.get_key(HASS_ACCESS_TOKEN);
       let summary = new Gtk.Label({label: `<span size='medium'><b>${key.get_summary()}</b></span>`, hexpand: true, 
                                   halign: Gtk.Align.START, use_markup: true})
-      vbox.prepend(summary);
       let description = new Gtk.Label({
           label: `<span size='small'>${key.get_description()}</span>`,
           hexpand: true,
@@ -379,12 +369,14 @@ class HassWidget {
           use_markup: true
       });
       description.get_style_context().add_class('dim-label');
-      vbox.prepend(description);
 
       let textEntry = new Gtk.Entry({text: ""});
 
-      hbox.prepend(addButton);
       vbox.prepend(textEntry);
+      hbox.prepend(addButton);
+      vbox.prepend(description);
+      vbox.prepend(summary);
+      hbox.prepend(vbox);
       return row;
     } catch (e) {
       logError(e, "Error creating hass token entry...");

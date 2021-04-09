@@ -21,7 +21,7 @@ you can also use this extension in order to send `start`, `stop` or `close` even
 
 ## Installation
 
-In order to install the extension you will have to clone this repository and move it under the directory where your other extensions are. The following commands should make it work
+In order to install the extension you will have to clone this repository and move it under the directory where your other extensions are. The following commands should make it work:
 
 ```bash
 # Create the extensions directory in case it doesn't exist
@@ -32,6 +32,14 @@ git clone https://github.com/geoph9/hass-gshell-extension.git $HOME/.local/share
 Then open Gnome Tweaks (or install it if you don't have it) and enable the extension.
 
 **Note:** In Gnome 40, `gnome-tweaks` no longer handles extensions. You will need to install the `Extensions` application (flatpak) for that (for example, with `flatpak install flathub org.gnome.Extensions`).
+
+### Gnome Version
+
+Below are the `gnome-shell` versions that each branch supports: 
+
+- `[master]`: Gnome 40
+- `[gnome3.38]`: Gnome 3.38
+- `[gnome40]`: Development branch of Gnome 40
 
 ### Updating
 
