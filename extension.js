@@ -1,7 +1,6 @@
 // Taken from: https://www.codeproject.com/Articles/5271677/How-to-Create-A-GNOME-Extension
 
-const ExtensionUtils = imports.misc.extensionUtils;
-const Me = ExtensionUtils.getCurrentExtension();
+// const ExtensionUtils = imports.misc.extensionUtils;
 
 const {Gio, Shell, Meta, St, Clutter, Secret} = imports.gi;
 const Main = imports.ui.main;
@@ -10,8 +9,10 @@ const GObject = imports.gi.GObject;
 const PanelMenu = imports.ui.panelMenu;
 const PopupMenu = imports.ui.popupMenu;
 
-const Utils = Me.imports.utils;
-const Util = imports.misc.util;
+// const Utils = Me.imports.utils;
+const Convenience = imports.misc.extensionUtils;
+const Me = Convenience.getCurrentExtension();
+// const Util = imports.misc.util;
 const Soup = imports.gi.Soup;
 
 // MainLoop for updating the time every X seconds.
@@ -102,13 +103,13 @@ const MyPopup = GObject.registerClass(
             }
 
             this.menu.addMenuItem(new PopupMenu.PopupSeparatorMenuItem());
-            this.menu.connect('open-state-changed', (menu, open) => {
-                if (open) {
-                    log('opened');
-                } else {
-                    log('closed');
-                }
-            });
+            // this.menu.connect('open-state-changed', (menu, open) => {
+            //     if (open) {
+            //         log('opened');
+            //     } else {
+            //         log('closed');
+            //     }
+            // });
 
             // sub menu
             let subItem = new PopupMenu.PopupSubMenuMenuItem('HASS Events');
@@ -135,7 +136,7 @@ const MyPopup = GObject.registerClass(
             );
             popupImageMenuItem.connect('activate', () => {
                 log("Opening Preferences...");
-                ExtensionUtils.openPrefs();
+                Convenience.openPrefs();
             });
             this.menu.addMenuItem(popupImageMenuItem);
 
@@ -292,7 +293,7 @@ function enable () {
     */
     
     try {
-        let settings = Utils.getSettings('hass-data');
+        let settings = Convenience.getSettings('org.gnome.shell.extensions.hass-data');
         // Can also use settings.set_string('...', '...');
         base_url = settings.get_string('hass-url');
         // access_token = settings.get_string('hass-access-token');
@@ -313,56 +314,70 @@ function enable () {
         throw e;
     }
 
-    // Popup menu
-    myPopup = new MyPopup("Kitchen Lights");
-    Main.panel.addToStatusArea('myPopup', myPopup, 1);
 
-    // For the Shortcut
-    // Shell.ActionMode.NORMAL
-    // Shell.ActionMode.OVERVIEW
-    // Shell.ActionMode.LOCK_SCREEN
-    let mode = Shell.ActionMode.ALL;
+    try {
+        // Popup menu
+        myPopup = new MyPopup("Kitchen Lights");
+        Main.panel.addToStatusArea('myPopup', myPopup, 1);
+    } catch(error) {
+        log("Error while creating the popup menu...");
+        throw error;
+    }
+    try {
+        // For the Shortcut
+        // Shell.ActionMode.NORMAL
+        // Shell.ActionMode.OVERVIEW
+        // Shell.ActionMode.LOCK_SCREEN
+        let mode = Shell.ActionMode.ALL;
 
-    // Meta.KeyBindingFlags.PER_WINDOW
-    // Meta.KeyBindingFlags.BUILTIN
-    // Meta.KeyBindingFlags.IGNORE_AUTOREPEAT
-    let flag = Meta.KeyBindingFlags.NONE;
+        // Meta.KeyBindingFlags.PER_WINDOW
+        // Meta.KeyBindingFlags.BUILTIN
+        // Meta.KeyBindingFlags.IGNORE_AUTOREPEAT
+        let flag = Meta.KeyBindingFlags.NONE;
 
-    let shortcut_settings = Utils.getSettings('hass-shortcut');
+        let shortcut_settings = Convenience.getSettings('org.gnome.shell.extensions.hass-shortcut');
 
-    Main.wm.addKeybinding("hass-shortcut", shortcut_settings, flag, mode, () => {
-        myPopup.menu.toggle();
-        log('shortcut is working');
-    });
+        Main.wm.addKeybinding("hass-shortcut", shortcut_settings, flag, mode, () => {
+            myPopup.menu.toggle();
+            // log('shortcut is working');
+        });
+    } catch(error) {
+        log("Error while adding shortcut from schema...");
+        throw error;
+    }
     if (showWeatherStats === true) {
-
-        /**
-         * ===== Weather Area ======
-         */
-        // Add the temperature in the panel
-        weatherStatsPanel = new St.Bin({
-            style_class : "panel-button",
-            reactive : true,
-            can_focus : true,
-            track_hover : true,
-            height : 30,
-        });
-        weatherStatsPanelText = new St.Label({
-            text : "-°C",
-            y_align: Clutter.ActorAlign.CENTER,
-        });
-        _refreshWeatherStats();
-        weatherStatsPanel.set_child(weatherStatsPanelText);
-        weatherStatsPanel.connect("button-press-event", () => {
+        try {
+            /**
+             * ===== Weather Area ======
+             */
+            // Add the temperature in the panel
+            weatherStatsPanel = new St.Bin({
+                style_class : "panel-button",
+                reactive : true,
+                can_focus : true,
+                track_hover : true,
+                height : 30,
+            });
+            weatherStatsPanelText = new St.Label({
+                text : "-°C",
+                y_align: Clutter.ActorAlign.CENTER,
+            });
             _refreshWeatherStats();
-        });
+            weatherStatsPanel.set_child(weatherStatsPanelText);
+            weatherStatsPanel.connect("button-press-event", () => {
+                _refreshWeatherStats();
+            });
 
-        if (doRefresh === true) {
-            // Update weather stats every X seconds
-            refreshTimeout = Mainloop.timeout_add_seconds(refreshSeconds,  _refreshWeatherStats);
+            if (doRefresh === true) {
+                // Update weather stats every X seconds
+                refreshTimeout = Mainloop.timeout_add_seconds(refreshSeconds,  _refreshWeatherStats);
+            }
+
+            Main.panel._rightBox.insert_child_at_index(weatherStatsPanel, 1);
+        } catch(error) {
+            log("Error while creating the weather statistics button...");
+            throw error;
         }
-
-        Main.panel._rightBox.insert_child_at_index(weatherStatsPanel, 1);
     }
 }
 
