@@ -2,7 +2,8 @@
     "name" : "Home Assistant Extension",
     "description" : "A simple gnome shell extension for Home Assistant.",
     "shell-version" : [
-        "3.38"
+        "40.0",
+        "40"
     ],
     "url" : "",
     "settings-schema": "org.gnome.shell.extensions.hass-data",

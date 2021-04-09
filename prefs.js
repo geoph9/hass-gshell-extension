@@ -1,10 +1,17 @@
+/*jshint multistr:true */
+/*jshint esnext:true */
+/*global imports: true */
+/*global global: true */
+/*global log: true */
+
 const {Gio, Gtk, GObject, Secret} = imports.gi;
 
 const Config = imports.misc.config;
 const ExtensionUtils = imports.misc.extensionUtils;
 const Me = ExtensionUtils.getCurrentExtension();
 
-const Convenience = Me.imports.utils;
+// const Convenience = Me.imports.utils;
+const Convenience = imports.misc.extensionUtils;
 
 const HASS_ACCESS_TOKEN = 'hass-access-token';
 const HASS_URL = 'hass-url';
@@ -88,44 +95,46 @@ class HassWidget {
       this._store.set_column_types([GObject.TYPE_STRING]);
 
 
-      // let addNewEntityBox = new Gtk.Box({orientation: Gtk.Orientation.HORIZONTAL});
+      let addNewEntityBox = new Gtk.Box({orientation: Gtk.Orientation.HORIZONTAL});
 
-      // let addNewEntityLabel = new Gtk.Label({label: "New Entity ID:", xalign: 0});
+      let addNewEntityLabel = new Gtk.Label({label: "New Entity ID:", xalign: 0});
 
-      // let addNewEntityEntry = new Gtk.Entry();
-      // let addNewEntityButton = new Gtk.Button({ label: "Add Entity ID"});
-      // addNewEntityButton.connect('clicked', () => {
-      //   this._createNew(addNewEntityEntry.get_text())
-      // });
+      let addNewEntityEntry = new Gtk.Entry();
+      let addNewEntityButton = new Gtk.Button({ label: "Add Entity ID"});
+      addNewEntityButton.connect('clicked', () => {
+        this._createNew(addNewEntityEntry.get_text())
+      });
 
-      // addNewEntityBox.prepend(addNewEntityLabel);
-      // addNewEntityBox.add(addNewEntityEntry);
-      // addNewEntityBox.add(addNewEntityButton);
+      addNewEntityBox.prepend(addNewEntityLabel);
+      addNewEntityBox.append(addNewEntityEntry);
+      addNewEntityBox.append(addNewEntityButton);
 
-      // this.w.attach(addNewEntityBox, 0, 8, 1, 2);
+      this.w.attach(addNewEntityBox, 0, 8, 1, 2);
 
-      // //
+      //
 
-      // this._treeView = new Gtk.TreeView({ model: this._store,
-      //                                     hexpand: true, vexpand: true });
-      // this._treeView.get_selection().set_mode(Gtk.SelectionMode.SINGLE);
+      this._treeView = new Gtk.TreeView({ model: this._store,
+                                          hexpand: true, vexpand: true });
+      this._treeView.get_selection().set_mode(Gtk.SelectionMode.SINGLE);
 
-      // const entityColumn = new Gtk.TreeViewColumn({ expand: true, sort_column_id: 0,
-      //                                          title: "Home Assistant Entity Ids that can be toggled:" });
-      // const idRenderer = new Gtk.CellRendererText;
-      // entityColumn.prepend(idRenderer);
-      // entityColumn.add_attribute(idRenderer, "text", 0);
-      // this._treeView.append_column(entityColumn);
+      const entityColumn = new Gtk.TreeViewColumn({ expand: true, sort_column_id: 0,
+                                               title: "Home Assistant Entity Ids that can be toggled:" });
+      const idRenderer = new Gtk.CellRendererText;
+      entityColumn.prepend(idRenderer);
+      entityColumn.add_attribute(idRenderer, "text", 0);
+      this._treeView.append_column(entityColumn);
 
-      // this.w.attach(this._treeView, 0, 9, 1, 1);
+      this.w.attach(this._treeView, 0, 9, 1, 1);
 
-      // const toolbar = new Gtk.Toolbar();
-      // toolbar.get_style_context().add_class(Gtk.STYLE_CLASS_INLINE_TOOLBAR);
-      // this.w.attach(toolbar, 0, 10, 1, 1);
+      const toolbar = new Gtk.Toolbar();
+      toolbar.get_style_context().add_class(Gtk.STYLE_CLASS_INLINE_TOOLBAR);
 
       // const delButton = new Gtk.ToolButton({ stock_id: Gtk.STOCK_DELETE, label: "Delete Entity ID" });
-      // delButton.connect('clicked', this._deleteSelected.bind(this));
+      const delButton = new Gtk.Button({ icon_name : 'list-remove-symbolic', label: "Delete Entity ID" });
+      delButton.connect('clicked', this._deleteSelected.bind(this));
       // toolbar.add(delButton);
+      toolbar.append(delButton);
+      this.w.attach(toolbar, 0, 10, 1, 1);
 
       this._changedPermitted = true;
       this._refresh();
@@ -235,38 +244,53 @@ class HassWidget {
       log(getMethods(row))
       log('== FF ==')
 
-      row.set('1',hbox);
+      // row.set('1', hbox);  // row.add(hbox);
+      row.set_child(hbox);
+      let vbox, sw;
+      try {
+        vbox = new Gtk.Box({orientation: Gtk.Orientation.VERTICAL});
+        hbox.prepend(vbox);
+      } catch(e) {
+        log("Error while adding vbox...");
+        throw e;
+      }
 
-      let vbox = new Gtk.Box({orientation: Gtk.Orientation.VERTICAL});
-      hbox.prepend(vbox);
 
-      let sw = new Gtk.Switch({valign: Gtk.Align.CENTER});
+      try {
+        sw = new Gtk.Switch({valign: Gtk.Align.CENTER});
+        hbox.prepend(sw);
+      } catch(e) {
+        log("Error while adding switch...");
+        throw e;
+      }
 
-      hbox.prepend(sw);
+      try {
+        let key = schema.get_key(name);
 
-      let key = schema.get_key(name);
+        let summary = new Gtk.Label({
+            label: `<span size='medium'><b>${key.get_summary()}</b></span>`,
+            hexpand: true,
+            halign: Gtk.Align.START,
+            use_markup: true
+        });
 
-      let summary = new Gtk.Label({
-          label: `<span size='medium'><b>${key.get_summary()}</b></span>`,
-          hexpand: true,
-          halign: Gtk.Align.START,
-          use_markup: true
-      });
+        vbox.prepend(summary);
 
-      vbox.prepend(summary);
+        let description = new Gtk.Label({
+            label: `<span size='small'>${key.get_description()}</span>`,
+            hexpand: true,
+            halign: Gtk.Align.START,
+            use_markup: true
+        });
+        description.get_style_context().add_class('dim-label');
 
-      let description = new Gtk.Label({
-          label: `<span size='small'>${key.get_description()}</span>`,
-          hexpand: true,
-          halign: Gtk.Align.START,
-          use_markup: true
-      });
-      description.get_style_context().add_class('dim-label');
+        vbox.prepend(description);
 
-      vbox.prepend(description);
-
-      this._settings.bind(name, sw, 'active',
-                          Gio.SettingsBindFlags.DEFAULT);
+        this._settings.bind(name, sw, 'active',
+                            Gio.SettingsBindFlags.DEFAULT);
+      } catch(e) {
+        logError(e, "Error adding description and summary...");
+      }
       return row;
   }
 
@@ -276,84 +300,92 @@ class HassWidget {
     let row = new Gtk.ListBoxRow();
     let hbox = new Gtk.Box({orientation: Gtk.Orientation.HORIZONTAL, spacing: 7});
     // or row.set_child(hbox)
-    row.set('1',hbox);
-    let vbox = new Gtk.Box({orientation: Gtk.Orientation.VERTICAL});
-    hbox.prepend(vbox);
+    // row.set('1',hbox);
+    row.set_child(hbox);
+    let vbox;
+    try {
+      vbox = new Gtk.Box({orientation: Gtk.Orientation.VERTICAL});
+      hbox.prepend(vbox);
+      
+      let addButton = new Gtk.Button({valign: Gtk.Align.CENTER, label: "Add"});
+      addButton.connect('clicked', () => {
+        this._settings.set_string(name, textEntry.get_text())
+      });
 
+      let key = schema.get_key(name);
+      let summary = new Gtk.Label({label: `<span size='medium'><b>${key.get_summary()}</b></span>`, hexpand: true, 
+                                  halign: Gtk.Align.START, use_markup: true})
+      vbox.prepend(summary);
+      let description = new Gtk.Label({
+          label: `<span size='small'>${key.get_description()}</span>`,
+          hexpand: true,
+          halign: Gtk.Align.START,
+          use_markup: true
+      });
+      description.get_style_context().add_class('dim-label');
+      vbox.prepend(description);
 
-    let addButton = new Gtk.Button({valign: Gtk.Align.CENTER, label: "Add"});
-    addButton.connect('clicked', () => {
-      this._settings.set_string(name, textEntry.get_text())
-    });
+      let default_val = this._settings.get_string(name);
+      // if (default_val === "") {
+      //   default_val = key.get_default_value().get_string()[0];
+      // }
 
-    let key = schema.get_key(name);
-    let summary = new Gtk.Label({label: `<span size='medium'><b>${key.get_summary()}</b></span>`, hexpand: true, 
-                                 halign: Gtk.Align.START, use_markup: true})
-    vbox.prepend(summary);
-    let description = new Gtk.Label({
-        label: `<span size='small'>${key.get_description()}</span>`,
-        hexpand: true,
-        halign: Gtk.Align.START,
-        use_markup: true
-    });
-    description.get_style_context().add_class('dim-label');
-    vbox.prepend(description);
-
-    let default_val = this._settings.get_string(name);
-    // if (default_val === "") {
-    //   default_val = key.get_default_value().get_string()[0];
-    // }
-
-    let textEntry = new Gtk.Entry({text: default_val});
-    if (sameRowText){
-      hbox.prepend(textEntry);
-      hbox.prepend(addButton);
-    } else {
-      hbox.prepend(addButton);
-      vbox.prepend(textEntry);
+      let textEntry = new Gtk.Entry({text: default_val});
+      if (sameRowText){
+        hbox.prepend(textEntry);
+        hbox.prepend(addButton);
+      } else {
+        hbox.prepend(addButton);
+        vbox.prepend(textEntry);
+      }
+    } catch (e) {
+      logError(e, "Error trying to add button...");
     }
-    
 
     return row;
 
   }
 
   make_hass_token_row_keyring(){
-    let schema = this._settings.settings_schema;
+    try {
+      let schema = this._settings.settings_schema;
 
-    let row = new Gtk.ListBoxRow();
-    let hbox = new Gtk.Box({orientation: Gtk.Orientation.HORIZONTAL, spacing: 7});
-    row.set('1',hbox);
-    let vbox = new Gtk.Box({orientation: Gtk.Orientation.VERTICAL});
-    hbox.prepend(vbox);
+      let row = new Gtk.ListBoxRow();
+      let hbox = new Gtk.Box({orientation: Gtk.Orientation.HORIZONTAL, spacing: 7});
+      // row.set('1',hbox);
+      row.set_child(hbox);
+      let vbox = new Gtk.Box({orientation: Gtk.Orientation.VERTICAL});
+      hbox.prepend(vbox);
 
 
-    let addButton = new Gtk.Button({valign: Gtk.Align.CENTER, label: "Add"});
-    addButton.connect('clicked', () => {
-      // Synchronously (the UI will block): https://developer.gnome.org/libsecret/unstable/js-store-example.html
-      Secret.password_store_sync(TOKEN_SCHEMA, {"token_string": "user_token"}, Secret.COLLECTION_DEFAULT,
-      "long_live_access_token", textEntry.get_text(), null);
-    });
+      let addButton = new Gtk.Button({valign: Gtk.Align.CENTER, label: "Add"});
+      addButton.connect('clicked', () => {
+        // Synchronously (the UI will block): https://developer.gnome.org/libsecret/unstable/js-store-example.html
+        Secret.password_store_sync(TOKEN_SCHEMA, {"token_string": "user_token"}, Secret.COLLECTION_DEFAULT,
+        "long_live_access_token", textEntry.get_text(), null);
+      });
 
-    let key = schema.get_key(HASS_ACCESS_TOKEN);
-    let summary = new Gtk.Label({label: `<span size='medium'><b>${key.get_summary()}</b></span>`, hexpand: true, 
-                                 halign: Gtk.Align.START, use_markup: true})
-    vbox.prepend(summary);
-    let description = new Gtk.Label({
-        label: `<span size='small'>${key.get_description()}</span>`,
-        hexpand: true,
-        halign: Gtk.Align.START,
-        use_markup: true
-    });
-    description.get_style_context().add_class('dim-label');
-    vbox.prepend(description);
+      let key = schema.get_key(HASS_ACCESS_TOKEN);
+      let summary = new Gtk.Label({label: `<span size='medium'><b>${key.get_summary()}</b></span>`, hexpand: true, 
+                                  halign: Gtk.Align.START, use_markup: true})
+      vbox.prepend(summary);
+      let description = new Gtk.Label({
+          label: `<span size='small'>${key.get_description()}</span>`,
+          hexpand: true,
+          halign: Gtk.Align.START,
+          use_markup: true
+      });
+      description.get_style_context().add_class('dim-label');
+      vbox.prepend(description);
 
-    let textEntry = new Gtk.Entry({text: ""});
+      let textEntry = new Gtk.Entry({text: ""});
 
-    hbox.prepend(addButton);
-    vbox.prepend(textEntry);
-
-    return row;
+      hbox.prepend(addButton);
+      vbox.prepend(textEntry);
+      return row;
+    } catch (e) {
+      logError(e, "Error creating hass token entry...");
+    }
 
   }
 }
