@@ -10,6 +10,9 @@ you can also use this extension in order to send `start`, `stop` or `close` even
 ## Contents
 
 - [Installation](#installation)
+    - [Installing from Releases](#installing-from-releases)
+    - [Installing from Source](#installing-from-source)
+    - [Gnome Version](#gnome-version)
     - [Updating](#updating)
     - [Removing the Extension](#removing-the-extension)
 - [How to Use](#how-to-use)
@@ -23,17 +26,46 @@ you can also use this extension in order to send `start`, `stop` or `close` even
 
 ## Installation
 
+### Installing from Releases
+
+You can also download the extension from the [release page](https://github.com/geoph9/hass-gshell-extension/releases) (pick the release corresponding
+to your gnome-shell version). In order to help with that, I have created the script `build.sh` which will download the release and do 
+everything that needs to be done so that extension will work.
+
+You don't have to clone the whole repo. It suffices to download the `build.sh` script and run it.
+
+```bash
+# Usage of build.sh
+
+# Download hass-gshell-extension for Gnome Shell version 3.38
+./build.sh 3.38
+
+# The default version is 3.38, so the above is equivalent to:
+# ./build.sh
+
+# Similarly for Gnome 40
+# ./build.sh 40
+```
+
+After that, you will have to restart your session (e.g. `Alt+F2` -> `r+Enter` on Xorg or simply logout and re-login on Wayland).
+
+**Note:** If you don't know what your `gnome-shell` version is, you can simply run `gnome-shell --version` in a terminal.
+
+### Installing from Source
+
 In order to install the extension you will have to clone this repository and move it under the directory where your other extensions are. The following commands should make it work:
 
 ```bash
 # Create the extensions directory in case it doesn't exist
-mkdir -p $HOME/.local/share/gnome-shell/extensions
-git clone https://github.com/geoph9/hass-gshell-extension.git $HOME/.local/share/gnome-shell/extensions/hass-simple-extension
+mkdir -p "$HOME"/.local/share/gnome-shell/extensions
+git clone https://github.com/geoph9/hass-gshell-extension.git "$HOME"/.local/share/gnome-shell/extensions/hass-gshell@geoph9-on-github
 ```
 
 Then open Gnome Tweaks (or install it if you don't have it) and enable the extension.
 
-**Note:** In Gnome 40, `gnome-tweaks` no longer handles extensions. You will need to install the `Extensions` application (flatpak) for that (for example, with `flatpak install flathub org.gnome.Extensions`).
+**Note:** Ubuntu 21.04 will not ship with `Gnome 40` and so you will still need to use the `Gnome 3.38` version. For installation instructions
+check the example in the [Installing from Release](#installing-from-release) subsection.
+
 
 ### Gnome Version
 
@@ -45,10 +77,12 @@ Below are the `gnome-shell` versions that each branch supports:
 
 ### Updating
 
-In order to update you will have to pull the changes from the master branch as follows:
+If you installed the extension from the [release page](https://github.com/geoph9/hass-gshell-extension/releases), you should simply re-run the the `build.sh` script.
+
+If you installed from source, then you will have to pull the changes from the master branch as follows:
 
 ```bash
-cd $HOME/.local/share/gnome-shell/extensions/hass-gshell-extension && git pull origin master
+cd $HOME/.local/share/gnome-shell/extensions/hass-gshell@geoph9-on-github && git pull origin master
 ```
 
 *TODO: Maybe add an update button on the settings menu.*
@@ -58,10 +92,10 @@ cd $HOME/.local/share/gnome-shell/extensions/hass-gshell-extension && git pull o
 If you followed the installation instructions above then you can do the following:
 
 ```bash
-rm -rf $HOME/.local/share/gnome-shell/extensions/hass-gshell-extension
+rm -rf $HOME/.local/share/gnome-shell/extensions/hass-gshell@geoph9-on-github
 ```
 
-You will also (probably) have to restart your session in order to have the panel buttons dissapear.
+You will also have to restart your session in order to have the panel buttons dissapear.
 
 ## How to Use
 
@@ -81,7 +115,9 @@ In order to communicate with `Home Assistant` you will need to provide a `Long L
 
 After that, copy the token and add it in the in the text box below the `Access Token:` entry on the preferences menu.
 
-In addition, you need to provide the url of your hass instance on the `URL` box.
+In addition, you need to provide the url of your hass instance on the `URL` box. 
+
+**NOTE:** Your url must end with a slash symbol (e.g. http://localhost:8123/).
 
 ### Appearance
 
