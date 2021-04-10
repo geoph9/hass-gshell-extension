@@ -205,8 +205,8 @@ function _refreshWeatherStats() {
             weatherStatsPanelText.text = out;
         }
     } catch (error) {
-        log(error);
-        disable();
+        logError(error, "Could not refresh weather stats...");
+        // disable();
         // will execute this function only once and abort. Remove in order to make the Main loop work
         return false;
     }
