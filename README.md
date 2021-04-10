@@ -5,7 +5,7 @@ This is a simple gnome shell extension which allows you to control your home ass
 Currently, the extension only supports temperature (and humidity) sensors and also toggling lights or switches. In addition, 
 you can also use this extension in order to send `start`, `stop` or `close` events to your Home Assistant instance. 
 
-**Note:** This is implemented for `gnome-shell` 3.38 and does not work on Gnome 40 (currently).
+**Note:** Supports Gnome 40 and Gnome 3.38.
 
 ## Contents
 
