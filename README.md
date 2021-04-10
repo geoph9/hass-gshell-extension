@@ -27,25 +27,26 @@ you can also use this extension in order to send `start`, `stop` or `close` even
 ### Installing from Releases
 
 You can also download the extension from the [release page](https://github.com/geoph9/hass-gshell-extension/releases) (pick the release corresponding
-to your gnome-shell version). In order to help with that, I have created the script `build.sh` which will download the release and do 
-everything that needs to be done so that extension will work.
+to your gnome-shell version). 
 
-You don't have to clone the whole repo. It suffices to download the `build.sh` script and run it.
+In order automate the process, I have created the script `build.sh` which will download the release corresponding to you current `gnome-shell` version. You don't have to clone the whole repo. It suffices to download the `build.sh` script and run it.
 
 ```bash
+#Download build.sh and give execution rights
+wget https://raw.githubusercontent.com/geoph9/hass-gshell-extension/master/build.sh && chmod +x build.sh
+
 # Usage of build.sh
 
-# Download hass-gshell-extension for Gnome Shell version 3.38
-./build.sh 3.38
+# Download and "install" hass-gshell-extension 
+./build.sh
 
-# The default version is 3.38, so the above is equivalent to:
-# ./build.sh
-
-# Similarly for Gnome 40
-# ./build.sh 40
+# Get help message
+# ./build.sh -h
 ```
 
-After that, you will have to restart your session (e.g. `Alt+F2` -> `r+Enter` on Xorg or simply logout and re-login on Wayland).
+After that, you will have to restart your session (e.g. `Alt+F2` -> `r+Enter` on Xorg or simply logout and re-login on Wayland) and then you will 
+need to enable the extension. The enabling part can be done either from the terminal (`gnome-extensions enable hass-gshell@geoph9-on-github`) or 
+from an app such as `Extensions` (available as a flatpak).
 
 **Note:** If you don't know what your `gnome-shell` version is, you can simply run `gnome-shell --version` in a terminal.
 
