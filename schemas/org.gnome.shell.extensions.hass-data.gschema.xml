@@ -30,13 +30,13 @@
     </key>
 
     <key type="b" name="show-weather-stats">
-        <default>true</default>
+        <default>false</default>
         <summary>Show Weather</summary>
         <description>Whether to show the weather on the top panel</description>
     </key>
 
     <key type="b" name="show-humidity">
-        <default>true</default>
+        <default>false</default>
         <summary>Show Humidity</summary>
         <description>Whether to show humidity value or not</description>
     </key>
@@ -66,7 +66,7 @@
     </key>
 
     <key type="as" name="hass-togglable-entities">
-      <default>['switch.kitchen_lights', 'switch.livingroom_tv_relay']</default>
+      <default>['switch.kitchen_lights', 'switch.livingroom_tv']</default>
       <summary>Entity ids for home-assistant switches.</summary>
       <description>Entity ids for home-assistant switches. E.g. switch.livingroom_lights_relay</description>
     </key>
@@ -89,7 +89,7 @@
       <default><![CDATA[['<Super>g']]]></default>
       <summary>Home Assistant Extension - Shortcut Key</summary>
       <description>
-        You can create GTK entry in prefs and set it as CDATA.
+        Shortcut key on how to open the extension's menu from the tray.
       </description>
     </key>
 
