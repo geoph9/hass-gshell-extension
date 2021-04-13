@@ -14,13 +14,13 @@
     <key type="s" name="weather-refresh-seconds">
       <default>"60"</default>
       <summary>Refresh Rate</summary>
-      <description>The refresh rate for the weather statistics in seconds (works only if "Refresh Weather Statistics" is enabled)</description>
+      <description>The refresh rate for the weather statistics in seconds (works only if "Refresh Temperature/Humidity Sensors" is enabled)</description>
     </key>
 
     <key type="b" name="refresh-weather">
         <default>false</default>
-        <summary>Refresh Weather Statistics</summary>
-        <description>Whether you want to refresh the weather statistics or not</description>
+        <summary>Refresh Temperature/Humidity Sensors</summary>
+        <description>Whether or not you want to refresh the temperature and/or humidity sensor values</description>
     </key>
 
     <key type="b" name="show-notifications">
@@ -31,8 +31,8 @@
 
     <key type="b" name="show-weather-stats">
         <default>false</default>
-        <summary>Show Weather</summary>
-        <description>Whether to show the weather on the top panel</description>
+        <summary>Show Temperature/Humidity</summary>
+        <description>Whether to show the temperature and/or humidity values (assuming you have provided the corresponding entity ids)</description>
     </key>
 
     <key type="b" name="show-humidity">
@@ -56,27 +56,19 @@
     <key type="s" name="hass-access-token">
       <default>""</default>
       <summary>Access Token</summary>
-      <description>Long Live Access Token for Home Assistant</description>
+      <description>Long Live Access Token for Home Assistant (Go to Profile->Bottom-of-the-page->Long-Live-Access-Tokens and create a new one)</description>
     </key>
 
     <key type="s" name="hass-url">
       <default>""</default>
       <summary>URL</summary>
-      <description>The url where your hass instance is hosted.</description>
+      <description>The url where your hass instance is hosted (the url must end with a slash "/")</description>
     </key>
 
     <key type="as" name="hass-togglable-entities">
       <default>['switch.kitchen_lights', 'switch.livingroom_tv']</default>
       <summary>Entity ids for home-assistant switches.</summary>
       <description>Entity ids for home-assistant switches. E.g. switch.livingroom_lights_relay</description>
-    </key>
-
-    <key name="my-position"
-
-      enum="org.gnome.shell.extensions.hass-data.enum-sample">
-      <default>'LEFT'</default>
-      <summary>summary</summary>
-      <description>description</description>
     </key>
 
   </schema>

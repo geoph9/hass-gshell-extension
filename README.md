@@ -10,6 +10,7 @@ you can also use this extension in order to send `start`, `stop` or `close` even
 - [Installation](#installation)
     - [Installing from Releases](#installing-from-releases)
     - [Installing from Source](#installing-from-source)
+    - [Installing from Gnome Extensions](#installing-from-gnome-extensions)
     - [Gnome Version](#gnome-version)
     - [Updating](#updating)
     - [Removing the Extension](#removing-the-extension)
@@ -34,8 +35,6 @@ In order automate the process, I have created the script `build.sh` which will d
 ```bash
 #Download build.sh and give execution rights
 wget https://raw.githubusercontent.com/geoph9/hass-gshell-extension/master/build.sh && chmod +x build.sh
-
-# Usage of build.sh
 
 # Download and "install" hass-gshell-extension 
 ./build.sh
@@ -65,6 +64,12 @@ Then open Gnome Tweaks (or install it if you don't have it) and enable the exten
 **Note:** Ubuntu 21.04 will not ship with `Gnome 40` and so you will still need to use the `Gnome 3.38` version. For installation instructions
 check the example in the [Installing from Release](#installing-from-release) subsection.
 
+### Installing from Gnome Extensions
+
+The extension is also available at the [Gnome Extensions](https://extensions.gnome.org/extension/4170/home-assistant-extension/) website 
+with the name *Home Assistant Extension*. But, I am not very used to how things work there and so some changes may not be uploaded 
+immediately on Gnome Extensions. So, if you plan to use this extension, I advise you to follow the instructions here and [install from 
+the releases page](#installing-from-releases).
 
 ### Gnome Version
 
