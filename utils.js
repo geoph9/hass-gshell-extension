@@ -1,10 +1,15 @@
 // For the GET Requests
-const Soup = imports.gi.Soup;
-const Gio = imports.gi.Gio;
-const GLib = imports.gi.GLib;
+const {Soup, Gio, GLib, Secret} = imports.gi;
 const Me = imports.misc.extensionUtils.getCurrentExtension();
 // new sesssion
 var soupSyncSession = new Soup.SessionSync();
+
+const TOKEN_SCHEMA = Secret.Schema.new("org.gnome.hass-data.Password",
+	Secret.SchemaFlags.NONE,
+	{
+		"token_string": Secret.SchemaAttributeType.STRING,
+	}
+);
 
 function setNewState(url) {
     let message = Soup.Message.new(type, url);
@@ -38,4 +43,29 @@ function getSettings(schema_name) {
     throw new Error('Schema ' + schema + ' could not be found for extension ' + Me.metadata.uuid + '. Please check your installation.');
   }
   return new Gio.Settings({ settings_schema : schemaObj });
+}
+
+// Credits: https://stackoverflow.com/questions/65830466/gnome-shell-extension-send-request-with-authorization-bearer-headers/65841700
+function send_request(url, type='GET', data=null) {
+  let message = Soup.Message.new(type, url);
+  message.request_headers.append(
+      'Authorization',
+      `Bearer ${Secret.password_lookup_sync(TOKEN_SCHEMA, {"token_string": "user_token"}, null)}`
+  )
+  if (data !== null){
+      // Set body data: Should be in json format, e.g. '{"entity_id": "switch.some_relay"}'
+      // TODO: Maybe perform a check here
+      message.set_request('application/json', 2, data);
+  }
+  message.request_headers.set_content_type("application/json", null);
+  let responseCode = soupSyncSession.send_message(message);
+  
+  if(responseCode == 200) {
+      try {
+          return JSON.parse(message['response-body'].data);
+      } catch(error) {
+          logError(error, `Could not send request to ${url}.`);
+      }
+  }
+  return false;
 }

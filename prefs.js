@@ -86,9 +86,9 @@ class HassWidget {
 
       // this.w.attach(notificationsBox);
 
-      /*  =========================================
-          ========= ADD APPLICATION AREA ==========
-          =========================================
+      /*  ============================================
+          ========= ADD NEW ENTITY IDS AREA ==========
+          ============================================
       */
 
       this._store = new Gtk.ListStore();
@@ -128,11 +128,7 @@ class HassWidget {
 
       this.w.attach(this._treeView, 0, 9, 1, 1);
 
-      // const toolbar = new Gtk.Toolbar();
       const toolbar = new Gtk.Box({orientation: Gtk.Orientation.HORIZONTAL, spacing: 0});
-      // toolbar.get_style_context().add_class(Gtk.STYLE_CLASS_INLINE_TOOLBAR);
-
-      // const delButton = new Gtk.ToolButton({ stock_id: Gtk.STOCK_DELETE, label: "Delete Entity ID" });
       const delButton = new Gtk.Button({ icon_name : 'list-remove-symbolic' });
       delButton.connect('clicked', this._deleteSelected.bind(this));
       // toolbar.add(delButton);
@@ -200,14 +196,11 @@ class HassWidget {
   _appendItem(entity_id) {
       const currentItems = this._settings.get_strv(HASS_TOGGLABLE_ENTITIES);
 
-      if (currentItems.includes(entity_id)) {
-          printerr("Already have an item for this entity_id.");
+      if (currentItems.includes(entity_id) || entity_id.replace(' ', '') === '') {
+          printerr("Cannot append item: We either already have an item for this entity_id or the input was empty.");
           return false;
       }
 
-      if (!entity_id.includes(".")){
-        entity_id += " (INVALID)"
-      }
       currentItems.push(entity_id);
       this._settings.set_strv(HASS_TOGGLABLE_ENTITIES, currentItems);
       return true;

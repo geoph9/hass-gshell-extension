@@ -1,11 +1,6 @@
-// Taken from: https://www.codeproject.com/Articles/5271677/How-to-Create-A-GNOME-Extension
+const {Gio, Shell, Meta, St, Clutter, Secret, GLib, Soup, GObject} = imports.gi;
 
-// const ExtensionUtils = imports.misc.extensionUtils;
-
-const {Gio, Shell, Meta, St, Clutter, Secret} = imports.gi;
 const Main = imports.ui.main;
-
-const GObject = imports.gi.GObject;
 const PanelMenu = imports.ui.panelMenu;
 const PopupMenu = imports.ui.popupMenu;
 
@@ -13,384 +8,317 @@ const PopupMenu = imports.ui.popupMenu;
 const Convenience = imports.misc.extensionUtils;
 const Me = Convenience.getCurrentExtension();
 // const Util = imports.misc.util;
-const Soup = imports.gi.Soup;
+
+const Lang = imports.lang;
 
 // MainLoop for updating the time every X seconds.
 const Mainloop = imports.mainloop;
+const Utils = Me.imports.utils;
 
-let panelButton;
-
-let base_url, access_token, togglable_ent_ids;
-
-let myPopup;
-
-const GLib = imports.gi.GLib;
-// let now = GLib.DateTime.new_now_local();
-// let nowString = now.format("%Y-%m-%d %H:%M:%S");
-
-// e.g. notify
-//Main.notify('Message Title', 'Message Body');
-
-// const Mainloop = imports.mainloop;
-// let timeout = Mainloop.timeout_add_seconds(2.5, () => {
-//   // this function will be called every 2.5 seconds
-// });
-// // remove mainloop
-// Mainloop.source_remove(timeout);
+let hassExtension;
 
 let soupSyncSession = new Soup.SessionSync();
 
-
-// Taken from tv-switch-gnome-shell-extension repo
-let refreshTimeout;
-// Weather-Related Variables / Endpoints
-let weatherStatsPanel;
-let weatherStatsPanelText;
-
-// Configurable variables from the preferences menu.
-let showHumidity, showWeatherStats, refreshSeconds, doRefresh;
-let tempEntityID, humidityEntityID;
-
-
-const TOKEN_SCHEMA = Secret.Schema.new("org.gnome.hass-data.Password",
-	Secret.SchemaFlags.NONE,
-	{
-		"token_string": Secret.SchemaAttributeType.STRING,
-	}
-);
-
-// POPUP MENU
-const MyPopup = GObject.registerClass(
-    class MyPopup extends PanelMenu.Button {
-
-        _init (toggle_area) {
-
-            super._init(0);
-
-            let icon = new St.Icon({
-                gicon : Gio.icon_new_for_string( Me.dir.get_path() + '/icons/hass-main.png' ),
-                style_class : 'system-status-icon',
-            });
-
-            this.add_child(icon);
-
-            let ent_id, switch_name;
-            // I am using an array of objects because I want to get a full copy of the 
-            // pmItem and the ent_id. If I don't do that then the pmItem will be connected 
-            // only to the laste entry of 'togglable_ent_ids' which means that whichever entry
-            // of the menu you press, you will always toggle the same button
-            var pmItems = [];
-            for (ent_id of togglable_ent_ids) {
-                if (ent_id === "" || !ent_id.includes("."))
-                    continue
-                // Capitalize every word
-                switch_name = ent_id.split(".")[1].split("_").
-                                     map(word => word.charAt(0).toUpperCase() + word.slice(1)).
-                                     join(" ");
-                let pmItem = new PopupMenu.PopupMenuItem('Toggle:');
-                pmItem.add_child(
-                    new St.Label({
-                        text : switch_name
-                    })
-                );
-                this.menu.addMenuItem(pmItem);
-                pmItems.push({item: pmItem, entity: ent_id});
+var HassExtension = GObject.registerClass ({
+    GTypeName: "HassMenu"
+}, class HassMenu extends PanelMenu.Button {
+    _init() {
+        super._init(0, Me.metadata.name, false);
+        this._settings = Convenience.getSettings('org.gnome.shell.extensions.hass-data');
+        this._settings.connect("changed", Lang.bind(this, function() {
+            if (this.needsRebuild()) {
+                this.rebuildTray();
+                this.buildTempSensorStats();
             }
-            for (let item of pmItems) {
-                item.item.connect('activate', () => {
-                    _toggleEntity(item.entity)
+        }));
+
+        // Add tray icon
+        let icon = new St.Icon({
+            gicon : Gio.icon_new_for_string( Me.dir.get_path() + '/icons/hass-main.png' ),
+            style_class : 'system-status-icon',
+        });
+        this.add_child(icon);
+
+        this.needsRebuild();
+        this.rebuildTray();
+
+        // Build the temperature/humidity sensor statistics (if needed)
+        this.buildTempSensorStats();
+    }
+
+    rebuildTray() {
+        log("Rebuilding tray...");
+        // Destroy the previous menu items
+        let oldItems = this.menu._getMenuItems();
+        for (let item in oldItems) {
+            oldItems[item].destroy();
+        }
+        // Parse togglable entity ids as given from the settings
+        let itemName, entityId;
+        // I am using an array of objects because I want to get a full copy of the 
+        // pmItem and the entityId. If I don't do that then the pmItem will be connected 
+        // only to the laste entry of 'togglable_ent_ids' which means that whichever entry
+        // of the menu you press, you will always toggle the same button
+        var pmItems = [];
+        for (entityId of this.togglable_ent_ids) {
+            log(`====> Adding ${entityId} ===> ''? ${entityId === ""}  ===> includes .? ${!entityId.includes('.')}`)
+            if (entityId === "" || !entityId.includes("."))
+                continue
+            log("============> We are in")
+            // Capitalize every word
+            itemName = entityId.split(".")[1].split("_").
+                                   map(word => word.charAt(0).
+                                               toUpperCase() + word.slice(1)
+                                   ).
+                                   join(" ");
+            let pmItem = new PopupMenu.PopupMenuItem('Toggle:');
+            pmItem.add_child(
+                new St.Label({
+                    text : itemName
+                })
+            );
+            this.menu.addMenuItem(pmItem);
+            pmItems.push({item: pmItem, entity: entityId});
+        }
+        for (let item of pmItems) {
+            item.item.connect('activate', () => {
+                this._toggleEntity(item.entity)
+            });
+        }
+
+        this.menu.addMenuItem(new PopupMenu.PopupSeparatorMenuItem());
+
+        // Now build the submenu containing the HASS events
+        let subItem = new PopupMenu.PopupSubMenuMenuItem('HASS Events');
+        this.menu.addMenuItem(subItem);
+        let start_hass_item = new PopupMenu.PopupMenuItem('Start Home Assistant');
+        let stop_hass_item = new PopupMenu.PopupMenuItem('Stop Home Assistant');
+        let close_hass_item = new PopupMenu.PopupMenuItem('Close Home Assistant');
+        subItem.menu.addMenuItem(start_hass_item, 0);
+        subItem.menu.addMenuItem(stop_hass_item, 1);
+        subItem.menu.addMenuItem(close_hass_item, 2);
+        start_hass_item.connect('activate', () => {
+            this._triggerHassEvent('start');
+        });
+        stop_hass_item.connect('activate', () => {
+            this._triggerHassEvent('stop');
+        });
+        close_hass_item.connect('activate', () => {
+            this._triggerHassEvent('close');
+        });
+
+        // Settings button (Preferences)
+        let popupImageMenuItem = new PopupMenu.PopupImageMenuItem(
+            "Preferences",
+            'security-high-symbolic',
+        );
+        popupImageMenuItem.connect('activate', () => {
+            log("Opening Preferences...");
+            Convenience.openPrefs();
+        });
+        this.menu.addMenuItem(popupImageMenuItem);
+    }
+
+    buildTempSensorStats() {
+        if (this.showWeatherStats === true) {
+            if (this.weatherStatsPanel === undefined) {
+                // Add the temperature in the panel
+                this.weatherStatsPanel = new St.Bin({
+                    style_class : "panel-button",
+                    reactive : true,
+                    can_focus : true,
+                    track_hover : true,
+                    height : 30,
+                });
+                this.weatherStatsPanelText = new St.Label({
+                    text : "-°C",
+                    y_align: Clutter.ActorAlign.CENTER,
+                });
+                this.weatherStatsPanel.set_child(this.weatherStatsPanelText);
+                this.weatherStatsPanel.connect("button-press-event", () => {
+                    this._needsRebuildTempPanel();
+                    this._refreshWeatherStats();
                 });
             }
 
-            this.menu.addMenuItem(new PopupMenu.PopupSeparatorMenuItem());
-            // this.menu.connect('open-state-changed', (menu, open) => {
-            //     if (open) {
-            //         log('opened');
-            //     } else {
-            //         log('closed');
-            //     }
-            // });
+            this._refreshWeatherStats();
 
-            // sub menu
-            let subItem = new PopupMenu.PopupSubMenuMenuItem('HASS Events');
-            this.menu.addMenuItem(subItem);
-            let start_hass_item = new PopupMenu.PopupMenuItem('Start Home Assistant');
-            let stop_hass_item = new PopupMenu.PopupMenuItem('Stop Home Assistant');
-            let close_hass_item = new PopupMenu.PopupMenuItem('Close Home Assistant');
-            subItem.menu.addMenuItem(start_hass_item, 0);
-            subItem.menu.addMenuItem(stop_hass_item, 1);
-            subItem.menu.addMenuItem(close_hass_item, 2);
-            start_hass_item.connect('activate', _startHass);
-            stop_hass_item.connect('activate', _stopHass);
-            close_hass_item.connect('activate', _closeHass);
+            if (this.doRefresh === true) {
+                // Update weather stats every X seconds
+                this.refreshTimeout = Mainloop.timeout_add_seconds(this.refreshSeconds,  () => {
+                    this._needsRebuildTempPanel();
+                    this._refreshWeatherStats();
+                });
+            }
 
-            // // section
-            // let popupMenuSection = new PopupMenu.PopupMenuSection();
-            // popupMenuSection.actor.add_child(new PopupMenu.PopupMenuItem('section'));
-            // this.menu.addMenuItem(popupMenuSection);
-
-            // image item
-            let popupImageMenuItem = new PopupMenu.PopupImageMenuItem(
-                "Preferences",
-                'security-high-symbolic',
-            );
-            popupImageMenuItem.connect('activate', () => {
-                log("Opening Preferences...");
-                Convenience.openPrefs();
-            });
-            this.menu.addMenuItem(popupImageMenuItem);
-
-            // you can close, open and toggle the menu with
-            // this.menu.close();
-            // this.menu.open();
-            // this.menu.toggle();
+            Main.panel._rightBox.insert_child_at_index(this.weatherStatsPanel, 1);
+        } else {
+            this._deleteTempStatsPanel();
         }
     }
-);
 
-/* =======================================================
-   ===================== HASS API ========================
-   =======================================================
-*/
+    needsRebuild() {
+        let trayNeedsRebuild = false;
+        let tmp;
 
-function _toggleEntity(entity_id) {
-    let data = `{"entity_id": "${entity_id}"}`;
-    let result = send_request(`${base_url}api/services/switch/toggle`, 'POST', data);
-    if (!result) {
-        return false;
+        // Check if the hass url changed.
+        tmp = this.base_url;
+        this.base_url = this._settings.get_string('hass-url');
+        if (!this.base_url.endsWith("/")) {
+            this.base_url += "/";  //  needs a trailing slash
+        }
+        if (tmp !== this.base_url) {
+            trayNeedsRebuild = true;
+        }
+
+        // Check togglable ids
+        tmp = this.togglable_ent_ids;
+        this.togglable_ent_ids = this._settings.get_strv("hass-togglable-entities");
+        if (tmp !== this.togglable_ent_ids) {
+            trayNeedsRebuild = true;
+        }
+
+        // Do the same for all of the weather entities
+        trayNeedsRebuild = this._needsRebuildTempPanel();
+        
+        return trayNeedsRebuild;
     }
-    return true;    
-}
 
-function _startHass() {
-    let result = send_request(`${base_url}api/events/homeassistant_start`, 'POST');
-    if (!result) {
-        return false;
+    _toggleEntity(entityId) {
+        let data = `{"entity_id": "${entityId}"}`;
+        let result = Utils.send_request(`${this.base_url}api/services/switch/toggle`, 'POST', data);
+        if (!result) {
+            return false;
+        }
+        return true;
     }
-    return true;
-}
 
-function _stopHass() {
-    let result = send_request(`${base_url}api/events/homeassistant_stop`, 'POST');
-    if (!result) {
-        return false;
+    _triggerHassEvent(event) {
+        let result = Utils.send_request(`${this.base_url}api/events/homeassistant_${event}`, 'POST');
+        if (!result) {
+            return false;
+        }
+        return true;
     }
-    return true;
-}
 
-function _closeHass() {
-    let result = send_request(`${base_url}api/events/homeassistant_close`, 'POST');
-    if (!result) {
-        return false;
-    }
-    return true;
-}
-
-/* =======================================================
-   ===================== WEATHER =========================
-   =======================================================
-*/
-// TODO: The humidity is not so important and so there should be an option at prefs.js in order to remove it.
-function _refreshWeatherStats() {
-    try {
-        if (showWeatherStats === true) {
+    _refreshWeatherStats() {
+        try {
             let out = "";
             // if showWeatherStats is true then the temperature must be shown (the humidity can be turned off)
-            temperature = getWeatherSensorData(tempEntityID);
-            out += temperature;
-            if (showHumidity === true) {
-                humidity = getWeatherSensorData(humidityEntityID);
-                out += ` | ${humidity}`;
+            out += this._getWeatherSensorData(this.tempEntityID);
+            if (this.showHumidity === true) {
+                out += ` | ${this._getWeatherSensorData(this.humidityEntityID)}`;
             }
-            weatherStatsPanelText.text = out;
+            this.weatherStatsPanelText.text = out;
+        } catch (error) {
+            logError(error, "Could not refresh weather stats...");
+            // will execute this function only once and abort. 
+            // Remove in order to make the Main loop continue working.
+            return false;
         }
-    } catch (error) {
-        logError(error, "Could not refresh weather stats...");
-        // disable();
-        // will execute this function only once and abort. Remove in order to make the Main loop work
-        return false;
+        // By returning true, the function will continue refresing every X seconds
+        return true; 
     }
-    // By returning true, the function will continue refresing every X seconds
-    return true; 
-}
 
-function getWeatherSensorData(entity_id=null) {
-    let json_result = send_request(`${base_url}api/states/${entity_id}`);
-    if (!json_result) {
-        return false;
+    _getWeatherSensorData(entity_id) {
+        let json_result = Utils.send_request(`${this.base_url}api/states/${entity_id}`);
+        if (!json_result) {
+            return false;
+        }
+        return `${json_result.state} ${json_result.attributes.unit_of_measurement}`;
     }
-    return `${json_result.state} ${json_result.attributes.unit_of_measurement}`;
-}
 
-/* =======================================================
-   ================= REQUESTS TO HASS ====================
-   =======================================================
-*/
+    _needsRebuildTempPanel() {
+        let tmp;
+        let tempPanelNeedsRebuild = false;
 
-// // Credits: https://stackoverflow.com/questions/43357370/gnome-extensions-run-shell-command#44535210
-// function send_request(url, type='GET') {
-//     let name = url.split("/");
-//     name = name[name.length - 1];
-//     name = type.toLowerCase() + "_" + name;
-//     name = name.replace(".", "_");  // because the entity_id contains a dot.
-//     path = `${Me.dir.get_path()}/data/${name}.json`;
-//     log("Pinging URL: " + url);
-//     Util.spawnCommandLine(`/usr/bin/curl -X ${type} -H "Authorization: Bearer ${access_token}" -H "Content-Type: application/json" ${url} -o ${path}`);
-//     return path;
-// }
+        // Check show weather stats
+        tmp = this.showWeatherStats;
+        this.showWeatherStats = this._settings.get_boolean('show-weather-stats');
+        if (tmp !== this.showWeatherStats) {
+            tempPanelNeedsRebuild = true;
+        }
 
-// function read_json(path) {
-//     let text = GLib.file_get_contents(path)[1];
-//     let json_result;
-//     try {
-//         json_result = JSON.parse(text);
-//     } catch (e) {
-//         log("ERROR:")
-//         log(e);
-//         return false;
-//     }
-//     return json_result;
-// }
+        // Check show humidity
+        tmp = this.showHumidity;
+        this.showHumidity = this._settings.get_boolean('show-humidity');
+        if (tmp !== this.showHumidity) {
+            tempPanelNeedsRebuild = true;
+        }
 
-// Credits: https://stackoverflow.com/questions/65830466/gnome-shell-extension-send-request-with-authorization-bearer-headers/65841700
-function send_request(url, type='GET', data=null) {
-    let message = Soup.Message.new(type, url);
-    message.request_headers.append(
-        'Authorization',
-        `Bearer ${Secret.password_lookup_sync(TOKEN_SCHEMA, {"token_string": "user_token"}, null)}`
-    )
-    if (data !== null){
-        // Set body data: Should be in json format, e.g. '{"entity_id": "switch.some_relay"}'
-        // TODO: Maybe perform a check here
-        message.set_request('application/json', 2, data);
+        // Check temperature id change
+        tmp = this.tempEntityID;
+        this.tempEntityID = this._settings.get_string("temp-entity-id");
+        if (tmp !== this.tempEntityID) {
+            tempPanelNeedsRebuild = true;
+        }
+
+        // Check humidity id change
+        tmp = this.humidityEntityID;
+        this.humidityEntityID = this._settings.get_string("humidity-entity-id");
+        if (tmp !== this.humidityEntityID) {
+            tempPanelNeedsRebuild = true;
+        }
+
+        // Check refresh seconds changed
+        tmp = this.refreshSeconds;
+        this.refreshSeconds = Number(this._settings.get_string('weather-refresh-seconds'));
+        if (tmp !== this.refreshSeconds) {
+            tempPanelNeedsRebuild = true;
+        }
+
+        // Check doRefresh
+        tmp = this.doRefresh;
+        this.doRefresh = this._settings.get_boolean("refresh-weather");
+        if (tmp !== this.doRefresh) {
+            tempPanelNeedsRebuild = true;
+        }
+        return tempPanelNeedsRebuild;
     }
-    message.request_headers.set_content_type("application/json", null);
-    let responseCode = soupSyncSession.send_message(message);
-    
-    if(responseCode == 200) {
-        try {
-            return JSON.parse(message['response-body'].data);
-        } catch(error) {
-            log("ERROR OCCURRED WHILE SENDING GET REQUEST TO " + url + ". ERROR WAS: " + error);
+
+    _deleteTempStatsPanel() {
+
+        if (this.weatherStatsPanel !== undefined) {
+            Main.panel._rightBox.remove_child(this.weatherStatsPanel);
+            if (this.doRefresh === true) {
+                Mainloop.source_remove(this.refreshTimeout);
+            }
         }
     }
-    return false;
-}
+})
+
 
 function init() {
-    // // Check if compiled schema exists and if not try to compile it
-    // try {
-    //     GLib.file_get_contents(`${Me.dir.get_path()}/schemas/gschemas.compiled`)
-    // } catch (e) {
-    //     Util.spawnCommandLine(`/usr/bin/glib-compile-schemas ${Me.dir.get_path()}/schemas/`);
-    // }
+
 }
 
-function enable () {
-    /* =======================================================
-       ================== POPUP MENU AREA ====================
-       =======================================================
-    */
-    
-    try {
-        let settings = Convenience.getSettings('org.gnome.shell.extensions.hass-data');
-        // Can also use settings.set_string('...', '...');
-        base_url = settings.get_string('hass-url');
-        // access_token = settings.get_string('hass-access-token');
-        togglable_ent_ids = settings.get_strv("hass-togglable-entities");
-        showWeatherStats = settings.get_boolean('show-weather-stats');
-        showHumidity = settings.get_boolean('show-humidity');
-        tempEntityID = settings.get_string("temp-entity-id");
-        humidityEntityID = settings.get_string("humidity-entity-id");
-        refreshSeconds = Number(settings.get_string('weather-refresh-seconds'));
-        doRefresh = settings.get_boolean("refresh-weather");
-        // if (access_token === "") {
-        //     access_token = Secret.password_lookup_sync(TOKEN_SCHEMA, {"token_string": "user_token"}, null);
-        // }
-    } catch (e) {
-        log("Error:  Occurred while getting schema keys...")
-        log("\tMake sure you have the following keys: 'hass-url', 'hass-access-token', 'hass-togglable-entities'.")
-        log("\tCheck the org.gnome.shell.extensions.examle.gschema.xml file under the 'schemas' directory for an example.")
-        throw e;
-    }
 
+function enable() {
+    hassExtension = new HassExtension();
+    Main.panel.addToStatusArea('hass-extension', hassExtension, 1);
+    // For the Shortcut
+    // Shell.ActionMode.NORMAL
+    // Shell.ActionMode.OVERVIEW
+    // Shell.ActionMode.LOCK_SCREEN
+    let mode = Shell.ActionMode.ALL;
 
-    try {
-        // Popup menu
-        myPopup = new MyPopup("Kitchen Lights");
-        Main.panel.addToStatusArea('myPopup', myPopup, 1);
-    } catch(error) {
-        log("Error while creating the popup menu...");
-        throw error;
-    }
-    try {
-        // For the Shortcut
-        // Shell.ActionMode.NORMAL
-        // Shell.ActionMode.OVERVIEW
-        // Shell.ActionMode.LOCK_SCREEN
-        let mode = Shell.ActionMode.ALL;
+    // Meta.KeyBindingFlags.PER_WINDOW
+    // Meta.KeyBindingFlags.BUILTIN
+    // Meta.KeyBindingFlags.IGNORE_AUTOREPEAT
+    let flag = Meta.KeyBindingFlags.NONE;
 
-        // Meta.KeyBindingFlags.PER_WINDOW
-        // Meta.KeyBindingFlags.BUILTIN
-        // Meta.KeyBindingFlags.IGNORE_AUTOREPEAT
-        let flag = Meta.KeyBindingFlags.NONE;
+    let shortcut_settings = Convenience.getSettings('org.gnome.shell.extensions.hass-shortcut');
 
-        let shortcut_settings = Convenience.getSettings('org.gnome.shell.extensions.hass-shortcut');
-
-        Main.wm.addKeybinding("hass-shortcut", shortcut_settings, flag, mode, () => {
-            myPopup.menu.toggle();
-            // log('shortcut is working');
-        });
-    } catch(error) {
-        log("Error while adding shortcut from schema...");
-        throw error;
-    }
-    if (showWeatherStats === true) {
-        try {
-            /**
-             * ===== Weather Area ======
-             */
-            // Add the temperature in the panel
-            weatherStatsPanel = new St.Bin({
-                style_class : "panel-button",
-                reactive : true,
-                can_focus : true,
-                track_hover : true,
-                height : 30,
-            });
-            weatherStatsPanelText = new St.Label({
-                text : "-°C",
-                y_align: Clutter.ActorAlign.CENTER,
-            });
-            _refreshWeatherStats();
-            weatherStatsPanel.set_child(weatherStatsPanelText);
-            weatherStatsPanel.connect("button-press-event", () => {
-                _refreshWeatherStats();
-            });
-
-            if (doRefresh === true) {
-                // Update weather stats every X seconds
-                refreshTimeout = Mainloop.timeout_add_seconds(refreshSeconds,  _refreshWeatherStats);
-            }
-
-            Main.panel._rightBox.insert_child_at_index(weatherStatsPanel, 1);
-        } catch(error) {
-            log("Error while creating the weather statistics button...");
-            throw error;
-        }
-    }
+    Main.wm.addKeybinding("hass-shortcut", shortcut_settings, flag, mode, () => {
+        hassExtension.menu.toggle();
+    });
 }
+
 
 function disable () {
-    myPopup.destroy();
+    hassExtension._deleteTempStatsPanel();
+    hassExtension.destroy();
 
     // Disable shortcut
     Main.wm.removeKeybinding("hass-shortcut");
-
-    if (showWeatherStats === true) {
-        Main.panel._rightBox.remove_child(weatherStatsPanel);
-        if (doRefresh === true) {
-            Mainloop.source_remove(refreshTimeout);
-        }
-    }
 }
