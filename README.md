@@ -8,17 +8,17 @@ you can also use this extension in order to send `start`, `stop` or `close` even
 ## Contents
 
 - [Installation](#installation)
-    - [Installing from Releases](#installing-from-releases)
+    - [Installing from Releases (Recommended)](#installing-from-releases)
     - [Installing from Source](#installing-from-source)
     - [Installing from Gnome Extensions](#installing-from-gnome-extensions)
     - [Gnome Version](#gnome-version)
-    - [Updating](#updating)
-    - [Removing the Extension](#removing-the-extension)
+- [Updating](#updating)
 - [How to Use](#how-to-use)
     - [Manage your Preferences](#manage-your-preferences)
     - [Authentication](#authentication)
     - [Appearance](#appearance)
 - [Security](#security)
+- [Removing the Extension](#removing-the-extension)
 - [Notes](#notes)
 - [Credits](#credits)
 
@@ -47,8 +47,6 @@ After that, you will have to restart your session (e.g. `Alt+F2` -> `r+Enter` on
 need to enable the extension. The enabling part can be done either from the terminal (`gnome-extensions enable hass-gshell@geoph9-on-github`) or 
 from an app such as `Extensions` (available as a flatpak).
 
-**Note:** If you don't know what your `gnome-shell` version is, you can simply run `gnome-shell --version` in a terminal.
-
 ### Installing from Source
 
 In order to install the extension you will have to clone this repository and move it under the directory where your other extensions are. The following commands should make it work:
@@ -59,17 +57,17 @@ mkdir -p "$HOME"/.local/share/gnome-shell/extensions
 git clone https://github.com/geoph9/hass-gshell-extension.git "$HOME"/.local/share/gnome-shell/extensions/hass-gshell@geoph9-on-github
 ```
 
-Then open Gnome Tweaks (or install it if you don't have it) and enable the extension.
+Then open Gnome Tweaks (or the Extensions app on Gnome 40) and enable the extension.
 
 **Note:** Ubuntu 21.04 will not ship with `Gnome 40` and so you will still need to use the `Gnome 3.38` version. For installation instructions
 check the example in the [Installing from Release](#installing-from-release) subsection.
 
 ### Installing from Gnome Extensions
 
-The extension is also available at the [Gnome Extensions](https://extensions.gnome.org/extension/4170/home-assistant-extension/) website 
-with the name *Home Assistant Extension*. But, I am not very used to how things work there and so some changes may not be uploaded 
-immediately on Gnome Extensions. So, if you plan to use this extension, I advise you to follow the instructions here and [install from 
-the releases page](#installing-from-releases).
+The extension is also available at the [Gnome Extensions (e.g.o.)](https://extensions.gnome.org/extension/4170/home-assistant-extension/) website 
+with the name *Home Assistant Extension*. 
+
+The versions there will not be updated very often and so you may miss some features if you choose to use the e.g.o. website. That is why, the recommended [installation method is from the release page](#installing-from-releases).
 
 ### Gnome Version
 
@@ -79,7 +77,7 @@ Below are the `gnome-shell` versions that each branch supports:
 - `[gnome3.38]`: Gnome 3.38
 - `[gnome40]`: Development branch of Gnome 40
 
-### Updating
+## Updating
 
 If you installed the extension from the [release page](https://github.com/geoph9/hass-gshell-extension/releases), you should simply re-run the the `build.sh` script.
 
@@ -91,27 +89,11 @@ cd $HOME/.local/share/gnome-shell/extensions/hass-gshell@geoph9-on-github && git
 
 *TODO: Maybe add an update button on the settings menu.*
 
-### Removing the Extension
-
-If you followed the installation instructions above then you can do the following:
-
-```bash
-rm -rf $HOME/.local/share/gnome-shell/extensions/hass-gshell@geoph9-on-github
-```
-
-You will also have to restart your session in order to have the panel buttons dissapear.
-
 ## How to Use
 
 ### Manage your Preferences
 
-After installing the extension, you can use the preferences widget in order to customize it. In order to do that, you can either open `gnome-tweaks` and go to the `Extensions` tab and select the settings for this extension, or you can simply open the panel menu by pressing on the home assistant icon and then press `Preferences`.
-
-**Note:** Whenever you make any changes to your preferences/settings you will need to restart your session. 
-- On `Xorg` you can do that by pressing `Alt+F2` and then `r`.
-- On `Wayland` you will have to logout and re-login.
-
-If you are unsure about whether you have `Xorg` or `Wayland` then simply try the `Xorg` option and see if it works.
+After installing the extension, you can use the preferences widget in order to customize it. In order to do that, you can open the panel menu by pressing on the home assistant tray icon and then press `Preferences`.
 
 ### Authentication
 
@@ -120,8 +102,6 @@ In order to communicate with `Home Assistant` you will need to provide a `Long L
 After that, copy the token and add it in the in the text box below the `Access Token:` entry on the preferences menu.
 
 In addition, you need to provide the url of your hass instance on the `URL` box. 
-
-**NOTE:** Your url must end with a slash symbol (e.g. http://localhost:8123/).
 
 ### Appearance
 
@@ -139,13 +119,9 @@ If you click the home assistant icon, you will get the following:
 
 ![Hass Opened](screenshots/panel_menu.png?raw=true "How the panel menu appears.")
 
-Here, I have added 2 togglable entities. One for my kitchen lights and one for my TV. By pressing any of these buttons, its state will toggle.
+Here, I have added 2 togglable entities. One for my kitchen lights and one for my TV. By pressing any of these buttons, its state will toggle. The names of these entries are taken from home assistant.
 
-The names of these entries is always of the format: `Toggle: Name` where `Name` is taken by removing the part before the `.` (e.g. remove `switch.`) and then replacing the underscore with a space and capitalizing each letter.
-
-So, for example, the entity id `switch.kitchen_lights` became `Kitchen Lights`.
-
-**NOTE:** The menu can also be opened (toglled)by using the `Super+G` shortcut.This may make it easier for you to toggle something without using the mouse/touchpad. It is not possible (currently) to change this shortcut key (unless you change the schema file and re-compile it).
+**NOTE:** The menu can also be opened (toglled)by using the `Super+G` shortcut.This may make it easier for you to toggle something without using the mouse/touchpad. It is not possible (currently) to change this shortcut key (unless you change the schema file and re-compile it or use something like dconf).
 
 
 #### Home Assistant Events
@@ -156,6 +132,8 @@ By pressing `Hass Events` a new sublist will appear:
 ![Hass Events](screenshots/hass_events.png?raw=true "How the hass events appear.")
 #### Preferences (Settings)
 
+**NOTE:** On Gnome 40 the Preferences menu is slightly different but offers the same functionality.
+
 By pressing the `Preferences` button you will get the following:
 
 
@@ -163,17 +141,15 @@ By pressing the `Preferences` button you will get the following:
 
 Here, you can see the entity ids of my kitchen lights and my tv switch. 
 
-In order to add a new entity id, you can simply copy the id in the text box after the `New Entity ID` text and then press `Add Entity ID`.
+In order to add a new entity id, you can simply copy the id in the text box after the `New Entity ID` text and then press `Add Entity ID`. To delete an entity, select its name and press the delete icon (on the bottom left).
 
-On the other hand, if you want to delete an entity then you simply have to select it and then press the delete icon (on the bottom left).
+### Temperature/Humidity Sensors
 
-### Handle Weather Statistics
-
-Initially, you will see the entry `false | false` in the panel. This means that the temperature entity id(s) has not been set. In order to do that, open the preferences menu as described above.
+If the "Show Weather" option is set to True, you will see the entry `false | false` in the panel. This means that the temperature's entity id has not been set. In order to do that, open the preferences menu as described above.
 
 #### Adding Temperature Sensor
 
-Then, go to the `Temperature Entity ID` line and add the entity id of your temperature sensor. If you don't know it then go to the configuration page of your Home Assistance instance (bottom left) and then press the `Entities` entry. The id should look something like this: `sensor. livingroom_temperature`.
+Change the `Temperature Entity ID` line and add the entity id of your temperature sensor. If you don't know it then go to the configuration page of your Home Assistance instance (bottom left) and then press the `Entities` entry. The id should look something like this: `sensor.livingroom_temperature`.
 
 #### Adding Humidity Sensor
 
@@ -187,21 +163,38 @@ In addition, you can also set the refresh rate (in seconds) for getting the new 
 
 #### Removing Weather Statistics
 
-If you don't have any temperature sensors then you can remove this panel by turning off the `Show Weather` switch (in the preferences menu). 
+If you don't have any temperature sensors, then you can remove this panel by turning off the `Show Weather` switch (in the preferences menu). 
 
 If you only want to see the temperature and not the humidity, then you can also do that by turning off the `Show Humidity` switch.
 
 ## Security
 
-I am using the `Secret` library in order to store the access token in the running secret service (like gnome-keyring or ksecretservice) [source](https://developer.gnome.org/libsecret/unstable/js-store-example.html). This makes it safer to use your access token since it is more difficult to have it stolen by a third party. So, your token is as safe as your current user (this means that if a third party knows your user password and has access to your machine then they can get the keyring, but if that is the case then you probably have more improtant things to worry about).
+I am using the `Secret` library in order to store the access token in the running secret service (like gnome-keyring or ksecretservice) [source](https://developer.gnome.org/libsecret/unstable/js-store-example.html). This makes it safer to use your access token since it is more difficult to have it stolen by a third party. So, your token is as safe as your current user (this means that if a third party knows your user password and has access to your machine then they can theoretically get the token, but if that is the case then you probably have more improtant things to worry about).
 
 In general, if you think that you have an exposed access token, then you should go to your profile and delete it. Pay attention to this especially if you are hosting your instance on the internet (and not locally).
+
+
+## Removing the Extension
+
+If you followed the installation instructions above then you can do the following:
+
+```bash
+rm -rf $HOME/.local/share/gnome-shell/extensions/hass-gshell@geoph9-on-github
+```
+
+You will also have to restart your session in order to have the panel buttons dissapear.
 
 
 ## Notes:
 
 1. Before starting check the preferences page by opening the widget (pressing the home assistant button on the panel) and pressing `Preferences`. There you can add as many (valid) entities as you want. 
 2. The entities **MUST** include a dot (`.`) and at least one underscore (`_`). For example, an entity id could be: `switch.kitchen_lights_relay`.
+3. Changing the preferences should have an immediate effect on the extension (in most cases). But, there is a bug that doesn't allow me to change right away the togglable entities you add on the Preferences menu. So, whenever you want to add a new entity (or delete one) you will need to restart your session. 
+    - On `Xorg` you can do that by pressing `Alt+F2` and then `r`.
+    - On `Wayland` you will have to logout and re-login.
+4. Whenever changing/adding a new Access Token you will need to restart your session just as shown above.
+
+If you are unsure about whether you have `Xorg` or `Wayland` then simply try the `Xorg` option and see if it works.
 
 
 ## Credits

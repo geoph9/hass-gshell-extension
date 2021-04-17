@@ -4,7 +4,6 @@ const Main = imports.ui.main;
 const PanelMenu = imports.ui.panelMenu;
 const PopupMenu = imports.ui.popupMenu;
 
-// const Utils = Me.imports.utils;
 const Convenience = imports.misc.extensionUtils;
 const Me = Convenience.getCurrentExtension();
 // const Util = imports.misc.util;
@@ -15,10 +14,10 @@ const Lang = imports.lang;
 const Mainloop = imports.mainloop;
 const Utils = Me.imports.utils;
 
+const HASS_TOGGLABLE_ENTITIES = 'hass-togglable-entities';
 let hassExtension;
 
-let soupSyncSession = new Soup.SessionSync();
-
+// Credits for organizing this class: https://github.com/vchlum/hue-lights/
 var HassExtension = GObject.registerClass ({
     GTypeName: "HassMenu"
 }, class HassMenu extends PanelMenu.Button {
@@ -53,32 +52,24 @@ var HassExtension = GObject.registerClass ({
         for (let item in oldItems) {
             oldItems[item].destroy();
         }
-        // Parse togglable entity ids as given from the settings
-        let itemName, entityId;
         // I am using an array of objects because I want to get a full copy of the 
         // pmItem and the entityId. If I don't do that then the pmItem will be connected 
         // only to the laste entry of 'togglable_ent_ids' which means that whichever entry
         // of the menu you press, you will always toggle the same button
         var pmItems = [];
-        for (entityId of this.togglable_ent_ids) {
-            log(`====> Adding ${entityId} ===> ''? ${entityId === ""}  ===> includes .? ${!entityId.includes('.')}`)
-            if (entityId === "" || !entityId.includes("."))
+        // Get the togglable entities
+        let togglables = this._getTogglableEntities();
+        for (let entity of togglables) {
+            if (entity.entity_id === "" || !entity.entity_id.includes("."))
                 continue
-            log("============> We are in")
-            // Capitalize every word
-            itemName = entityId.split(".")[1].split("_").
-                                   map(word => word.charAt(0).
-                                               toUpperCase() + word.slice(1)
-                                   ).
-                                   join(" ");
             let pmItem = new PopupMenu.PopupMenuItem('Toggle:');
             pmItem.add_child(
                 new St.Label({
-                    text : itemName
+                    text : entity.name
                 })
             );
             this.menu.addMenuItem(pmItem);
-            pmItems.push({item: pmItem, entity: entityId});
+            pmItems.push({item: pmItem, entity: entity.entity_id});
         }
         for (let item of pmItems) {
             item.item.connect('activate', () => {
@@ -182,6 +173,33 @@ var HassExtension = GObject.registerClass ({
         trayNeedsRebuild = this._needsRebuildTempPanel();
         
         return trayNeedsRebuild;
+    }
+
+    /**
+     * 
+     * @return {Array} An array of objects with keys: 'entity_id' and 'name' to be used when rebuilding the tray entries (the togglers).
+     */
+    _getTogglableEntities() {
+        // Initialize the switched if this is the first time the function is being called
+        if (this.allSwitches === undefined)
+            this.allSwitches = Utils.discoverSwitches(this.base_url);
+        if (this.togglable_ent_ids === undefined || this.togglable_ent_ids.length === 0) {
+            // If the togglable entities provided by the user are empty then simply use all of the available entities
+            // and also update the settings
+            log("===========> _getTogglableEntities() first if")
+            this._settings.set_strv(HASS_TOGGLABLE_ENTITIES, this.allSwitches.map(entry => entry.entity_id))
+            return this.allSwitches
+        } else {
+            log("===========> _getTogglableEntities() second if")
+            let output = [];
+            // Only return the entities that appear in the user defined entities
+            for (let togglable of this.allSwitches) {
+                if (this.togglable_ent_ids.includes(togglable.entity_id)) {
+                    output.push(togglable);
+                }
+            }
+            return output
+        }
     }
 
     _toggleEntity(entityId) {
