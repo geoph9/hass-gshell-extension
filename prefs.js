@@ -9,6 +9,7 @@ const {Gio, Gtk, GObject, Secret} = imports.gi;
 const Config = imports.misc.config;
 const ExtensionUtils = imports.misc.extensionUtils;
 const Me = ExtensionUtils.getCurrentExtension();
+const Utils = Me.imports.utils;
 
 // const Convenience = Me.imports.utils;
 const Convenience = imports.misc.extensionUtils;
@@ -26,12 +27,12 @@ const DO_REFRESH = 'refresh-weather';
 const REFRESH_RATE = 'weather-refresh-seconds';
 
 
-const TOKEN_SCHEMA = Secret.Schema.new("org.gnome.hass-data.Password",
-	Secret.SchemaFlags.NONE,
-	{
-		"token_string": Secret.SchemaAttributeType.STRING,
-	}
-);
+// const TOKEN_SCHEMA = Secret.Schema.new("org.gnome.hass-data.Password",
+// 	Secret.SchemaFlags.NONE,
+// 	{
+// 		"token_string": Secret.SchemaAttributeType.STRING,
+// 	}
+// );
 
 // let ShellVersion = parseInt(Config.PACKAGE_VERSION.split(".")[1]);
 
@@ -348,7 +349,7 @@ class HassWidget {
       let addButton = new Gtk.Button({valign: Gtk.Align.CENTER, label: "Add"});
       addButton.connect('clicked', () => {
         // Synchronously (the UI will block): https://developer.gnome.org/libsecret/unstable/js-store-example.html
-        Secret.password_store_sync(TOKEN_SCHEMA, {"token_string": "user_token"}, Secret.COLLECTION_DEFAULT,
+        Secret.password_store_sync(Utils.TOKEN_SCHEMA, {"token_string": "user_token"}, Secret.COLLECTION_DEFAULT,
         "long_live_access_token", textEntry.get_text(), null);
       });
 
