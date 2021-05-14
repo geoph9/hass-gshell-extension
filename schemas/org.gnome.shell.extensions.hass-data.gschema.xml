@@ -67,6 +67,12 @@
 
     <key type="as" name="hass-togglable-entities">
       <default>['switch.kitchen_lights', 'switch.livingroom_tv']</default>
+      <summary>Complete list of entity ids for home-assistant switches.</summary>
+      <description>Full list of home assistant switched. It is meant to be filled automatically after pressing the 'Scan' button in the Preferences menu.</description>
+    </key>
+
+    <key type="as" name="hass-enabled-entities">
+      <default>['switch.kitchen_lights', 'switch.livingroom_tv']</default>
       <summary>Entity ids for home-assistant switches.</summary>
       <description>Entity ids for home-assistant switches. E.g. switch.livingroom_lights_relay</description>
     </key>

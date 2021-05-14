@@ -15,6 +15,8 @@ const Mainloop = imports.mainloop;
 const Utils = Me.imports.utils;
 
 const HASS_TOGGLABLE_ENTITIES = 'hass-togglable-entities';
+const HASS_ENABLED_ENTITIES = 'hass-enabled-entities';
+const HASS_SETTINGS = 'org.gnome.shell.extensions.hass-data';
 let hassExtension;
 
 // Credits for organizing this class: https://github.com/vchlum/hue-lights/
@@ -23,7 +25,7 @@ var HassExtension = GObject.registerClass ({
 }, class HassMenu extends PanelMenu.Button {
     _init() {
         super._init(0, Me.metadata.name, false);
-        this._settings = Convenience.getSettings('org.gnome.shell.extensions.hass-data');
+        this._settings = Convenience.getSettings(HASS_SETTINGS);
         this._settings.connect("changed", Lang.bind(this, function() {
             if (this.needsRebuild()) {
                 this.rebuildTray();
@@ -164,7 +166,7 @@ var HassExtension = GObject.registerClass ({
 
         // Check togglable ids
         tmp = this.togglable_ent_ids;
-        this.togglable_ent_ids = this._settings.get_strv("hass-togglable-entities");
+        this.togglable_ent_ids = this._settings.get_strv(HASS_ENABLED_ENTITIES);
         if (tmp !== this.togglable_ent_ids) {
             trayNeedsRebuild = true;
         }
@@ -181,16 +183,16 @@ var HassExtension = GObject.registerClass ({
      */
     _getTogglableEntities() {
         // Initialize the switched if this is the first time the function is being called
-        if (this.allSwitches === undefined)
+        if (this.allSwitches === undefined) {
             this.allSwitches = Utils.discoverSwitches(this.base_url);
+            this._settings.set_strv(HASS_TOGGLABLE_ENTITIES, this.allSwitches.map(entry => entry.entity_id))
+        }
         if (this.togglable_ent_ids === undefined || this.togglable_ent_ids.length === 0) {
             // If the togglable entities provided by the user are empty then simply use all of the available entities
             // and also update the settings
-            log("===========> _getTogglableEntities() first if")
-            this._settings.set_strv(HASS_TOGGLABLE_ENTITIES, this.allSwitches.map(entry => entry.entity_id))
+            this._settings.set_strv(HASS_ENABLED_ENTITIES, this.allSwitches.map(entry => entry.entity_id))
             return this.allSwitches
         } else {
-            log("===========> _getTogglableEntities() second if")
             let output = [];
             // Only return the entities that appear in the user defined entities
             for (let togglable of this.allSwitches) {
@@ -198,6 +200,7 @@ var HassExtension = GObject.registerClass ({
                     output.push(togglable);
                 }
             }
+            this._settings.set_strv(HASS_ENABLED_ENTITIES, output);
             return output
         }
     }
