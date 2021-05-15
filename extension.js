@@ -191,7 +191,7 @@ var HassExtension = GObject.registerClass ({
             this.allSwitches = Utils.discoverSwitches(this.base_url);
             this._settings.set_strv(HASS_TOGGLABLE_ENTITIES, this.allSwitches.map(entry => entry.entity_id))
         }
-        if (this.togglable_ent_ids === undefined || this.togglable_ent_ids.length === 0) {
+        if (this.togglable_ent_ids === undefined) {  // || this.togglable_ent_ids.length === 0) {
             // If the togglable entities provided by the user are empty then simply use all of the available entities
             // and also update the settings
             this._settings.set_strv(HASS_ENABLED_ENTITIES, this.allSwitches.map(entry => entry.entity_id))

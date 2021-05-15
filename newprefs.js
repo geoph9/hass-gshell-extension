@@ -317,11 +317,7 @@ function _buildTogglableSettings() {
             } else {
                 currentEntities.push(togCheckBox.entity)
             }
-            // (TODO)
-            // The problem here is that by checking a checkbox the menu entries 
-            // will not change and another setting must be changed for that to happend.
-            // I don't really know why. Something we how setting changes are binded.
-            mscOptions.enabledEntities = currentEntities;
+            mscOptions.enabledEntities = mscOptions.togglableEntities.filter(ent => currentEntities.includes(ent));
         });
     }
 
