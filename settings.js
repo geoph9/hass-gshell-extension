@@ -58,7 +58,7 @@ var MscOptions = class MscOptions {
         return this._gsettings.get_strv(HASS_ENABLED_ENTITIES);
     }
     set enabledEntities(entities) {
-        this._gsettings.set_strv(HASS_TOGGLABLE_ENTITIES, entities);
+        this._gsettings.set_strv(HASS_ENABLED_ENTITIES, entities);
     }
 
     get tempHumi() {

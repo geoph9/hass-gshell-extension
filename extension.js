@@ -129,7 +129,7 @@ var HassExtension = GObject.registerClass ({
                 });
                 this.weatherStatsPanel.set_child(this.weatherStatsPanelText);
                 this.weatherStatsPanel.connect("button-press-event", () => {
-                    this._needsRebuildTempPanel();
+                    this._needsRebuildTempPanel(false);
                     this._refreshWeatherStats();
                 });
             }
@@ -139,7 +139,7 @@ var HassExtension = GObject.registerClass ({
             if (this.doRefresh === true) {
                 // Update weather stats every X seconds
                 this.refreshTimeout = Mainloop.timeout_add_seconds(this.refreshSeconds,  () => {
-                    this._needsRebuildTempPanel();
+                    this._needsRebuildTempPanel(false);
                     this._refreshWeatherStats();
                 });
             }
@@ -171,12 +171,12 @@ var HassExtension = GObject.registerClass ({
         // Check togglable ids
         tmp = this.togglable_ent_ids;
         this.togglable_ent_ids = this._settings.get_strv(HASS_ENABLED_ENTITIES);
-        if (tmp !== this.togglable_ent_ids) {
+        if (!Utils.arraysEqual(tmp, this.togglable_ent_ids)) {
             trayNeedsRebuild = true;
         }
 
         // Do the same for all of the weather entities
-        trayNeedsRebuild = this._needsRebuildTempPanel();
+        trayNeedsRebuild = this._needsRebuildTempPanel(trayNeedsRebuild);
         
         return trayNeedsRebuild;
     }
@@ -253,9 +253,8 @@ var HassExtension = GObject.registerClass ({
         return `${json_result.state} ${json_result.attributes.unit_of_measurement}`;
     }
 
-    _needsRebuildTempPanel() {
+    _needsRebuildTempPanel(tempPanelNeedsRebuild) {
         let tmp;
-        let tempPanelNeedsRebuild = false;
 
         // Check show weather stats
         tmp = this.showWeatherStats;
