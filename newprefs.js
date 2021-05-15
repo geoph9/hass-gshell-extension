@@ -83,7 +83,7 @@ function _buildGeneralSettings() {
     let [urlItem, urlTextEntry, urlAddButton] = _makeGtkEntryButton(HASS_URL)
     optionsList.push(urlItem);
     // Add the HASS Access Token option
-    let [tokItem, tokenTextEntry, tokenAddButton] = _makeGtkEntryButton(HASS_ACCESS_TOKEN)
+    let [tokItem, tokenTextEntry, tokenAddButton] = _makeGtkEntryButton(HASS_ACCESS_TOKEN, true)
     optionsList.push(tokItem);
 
     // //////////////////////////////////////////////////////////
@@ -132,7 +132,7 @@ function _buildGeneralSettings() {
             });
             frameBox = new Gtk.ListBox({
                 selection_mode: null,
-                can_focus: false,
+                can_focus: true,
             });
             miscUI.append(frame);
             frame.set_child(frameBox);
@@ -150,12 +150,12 @@ function _buildGeneralSettings() {
             margin_top:   4,
             margin_bottom:4,
             hexpand: true,
-            spacing: 20,
+            spacing: 30,
         });
         for (let i of item[0]) {
             box.append(i)
         }
-        if (item.length === 2 || item.length === 3) {
+        if (item.length === 2) {
             box.set_tooltip_text(item[1]);
         }
         frameBox.append(box);
@@ -185,7 +185,8 @@ function _buildGeneralSettings() {
     urlTextEntry.connect('changed', () => {
         log("DO WE CHANGE?")
     })
-    urlAddButton.connect('notify::clicked', () => {
+    urlAddButton.connect('clicked', () => {
+        log("URL HAS CHANGED TO:" + urlTextEntry.get_text())
         mscOptions.hassUrl = urlTextEntry.get_text();
     });
 
@@ -237,8 +238,12 @@ function _makeGtkEntryButton(name, isAccessToken) {
     let key = schema.get_key(name);
     let [textEntry, addButton] = _newGtkEntryButton();
     if (isAccessToken === true) {
+        log("INSIDE ACCESS")
         addButton.connect('clicked', () => {
+            log("WE ARE CLIVVVVVVVVVVVVVVKED")
             if (textEntry.get_text().trim() !== "") {
+                log("IT IS NOT EMPTYYYYYYYYYYYYYYYY")
+                log("IT IS:" + textEntry.get_text())
                 // Synchronously (the UI will block): https://developer.gnome.org/libsecret/unstable/js-store-example.html
                 Secret.password_store_sync(
                     Utils.TOKEN_SCHEMA, 

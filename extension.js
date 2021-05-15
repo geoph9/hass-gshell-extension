@@ -160,6 +160,10 @@ var HassExtension = GObject.registerClass ({
         if (!this.base_url.endsWith("/")) {
             this.base_url += "/";  //  needs a trailing slash
         }
+        if (!this.base_url.startsWith("http")){
+            // use http:// by default
+            this.base_url = "http://" + this.base_url;
+        }
         if (tmp !== this.base_url) {
             trayNeedsRebuild = true;
         }
@@ -200,7 +204,7 @@ var HassExtension = GObject.registerClass ({
                     output.push(togglable);
                 }
             }
-            this._settings.set_strv(HASS_ENABLED_ENTITIES, output);
+            this._settings.set_strv(HASS_ENABLED_ENTITIES, output.map(entry => entry.entity_id));
             return output
         }
     }
