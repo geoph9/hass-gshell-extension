@@ -18,7 +18,11 @@ you can also use this extension in order to send `start`, `stop` or `close` even
 - [How to Use](#how-to-use)
     - [Manage your Preferences](#manage-your-preferences)
     - [Authentication](#authentication)
-    - [Appearance](#appearance)
+- [Appearance](#appearance)
+    - [Panel Appearance](#panel-appearance)
+    - [Opening the Menu](#opening-the-menu)
+    - [Preferences (Settings)](#preferences-settings)
+    - [Changing the Togglables](#changing-the-togglables)
 - [Security](#security)
 - [Removing the Extension](#removing-the-extension)
 - [Feature Requests](#feature-requests)
@@ -90,7 +94,7 @@ If you installed from source, then you will have to pull the changes from the ma
 cd $HOME/.local/share/gnome-shell/extensions/hass-gshell@geoph9-on-github && git pull origin master
 ```
 
-*TODO: Maybe add an update button on the settings menu.*
+If you installed from the [Gnome Extensions (e.g.o.)](https://extensions.gnome.org/extension/4170/home-assistant-extension/) website and there is an update available, then you will be prompted to update whenever you visit the website.
 
 ## How to Use
 
@@ -106,23 +110,23 @@ After that, copy the token and add it in the in the text box below the `Access T
 
 In addition, you need to provide the url of your hass instance on the `URL` box. 
 
-### Appearance
+## Appearance
 
-#### Panel Appearance
+### Panel Appearance
 
 The panel will contain the following 2 entries (after configuring the temperature). *Note: The red line is there just to emphasize the icons.*
 
-![Panel Appearance](screenshots/panel_icons.png?raw=true "How the panel icons appear.")
+![Panel Appearance](screenshots/panel_icons_40.png?raw=true "How the panel icons appear.")
 
 By pressing the temperature buttons you can refresh the temperature.
 
-#### Opening the Menu
+### Opening the Menu
 
 If you click the home assistant icon, you will get the following:
 
-![Hass Opened](screenshots/panel_menu.png?raw=true "How the panel menu appears.")
+![Hass Opened](screenshots/panel_menu_40.png?raw=true "How the panel menu appears.")
 
-Here, I have added 2 togglable entities. One for my kitchen lights and one for my TV. By pressing any of these buttons, its state will toggle. The names of these entries are taken from home assistant.
+In this example, I have added 2 togglable entities that control my kitchen lights and my TV power. By pressing any of these buttons, its state will toggle. The names of these entries are taken from home assistant.
 
 **NOTE:** The menu can also be opened (toglled)by using the `Super+G` shortcut.This may make it easier for you to toggle something without using the mouse/touchpad. It is not possible (currently) to change this shortcut key (unless you change the schema file and re-compile it or use something like dconf).
 
@@ -132,43 +136,42 @@ Here, I have added 2 togglable entities. One for my kitchen lights and one for m
 By pressing `Hass Events` a new sublist will appear:
 
 
-![Hass Events](screenshots/hass_events.png?raw=true "How the hass events appear.")
-#### Preferences (Settings)
+![Hass Events](screenshots/hass_events_40.png?raw=true "How the hass events appear.")
 
-**NOTE:** On Gnome 40 the Preferences menu is slightly different but offers the same functionality.
+### Preferences (Settings)
+
+**NOTE:** This is for Gnome 40. Gnome 3.38 has a different menu but with similar functionality.
 
 By pressing the `Preferences` button you will get the following:
 
 
-![Preferences](screenshots/preferences_menu.png?raw=true "How the preferences/settings appear.")
+![Preferences](screenshots/general_settings.png?raw=true "How the preferences/settings appear.")
 
-Here, you can see the entity ids of my kitchen lights and my tv switch. 
+Currently, there are two pages. One containing generic settings and one containing the settings for you 
+togglable entities. In the general settings, you are prompted to enter the URL and Long-Live Access Token of 
+your Home Assistant instance.
 
-In order to add a new entity id, you can simply copy the id in the text box after the `New Entity ID` text and then press `Add Entity ID`. To delete an entity, select its name and press the delete icon (on the bottom left).
+The rest of the options are self-describing. About the temperature and humidity id, they are only needed if the 
+`Show Temperature/Humidity` and `Show Humidity` switches are on. Otherwise, you can still use the extension by 
+using only the toggles. Theoretically, you can put any kind of sensor in these spots (but I haven't tested any 
+other kind of sensor).
 
-### Temperature/Humidity Sensors
+**Note:** The Long Live Access Token can be obtained by going to your Home Assistant dashboard, then to your profile (on the bottom) and then go to the bottom of the page and create a new Long Live Access Token. More information about it [on the oficial Home Assistant website](https://developers.home-assistant.io/docs/auth_api/#long-lived-access-token).
 
-If the "Show Weather" option is set to True, you will see the entry `false | false` in the panel. This means that the temperature's entity id has not been set. In order to do that, open the preferences menu as described above.
+**Note:** The options to refresh the temperature/humidity statistics are currently not working.
 
-#### Adding Temperature Sensor
+### Changing the Togglables
 
-Change the `Temperature Entity ID` line and add the entity id of your temperature sensor. If you don't know it then go to the configuration page of your Home Assistance instance (bottom left) and then press the `Entities` entry. The id should look something like this: `sensor.livingroom_temperature`.
+If you click the `Togglables` page on the side you will get the following:
 
-#### Adding Humidity Sensor
+![Preferences](screenshots/togglable_settings.png?raw=true "How the togglable settings appear.")
 
-You can do the same for your humidity sensor and add it under the `Humidity Entity ID` line.
+The extension will scan your home assistant instance in order to find all of the entities that are either switches or lights. These entities will be listed here. In my case, I only have 
+two togglable entities and I use both of them. If I unchecked the switch.kitchen_lights entry then the option would also be removed from the extension's panel.
 
-### Refreshing Weather Statistics
+By default, all togglables will appear. If you only want a subset of the switches, you can do that here. 
 
-By default, the weather statistics will be refreshed only when you press their values. This can be changed by going to the `Preferences` and switching on the `Refresh Weather Statistics` option.
-
-In addition, you can also set the refresh rate (in seconds) for getting the new statistics from your Home Assistant Instance.
-
-#### Removing Weather Statistics
-
-If you don't have any temperature sensors, then you can remove this panel by turning off the `Show Weather` switch (in the preferences menu). 
-
-If you only want to see the temperature and not the humidity, then you can also do that by turning off the `Show Humidity` switch.
+The last block refers to grouping switches. For example, you could have one toggle for a set of switches. I have not implemented this yet.
 
 ## Security
 
@@ -194,11 +197,10 @@ For feature requests please create a new issue and describe what you want. I wil
 ## Notes:
 
 1. Before starting check the preferences page by opening the widget (pressing the home assistant button on the panel) and pressing `Preferences`. There you can add as many (valid) entities as you want. 
-2. The entities **MUST** include a dot (`.`) and at least one underscore (`_`). For example, an entity id could be: `switch.kitchen_lights_relay`.
-3. Changing the preferences should have an immediate effect on the extension (in most cases). But, there is a bug that doesn't allow me to change right away the togglable entities you add on the Preferences menu. So, whenever you want to add a new entity (or delete one) you will need to restart your session. 
+2. On Gnome 3.38, the entities **MUST** include a dot (`.`) and at least one underscore (`_`). For example, an entity id could be: `switch.kitchen_lights_relay`.
+3. On Gnome 3.38, changing the preferences doesn't update togglable entities and you will need to restart your session for the changes to take effect. 
     - On `Xorg` you can do that by pressing `Alt+F2` and then `r`.
     - On `Wayland` you will have to logout and re-login.
-4. Whenever changing/adding a new Access Token you will need to restart your session just as shown above.
 
 If you are unsure about whether you have `Xorg` or `Wayland` then simply try the `Xorg` option and see if it works.
 
@@ -211,3 +213,5 @@ My implementation is based on the following:
 - **Github Repo**: [TV Switch - Gnome Shell Extension](https://github.com/geoph9/tv-switch-gnome-shell-extension).
 - **Caffeine Extension**: [Caffeine](https://github.com/eonpatapon/gnome-shell-extension-caffeine)
 - **GameMode Extension**: [GameMode](https://github.com/gicmo/gamemode-extension)
+- **Custom Hot Corners Extended (forked extension)**: [Custom Hot Corners Extended](https://github.com/G-dH/custom-hot-corners-extended)
+

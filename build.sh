@@ -5,6 +5,11 @@ vers=$(gnome-shell --version | cut -d ' ' -f 3-)
 if [[ $vers == 40* ]] ; then  # e.g. convert 40.0 to 40
   vers="40";
 fi
+if [[ -z $vers ]] ; then
+  # Are you not using gnome?
+  echo "Could not identify gnome version. Aborting..."
+  exit 1;
+fi
 
 function check_releases() {
   echo "$0: Could not find release version $1."
@@ -22,7 +27,7 @@ if [[ $# -ge 1 ]] ; then
   echo
   exit 1;
 fi
-echo "$0: Downloading version $vers..."
+echo "$0: Downloading extension for version $vers..."
 
 
 # Download with wget (you can also download manually).
