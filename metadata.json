@@ -8,5 +8,5 @@
     "url" : "https://github.com/geoph9/hass-gshell-extension",
     "settings-schema": "org.gnome.shell.extensions.hass-data",
     "uuid" : "hass-gshell@geoph9-on-github",
-    "version" : 1.3
+    "version" : 1.4
 }

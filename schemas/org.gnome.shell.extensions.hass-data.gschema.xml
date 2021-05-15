@@ -14,13 +14,13 @@
     <key type="s" name="weather-refresh-seconds">
       <default>"60"</default>
       <summary>Refresh Rate</summary>
-      <description>The refresh rate for the weather statistics in seconds (works only if "Refresh Temperature/Humidity Sensors" is enabled).</description>
+      <description>(Currently Broken) The refresh rate for the weather statistics in seconds (works only if "Refresh Temperature/Humidity Sensors" is enabled).</description>
     </key>
 
     <key type="b" name="refresh-weather">
         <default>false</default>
         <summary>Refresh Temperature/Humidity Sensors</summary>
-        <description>Whether or not you want to refresh the temperature and/or humidity sensor values.</description>
+        <description>(Currently Broken) Whether or not you want to refresh the temperature and/or humidity sensor values.</description>
     </key>
 
     <key type="b" name="show-notifications">
