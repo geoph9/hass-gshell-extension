@@ -34,8 +34,11 @@ var HassExtension = GObject.registerClass ({
         }));
 
         // Add tray icon
+        let icon_path = this._settings.get_string('default-panel-icon');
+        // Make sure the path is valid
+        icon_path = icon_path.startsWith("/") ? icon_path : "/" + icon_path;
         let icon = new St.Icon({
-            gicon : Gio.icon_new_for_string( Me.dir.get_path() + '/icons/hass-main.png' ),
+            gicon : Gio.icon_new_for_string( Me.dir.get_path() + icon_path),
             style_class : 'system-status-icon',
         });
         this.add_child(icon);

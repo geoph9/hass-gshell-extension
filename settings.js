@@ -9,6 +9,8 @@ const Gettext = imports.gettext.domain(Me.metadata['gettext-domain']);
 // var _ = Gettext.gettext;
 var _ = (t) => t;
 
+const PANEL_ICON_PATH = "default-panel-icon";
+const VALID_PANEL_ICONS = 'valid-panel-icons';
 const HASS_ACCESS_TOKEN = 'hass-access-token';
 const HASS_URL = 'hass-url';
 const HASS_TOGGLABLE_ENTITIES = 'hass-togglable-entities';
@@ -40,25 +42,26 @@ var MscOptions = class MscOptions {
         this._connectionIds.forEach(id => this._gsettings.disconnect(id));
     }
 
+    // Panel Icons
+    get panelIcon() {
+        return this._gsettings.get_string(PANEL_ICON_PATH);
+    }
+    set panelIcon(icon_path) {
+        this._gsettings.set_string(PANEL_ICON_PATH, icon_path);
+    }
+    get validIcons() {
+        return this._gsettings.get_strv(VALID_PANEL_ICONS);
+    }
+    set validIcons(icon_paths) {
+        this._gsettings.set_strv(VALID_PANEL_ICONS, icon_paths);
+    }
+
+    // General Settings
     get hassUrl() {
         return this._gsettings.get_string(HASS_URL);
     }
     set hassUrl(bool_val) {
         this._gsettings.set_string(HASS_URL, bool_val);
-    }
-
-    get togglableEntities() {
-        return this._gsettings.get_strv(HASS_TOGGLABLE_ENTITIES);
-    }
-    set togglableEntities(entities) {
-        this._gsettings.set_strv(HASS_TOGGLABLE_ENTITIES, entities);
-    }
-
-    get enabledEntities() {
-        return this._gsettings.get_strv(HASS_ENABLED_ENTITIES);
-    }
-    set enabledEntities(entities) {
-        this._gsettings.set_strv(HASS_ENABLED_ENTITIES, entities);
     }
 
     get tempHumi() {
@@ -101,6 +104,21 @@ var MscOptions = class MscOptions {
     }
     set refreshRate(rate) {
         this._gsettings.set_string(REFRESH_RATE, humiId);
+    }
+
+    // Togglable settings
+    get togglableEntities() {
+        return this._gsettings.get_strv(HASS_TOGGLABLE_ENTITIES);
+    }
+    set togglableEntities(entities) {
+        this._gsettings.set_strv(HASS_TOGGLABLE_ENTITIES, entities);
+    }
+
+    get enabledEntities() {
+        return this._gsettings.get_strv(HASS_ENABLED_ENTITIES);
+    }
+    set enabledEntities(entities) {
+        this._gsettings.set_strv(HASS_ENABLED_ENTITIES, entities);
     }
 
 }
