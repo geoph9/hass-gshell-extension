@@ -5,6 +5,8 @@ This is a simple gnome shell extension which allows you to control your home ass
 Currently, the extension only supports temperature (and humidity) sensors and also toggling lights or switches. In addition, 
 you can also use this extension in order to send `start`, `stop` or `close` events to your Home Assistant instance. 
 
+**Note:** Supports Gnome 40 and Gnome 3.38.
+
 ## Contents
 
 - [Installation](#installation)
@@ -23,6 +25,7 @@ you can also use this extension in order to send `start`, `stop` or `close` even
     - [Changing the Togglables](#changing-the-togglables)
 - [Security](#security)
 - [Removing the Extension](#removing-the-extension)
+- [Feature Requests](#feature-requests)
 - [Notes](#notes)
 - [Credits](#credits)
 
@@ -49,7 +52,7 @@ wget https://raw.githubusercontent.com/geoph9/hass-gshell-extension/master/build
 
 After that, you will have to restart your session (e.g. `Alt+F2` -> `r+Enter` on Xorg or simply logout and re-login on Wayland) and then you will 
 need to enable the extension. The enabling part can be done either from the terminal (`gnome-extensions enable hass-gshell@geoph9-on-github`) or 
-from an app such as `Extensions` (available as a flatpak).
+from an app such as `Extensions` (available as a flatpak) or from the [`Gnome Extensions` website](https://extensions.gnome.org/).
 
 ### Installing from Source
 
@@ -191,6 +194,9 @@ rm -rf $HOME/.local/share/gnome-shell/extensions/hass-gshell@geoph9-on-github
 
 You will also have to restart your session in order to have the panel buttons dissapear.
 
+## Feature Requests
+
+For feature requests please create a new issue and describe what you want. I will be happy to try and implement it (or you can implement it yourself in then make a PR).
 
 ## Notes:
 
@@ -212,3 +218,4 @@ My implementation is based on the following:
 - **Caffeine Extension**: [Caffeine](https://github.com/eonpatapon/gnome-shell-extension-caffeine)
 - **GameMode Extension**: [GameMode](https://github.com/gicmo/gamemode-extension)
 - **Custom Hot Corners Extended (forked extension)**: [Custom Hot Corners Extended](https://github.com/G-dH/custom-hot-corners-extended)
+
