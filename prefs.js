@@ -117,6 +117,41 @@ function _buildGeneralSettings() {
     let [humiTextItem, humiTextEntry, humiAddButton] = _makeGtkEntryButton(HUMIDITY_ID)
     optionsList.push(humiTextItem);
 
+    // //////////////////////////////////////////////////////////
+    // //////////// Default Icon Handler/Configuration //////////
+    // //////////////////////////////////////////////////////////
+    optionsList.push(_optionsItem(
+        _makeTitle(_('Panel Icon Options:')),
+        null,
+        null,
+        null
+    ));
+    let validIcons = mscOptions.validIcons;
+    let currentIcon = mscOptions.panelIcon;
+    let superGroup = new Gtk.CheckButton();  // to convert to radio buttons.
+    let iconCheckBoxes = [];
+    for (let ic of validIcons) {
+        let checked = false;
+        if (ic === currentIcon) checked = true;
+        let label = ic.split("/")[ic.split("/").length-1]
+                      .split(".")[0]
+                      .split("-")
+                      .map(word => word.charAt(0).toUpperCase() + word.slice(1))
+                      .join(" ");
+        let [iconItem, panelIconCheckBox] = _makeCheckBox(label + " Icon", checked, superGroup);
+        optionsList.push(iconItem);
+        iconCheckBoxes.push({
+            icon: ic,
+            rb: panelIconCheckBox
+        });
+    }
+    optionsList.push(_optionsItem(
+        "You will need to restart your session in order for this change to take effect.",
+        "On Xorg, you can do that by Alt+F2 and then pressing 'r' and Enter. If this doesn't work (Wayland), you have to logout and re-login.",
+        new Gtk.Label(),
+        null
+    ));
+
 
     // //////////////////////////////////////////////////////////
     // ////////////////// Building the boxes ////////////////////
@@ -199,6 +234,16 @@ function _buildGeneralSettings() {
         mscOptions.humidityId = humiTextEntry.get_text();
     });
 
+    // //////////////////////////////////////////////////////////
+    // ////////////// Handlers for Radio Buttons ////////////////
+    // //////////////////////////////////////////////////////////
+    for (let icCheckbox of iconCheckBoxes) {
+        icCheckbox.rb.connect('notify::active', () => {
+            // log("New radio button will be:" + icCheckbox.icon);
+            mscOptions.panelIcon = icCheckbox.icon;
+        });
+    }
+
     return miscUI;
 }
 
@@ -232,7 +277,7 @@ function _buildTogglableSettings() {
         ));
     }
 
-    // Add the HASS url option
+    // Add the togglable check boxes option
     let togglableCheckBoxes = [];
     for (let tog of togglables) {
         let checked = false;
@@ -402,12 +447,26 @@ function _makeSwitch(name) {
     ]
 }
 
-function _makeCheckBox(name, checked) {
-    let gtkCheckBox = _newGtkCheckBox(checked);
+/**
+ * 
+ * @param {String} name The name of the text on the left of the check box.
+ * @param {boolean} checked (Optional) Whether the box is checked or not. Defaults to false.
+ * @param {Gtk.CheckButton} buttonGroup (Optional) A check button group which the new checkbutton will belong to. 
+ * If provided then the checkbutton will be a radio button.
+ * @return {Gtk.CheckButton} A new Gtk.CheckButton instance.
+ */
+function _makeCheckBox(name, checked, buttonGroup) {
+    let gtkCheckBox = _newGtkCheckBox(checked, buttonGroup);
+    let desc;
+    if (buttonGroup !== undefined) {
+        desc = _("Do you want to have the '") + name + _("' icon in your panel?");
+    } else {
+        desc = _("Do you want to show ") + name + _(" in the tray menu?");
+    }
     return [
         _optionsItem(
             name,
-            _("Do you want to show ") + name + _(" in the tray menu?"),
+            desc,
             gtkCheckBox,
             null
         ),
@@ -415,7 +474,7 @@ function _makeCheckBox(name, checked) {
     ]
 }
 
-function _newGtkCheckBox(checked) {
+function _newGtkCheckBox(checked, buttonGroup) {
     let cb = new Gtk.CheckButton({
         halign: Gtk.Align.END,
         valign: Gtk.Align.CENTER,
@@ -423,6 +482,9 @@ function _newGtkCheckBox(checked) {
     });
     if (checked === true) {
         cb.set_active(true)
+    }
+    if (buttonGroup !== undefined) {
+        cb.set_group(buttonGroup);
     }
     return cb
 }

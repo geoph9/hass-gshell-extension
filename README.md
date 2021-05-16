@@ -120,6 +120,8 @@ The panel will contain the following 2 entries (after configuring the temperatur
 
 By pressing the temperature buttons you can refresh the temperature.
 
+**Note: You can change the panel icon from the preferences menu. Currently only a blue and a white icon is supported. The white icon is the default.**
+
 ### Opening the Menu
 
 If you click the home assistant icon, you will get the following:
@@ -155,6 +157,8 @@ The rest of the options are self-describing. About the temperature and humidity 
 `Show Temperature/Humidity` and `Show Humidity` switches are on. Otherwise, you can still use the extension by 
 using only the toggles. Theoretically, you can put any kind of sensor in these spots (but I haven't tested any 
 other kind of sensor).
+
+**Note:** The `Hass White Icon` is the default Icon option and it is the classical home-assistant icon without any color. This integrates better with the rest of the icons in your panel. In the screenshots above I am using the `Hass Blue Icon`.
 
 **Note:** The Long Live Access Token can be obtained by going to your Home Assistant dashboard, then to your profile (on the bottom) and then go to the bottom of the page and create a new Long Live Access Token. More information about it [on the oficial Home Assistant website](https://developers.home-assistant.io/docs/auth_api/#long-lived-access-token).
 

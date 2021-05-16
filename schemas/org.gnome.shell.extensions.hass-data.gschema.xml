@@ -11,6 +11,18 @@
   <schema id="org.gnome.shell.extensions.hass-data"
     path="/org/gnome/shell/extensions/hass-data/">
 
+    <key type="s" name="default-panel-icon">
+      <default>"/icons/hass-white.png"</default>
+      <summary>Panel Icon.</summary>
+      <description>The default icon that will be visible in the panel.</description>
+    </key>
+
+    <key type="as" name="valid-panel-icons">
+      <default>['/icons/hass-white.png', '/icons/hass-blue.png']</default>
+      <summary>Complete list of valid panel icons for the extension.</summary>
+      <description>The paths have to be relative to the directory where the 'extension.js' file is located.</description>
+    </key>
+
     <key type="s" name="weather-refresh-seconds">
       <default>"60"</default>
       <summary>Refresh Rate</summary>
