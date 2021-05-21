@@ -250,6 +250,7 @@ function _buildGeneralSettings() {
 function _buildTogglableSettings() {
     const mscOptions = new Settings.MscOptions();
 
+    const scrollWindow = new Gtk.ScrolledWindow();
     let miscUI = new Gtk.Box({
         orientation: Gtk.Orientation.VERTICAL,
         spacing:       10,
@@ -257,7 +258,9 @@ function _buildTogglableSettings() {
         margin_start:  12,
         margin_end:    12,
         margin_top:    12,
-        margin_bottom: 12
+        margin_bottom: 12,
+        hexpand: true,
+        vexpand: true,
     });
     let optionsList = [];
 
@@ -366,7 +369,9 @@ function _buildTogglableSettings() {
         });
     }
 
-    return miscUI;
+    scrollWindow.set_child(miscUI)
+
+    return scrollWindow;
 }
 
 function _optionsItem(text, tooltip, widget, button) {
