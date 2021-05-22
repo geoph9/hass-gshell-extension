@@ -10,11 +10,9 @@ you can also use this extension in order to send `start`, `stop` or `close` even
 ## Contents
 
 - [Installation](#installation)
-    - [Installing from Releases (Recommended)](#installing-from-releases)
+    - [Direct Install (Recommended)](#direct-install)
     - [Installing from Source](#installing-from-source)
     - [Installing from Gnome Extensions](#installing-from-gnome-extensions)
-    - [Gnome Version](#gnome-version)
-- [Updating](#updating)
 - [How to Use](#how-to-use)
     - [Manage your Preferences](#manage-your-preferences)
     - [Authentication](#authentication)
@@ -24,6 +22,8 @@ you can also use this extension in order to send `start`, `stop` or `close` even
     - [Preferences (Settings)](#preferences-settings)
     - [Changing the Togglables](#changing-the-togglables)
 - [Security](#security)
+- [Gnome Version](#gnome-version)
+- [Updating](#updating)
 - [Removing the Extension](#removing-the-extension)
 - [Feature Requests](#feature-requests)
 - [Notes](#notes)
@@ -32,27 +32,34 @@ you can also use this extension in order to send `start`, `stop` or `close` even
 
 ## Installation
 
-### Installing from Releases
+### Direct Install
 
-You can also download the extension from the [release page](https://github.com/geoph9/hass-gshell-extension/releases) (pick the release corresponding
-to your gnome-shell version). 
-
-In order automate the process, I have created the script `build.sh` which will download the release corresponding to you current `gnome-shell` version. You don't have to clone the whole repo. It suffices to download the `build.sh` script and run it.
+The script `build.sh` aims at helping you download and install the extension. Its default behavior will simply download the latest release corresponding to your gnome version. If you want to have the latest changes directly from the `master` branch then you can provide the `--latest` argument. Example usage is shown below:
 
 ```bash
-#Download build.sh and give execution rights
+# Download build.sh and give execution rights
 wget https://raw.githubusercontent.com/geoph9/hass-gshell-extension/master/build.sh && chmod +x build.sh
 
-# Download and "install" hass-gshell-extension 
+# Download and install hass-gshell@geoph9-on-github from the releases
 ./build.sh
 
-# Get help message
+# # Download and install the latest version directly from master.
+# # This makes it a bit more possible to encounter some bug.
+# # If you do so, please make an issue on github!
+# ./build.sh --latest  # or simply -l
+
+# # Get help message
 # ./build.sh -h
+
+# Delete the build.sh script since you no longer need it.
+rm ./build.sh
 ```
 
 After that, you will have to restart your session (e.g. `Alt+F2` -> `r+Enter` on Xorg or simply logout and re-login on Wayland) and then you will 
 need to enable the extension. The enabling part can be done either from the terminal (`gnome-extensions enable hass-gshell@geoph9-on-github`) or 
 from an app such as `Extensions` (available as a flatpak) or from the [`Gnome Extensions` website](https://extensions.gnome.org/).
+
+**NOTE:** The script simply downloads the extension's files either from github or fromt he realeases page. You can check that yourself. If you still don't trust running the script, then you follow the steps below.
 
 ### Installing from Source
 
@@ -66,8 +73,7 @@ git clone https://github.com/geoph9/hass-gshell-extension.git "$HOME"/.local/sha
 
 Then open Gnome Tweaks (or the Extensions app on Gnome 40) and enable the extension.
 
-**Note:** Ubuntu 21.04 will not ship with `Gnome 40` and so you will still need to use the `Gnome 3.38` version. For installation instructions
-check the example in the [Installing from Release](#installing-from-release) subsection.
+**Note:** Ubuntu 21.04 will not ship with `Gnome 40` and so you will still need to use the `Gnome 3.38` version. You can install that by using the `build.sh` script above, with the default settings.
 
 ### Installing from Gnome Extensions
 
@@ -75,26 +81,6 @@ The extension is also available at the [Gnome Extensions (e.g.o.)](https://exten
 with the name *Home Assistant Extension*. 
 
 The versions there will not be updated very often and so you may miss some features if you choose to use the e.g.o. website. That is why, the recommended [installation method is from the release page](#installing-from-releases).
-
-### Gnome Version
-
-Below are the `gnome-shell` versions that each branch supports: 
-
-- `[master]`: Gnome 40
-- `[gnome3.38]`: Gnome 3.38
-- `[gnome40]`: Development branch of Gnome 40
-
-## Updating
-
-If you installed the extension from the [release page](https://github.com/geoph9/hass-gshell-extension/releases), you should simply re-run the the `build.sh` script.
-
-If you installed from source, then you will have to pull the changes from the master branch as follows:
-
-```bash
-cd $HOME/.local/share/gnome-shell/extensions/hass-gshell@geoph9-on-github && git pull origin master
-```
-
-If you installed from the [Gnome Extensions (e.g.o.)](https://extensions.gnome.org/extension/4170/home-assistant-extension/) website and there is an update available, then you will be prompted to update whenever you visit the website.
 
 ## How to Use
 
@@ -183,6 +169,26 @@ I am using the `Secret` library in order to store the access token in the runnin
 
 In general, if you think that you have an exposed access token, then you should go to your profile and delete it. Pay attention to this especially if you are hosting your instance on the internet (and not locally).
 
+
+## Gnome Version
+
+Below are the `gnome-shell` versions that each branch supports: 
+
+- `[master]`: Gnome 40
+- `[gnome3.38]`: Gnome 3.38
+- `[gnome40]`: Development branch of Gnome 40
+
+## Updating
+
+If you installed the extension from the [release page](https://github.com/geoph9/hass-gshell-extension/releases), you should simply re-run the the `build.sh` script.
+
+If you installed from source, then you will have to pull the changes from the master branch as follows:
+
+```bash
+cd $HOME/.local/share/gnome-shell/extensions/hass-gshell@geoph9-on-github && git pull origin master
+```
+
+If you installed from the [Gnome Extensions (e.g.o.)](https://extensions.gnome.org/extension/4170/home-assistant-extension/) website and there is an update available, then you will be prompted to update whenever you visit the website.
 
 ## Removing the Extension
 
