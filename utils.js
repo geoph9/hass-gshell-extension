@@ -8,6 +8,8 @@ const TOKEN_SCHEMA = Secret.Schema.new("org.gnome.hass-data.Password",
 	}
 );
 
+const VALID_TOGGLABLES = ['switch.', 'light.', 'fan.'];
+
 /**
  * 
  * @param {String} type Request type.
@@ -71,7 +73,8 @@ function discoverSwitches(base_url) {
     let entities = [];
     for (let ent of data) {
         // Save all the switchable/togglable entities in the entities array
-        if (ent.entity_id.startsWith('switch.') || ent.entity_id.startsWith('light.')) {
+        if (VALID_TOGGLABLES.filter(tog => ent.entity_id.startsWith(tog)).length > 0) {
+        // if (ent.entity_id.startsWith('switch.') || ent.entity_id.startsWith('light.')) {
             entities.push(
               {
                 'entity_id': ent.entity_id,
