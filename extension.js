@@ -214,7 +214,8 @@ var HassExtension = GObject.registerClass ({
 
     _toggleEntity(entityId) {
         let data = `{"entity_id": "${entityId}"}`;
-        let result = Utils.send_request(`${this.base_url}api/services/switch/toggle`, 'POST', data);
+        let domain = entityId.split(".")[0];  // e.g. light.mylight => light
+        let result = Utils.send_request(`${this.base_url}api/services/${domain}/toggle`, 'POST', data);
         if (!result) {
             return false;
         }
