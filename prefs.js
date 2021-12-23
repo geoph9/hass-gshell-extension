@@ -50,6 +50,9 @@ function buildPrefsWidget() {
     // TODO
     // notebook.append_page(_buildTogglables(), togglables);
     notebook.append_page(_buildTogglableSettings(), togglables);
+    
+    let panelSensors = new Gtk.Label({ label: _('Panel Sensors'), halign: Gtk.Align.START});
+    notebook.append_page(_buildSensorSettings(), panelSensors);
 
     return prefsWidget;
 }
@@ -366,6 +369,117 @@ function _buildTogglableSettings() {
                 currentEntities.push(togCheckBox.entity)
             }
             mscOptions.enabledEntities = mscOptions.togglableEntities.filter(ent => currentEntities.includes(ent));
+        });
+    }
+
+    scrollWindow.set_child(miscUI)
+
+    return scrollWindow;
+}
+
+function _buildSensorSettings() {
+    const mscOptions = new Settings.MscOptions();
+
+    const scrollWindow = new Gtk.ScrolledWindow();
+    let miscUI = new Gtk.Box({
+        orientation: Gtk.Orientation.VERTICAL,
+        spacing:       10,
+        homogeneous: false,
+        margin_start:  12,
+        margin_end:    12,
+        margin_top:    12,
+        margin_bottom: 12,
+        hexpand: true,
+        vexpand: true,
+    });
+    let optionsList = [];
+
+    // //////////////////////////////////////////////////////////
+    // ////// Which sensors should be shown on the panel ////////
+    // //////////////////////////////////////////////////////////
+    let allSensors = mscOptions.hassSensorIds;
+    let enabledSensors = mscOptions.enabledSensors;
+    if (allSensors.length === 0) {
+        optionsList.push(_optionsItem(
+            _makeTitle(_('Sensors:')), null, null, null
+        ));
+    } else {
+        // Only the title changes
+        optionsList.push(_optionsItem(
+            _makeTitle(_('Choose Which Sensors Should Appear on the Panel:')), null, null, null
+        ));
+    }
+
+    // Add the togglable check boxes option
+    let sensorCheckBoxes = [];
+    for (let sensor of allSensors) {
+        let checked = false;
+        if (enabledSensors.includes(sensor)) checked = true;
+        let [sensorItem, sensorCheckBox] = _makeCheckBox(sensor, checked);
+        optionsList.push(sensorItem);
+        sensorCheckBoxes.push({
+            entity: sensor,
+            cb: sensorCheckBox, 
+            checked: checked
+        });
+    }
+
+    
+
+    // //////////////////////////////////////////////////////////
+    // ////////////////// Building the boxes ////////////////////
+    // //////////////////////////////////////////////////////////
+    let frame;
+    let frameBox;
+    for (let item_id in optionsList) {
+        let item = optionsList[item_id];
+        if (!item[0][1]) {
+            let lbl = new Gtk.Label();
+            lbl.set_markup(item[0][0]);
+            frame = new Gtk.Frame({
+                label_widget: lbl
+            });
+            frameBox = new Gtk.ListBox({
+                selection_mode: null,
+                can_focus: false,
+            });
+            miscUI.append(frame);
+            frame.set_child(frameBox);
+            continue;
+        }
+        let box = new Gtk.Box({
+            can_focus: false,
+            orientation: Gtk.Orientation.HORIZONTAL,
+            margin_start: 4,
+            margin_end:   4,
+            margin_top:   4,
+            margin_bottom:4,
+            hexpand: true,
+            spacing: 30,
+        });
+        for (let i of item[0]) {
+            box.append(i)
+        }
+        if (item.length === 2) {
+            box.set_tooltip_text(item[1]);
+        }
+        frameBox.append(box);
+    }
+
+    // //////////////////////////////////////////////////////////
+    // /////////////// Handlers for Checkboxes //////////////////
+    // //////////////////////////////////////////////////////////
+    for (let sensorCheckBox of sensorCheckBoxes) {
+        sensorCheckBox.cb.set_active(sensorCheckBox.checked)
+        sensorCheckBox.cb.connect('notify::active', () => {
+            let currentSensors = mscOptions.enabledSensors;
+            let index = currentSensors.indexOf(sensorCheckBox.entity);
+            if (index > -1) { // then it exists and so we pop
+                currentSensors.splice(index, 1)
+            } else {
+                currentSensors.push(sensorCheckBox.entity)
+            }
+            mscOptions.enabledSensors = mscOptions.hassSensorIds.filter(ent => currentSensors.includes(ent));
         });
     }
 
