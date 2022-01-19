@@ -16,6 +16,8 @@ const Utils = Me.imports.utils;
 
 const HASS_TOGGLABLE_ENTITIES = 'hass-togglable-entities';
 const HASS_ENABLED_ENTITIES = 'hass-enabled-entities';
+const HASS_PANEL_SENSOR_IDS = 'hass-panel-sensor-ids';
+const HASS_ENABLED_SENSOR_IDS = 'hass-enabled-sensor-ids';
 const HASS_SETTINGS = 'org.gnome.shell.extensions.hass-data';
 let hassExtension;
 
@@ -30,6 +32,7 @@ var HassExtension = GObject.registerClass ({
             if (this.needsRebuild()) {
                 this.rebuildTray();
                 this.buildTempSensorStats();
+                this.buildPanelSensorEntities();
             }
         }));
 
@@ -48,6 +51,8 @@ var HassExtension = GObject.registerClass ({
 
         // Build the temperature/humidity sensor statistics (if needed)
         this.buildTempSensorStats();
+        // Build panel entries for other sensors;
+        this.buildPanelSensorEntities();
     }
 
     rebuildTray() {
@@ -115,6 +120,37 @@ var HassExtension = GObject.registerClass ({
         this.menu.addMenuItem(popupImageMenuItem);
     }
 
+    buildPanelSensorEntities() {
+        let panelSensors = this._getSensorEntities();
+        if (panelSensors.length === 0) {
+            this._deleteSensorsPanel();
+            return
+        }
+        if (this.sensorsPanel === undefined) {
+            // Add the temperature in the panel
+            this.sensorsPanel = new St.Bin({
+                style_class : "panel-button",
+                reactive : true,
+                can_focus : true,
+                track_hover : true,
+                height : 30,
+            });
+            this.sensorsPanelText = new St.Label({
+                text : "",
+                y_align: Clutter.ActorAlign.CENTER,
+            });
+            this.sensorsPanel.set_child(this.sensorsPanelText);
+            this.sensorsPanel.connect("button-press-event", () => {
+                this._needsRebuildSensorPanel(false);
+                this._refreshPanelSensors();
+            });
+        }
+
+        this._refreshPanelSensors();
+
+        Main.panel._rightBox.insert_child_at_index(this.sensorsPanel, 1);
+    }
+
     buildTempSensorStats() {
         if (this.showWeatherStats === true) {
             if (this.weatherStatsPanel === undefined) {
@@ -180,6 +216,8 @@ var HassExtension = GObject.registerClass ({
 
         // Do the same for all of the weather entities
         trayNeedsRebuild = this._needsRebuildTempPanel(trayNeedsRebuild);
+        // Do the same for all extra sensor entities
+        trayNeedsRebuild = this._needsRebuildSensorPanel(trayNeedsRebuild);
         
         return trayNeedsRebuild;
     }
@@ -212,6 +250,34 @@ var HassExtension = GObject.registerClass ({
         }
     }
 
+    /**
+     * 
+     * @return {Array} An array of objects with keys: 'entity_id' and 'name' to be used when rebuilding the panel entries (the sensors).
+     */
+    _getSensorEntities() {
+        // Initialize the switched if this is the first time the function is being called
+        if (this.allSensors === undefined) {
+            this.allSensors = Utils.discoverSensors(this.base_url);
+            this._settings.set_strv(HASS_PANEL_SENSOR_IDS, this.allSensors.map(entry => entry.entity_id))
+        }
+        if (!this.panelSensorIds || this.panelSensorIds.length === 0) {
+            // If the sensor entities provided by the user are empty then use nothing
+            this._settings.set_strv(HASS_ENABLED_SENSOR_IDS, [])
+            return []
+        } else {
+            if (this.allSensors.length === 0) return []
+            let output = [];
+            // Only return the entities that appear in the user defined entities
+            for (let sensor of this.allSensors) {
+                if (this.panelSensorIds.includes(sensor.entity_id)) {
+                    output.push(sensor);
+                }
+            }
+            this._settings.set_strv(HASS_ENABLED_SENSOR_IDS, output.map(entry => entry.entity_id));
+            return output
+        }
+    }
+
     _toggleEntity(entityId) {
         let data = `{"entity_id": "${entityId}"}`;
         let domain = entityId.split(".")[0];  // e.g. light.mylight => light
@@ -234,9 +300,9 @@ var HassExtension = GObject.registerClass ({
         try {
             let out = "";
             // if showWeatherStats is true then the temperature must be shown (the humidity can be turned off)
-            out += this._getWeatherSensorData(this.tempEntityID);
+            out += this._getPanelSensorData(this.tempEntityID);
             if (this.showHumidity === true) {
-                out += ` | ${this._getWeatherSensorData(this.humidityEntityID)}`;
+                out += ` | ${this._getPanelSensorData(this.humidityEntityID)}`;
             }
             this.weatherStatsPanelText.text = out;
         } catch (error) {
@@ -249,7 +315,33 @@ var HassExtension = GObject.registerClass ({
         return true; 
     }
 
-    _getWeatherSensorData(entity_id) {
+    _refreshPanelSensors() {
+        try {
+            let sensorEntities = this._getSensorEntities();
+            let outText = "";
+            let tmp;
+            for (let sensor of sensorEntities) {
+                tmp = this._getPanelSensorData(sensor.entity_id)
+                if (!tmp) continue;
+                outText += `${tmp} | `
+            }
+            if (outText.length > 2) {
+                outText = outText.substring(0, outText.length-3)
+            }
+            log("WILL USE OUT TEXT:");
+            log(outText);
+            this.sensorsPanelText.text = outText;
+        } catch (error) {
+            logError(error, "Could not refresh sensor stats...");
+            // will execute this function only once and abort. 
+            // Remove in order to make the Main loop continue working.
+            return false;
+        }
+        // By returning true, the function will continue refresing every X seconds
+        return true; 
+    }
+
+    _getPanelSensorData(entity_id) {
         let json_result = Utils.send_request(`${this.base_url}api/states/${entity_id}`);
         if (!json_result) {
             return false;
@@ -304,6 +396,18 @@ var HassExtension = GObject.registerClass ({
         return tempPanelNeedsRebuild;
     }
 
+    _needsRebuildSensorPanel(trayNeedsRebuild){
+        let tmp;
+        // Check togglable ids
+        tmp = this.panelSensorIds;
+        this.panelSensorIds = this._settings.get_strv(HASS_ENABLED_SENSOR_IDS);
+        if (!Utils.arraysEqual(tmp, this.panelSensorIds)) {
+            trayNeedsRebuild = true;
+        }
+        return trayNeedsRebuild;
+
+    }
+
     _deleteTempStatsPanel() {
 
         if (this.weatherStatsPanel !== undefined) {
@@ -311,6 +415,12 @@ var HassExtension = GObject.registerClass ({
             if (this.doRefresh === true) {
                 Mainloop.source_remove(this.refreshTimeout);
             }
+        }
+    }
+
+    _deleteSensorsPanel() {
+        if (this.sensorsPanel) {
+            Main.panel._rightBox.remove_child(this.sensorsPanel);
         }
     }
 })

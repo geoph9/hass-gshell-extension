@@ -87,6 +87,39 @@ function discoverSwitches(base_url) {
 }
 
 /**
+ * 
+ * @param {String} base_url The base url of the Home Assistant instance
+ * @return {Object} Array of dictionaries with 'entity_id' and 'name' entries
+ */
+function discoverSensors(base_url) {
+    let url = `${base_url}api/states`
+    let data = send_request(url, 'GET');
+    if (data === false) {
+        return [];
+    }
+    let entities = [];
+    for (let ent of data) {
+        // Save all the switchable/togglable entities in the entities array
+        if (ent.entity_id.startsWith('sensor.')) {
+            if (!ent.state || !ent.attributes.unit_of_measurement){
+                continue
+            }
+            if (ent.state === "unknown" || ent.state === "unavailable"){
+                continue
+            }
+            entities.push(
+              {
+                'entity_id': ent.entity_id,
+                'name': ent.attributes.friendly_name,
+                'unit': ent.attributes.unit_of_measurement
+              }
+            )
+        }
+    }
+    return entities
+}
+
+/**
  * Check equality of elements of two arrays
  * @param {Array} a Array 1
  * @param {Array} b Array 2
