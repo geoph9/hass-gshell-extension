@@ -9,7 +9,7 @@ const TOKEN_SCHEMA = Secret.Schema.new("org.gnome.hass-data.Password",
 );
 
 /**
- * 
+ *
  * @param {String} type Request type.
  * @param {String} url Url of the request.
  * @param {Object} data Data in json format.
@@ -32,7 +32,7 @@ function _constructMessage(type, url, data=null) {
 }
 
 /**
- * 
+ *
  * @param {String} url The url which you want to 'ping'
  * @param {String} type Request type (e.g. 'GET', 'POST')
  * @param {Object} data (optional) Data that you want to send with the request (must be in json format)
@@ -58,7 +58,7 @@ function send_request(url, type='GET', data=null) {
 }
 
 /**
- * 
+ *
  * @param {String} base_url The base url of the Home Assistant instance
  * @return {Object} Array of dictionaries with 'entity_id' and 'name' entries
  */
@@ -84,7 +84,7 @@ function discoverSwitches(base_url) {
 }
 
 /**
- * 
+ *
  * @param {String} base_url The base url of the Home Assistant instance
  * @return {Object} Array of dictionaries with 'entity_id' and 'name' entries
  */
@@ -126,70 +126,16 @@ function arraysEqual(a, b) {
     if (a === b) return true;
     if (a == null || b == null) return false;
     if (a.length !== b.length) return false;
-  
+
     // If you don't care about the order of the elements inside
     // the array, you should sort both arrays here.
     // Please note that calling sort on an array will modify that array.
     // you might want to clone your array first.
-  
+
     for (var i = 0; i < a.length; ++i) {
       if (a[i] !== b[i]) return false;
     }
     return true;
-}
-
-/**
- * 
- * @param {String} schema_name 
- * @return {Gio.Settings} The settings corresponding to the input schema
- */
-// function getSettings(schema_name) {
-//     if (schema_name !== undefined) {
-//         schema_name = `org.gnome.shell.extensions.${schema_name}`;
-//     } else {
-//         schema_name = Me.metadata['settings-schema'];
-//     }
-//     let GioSSS = Gio.SettingsSchemaSource;
-//     let schemaSource = GioSSS.new_from_directory(
-//       Me.dir.get_child("schemas").get_path(),
-//       GioSSS.get_default(),
-//       false
-//     );
-//     let schemaObj = schemaSource.lookup(schema_name, true);
-//     if (!schemaObj) {
-//         throw new Error('Schema ' + schema_name + ' could not be found for extension ' + Me.metadata.uuid + '. Please check your installation.');
-//     }
-//     return new Gio.Settings({ settings_schema : schemaObj });
-// }
-
-function getSettings(schema) {
-    const schemaDir = Me.dir.get_child('schemas');
-    let schemaSource;
-    if (schemaDir.query_exists(null)) {
-        schemaSource = Gio.SettingsSchemaSource.new_from_directory(
-            schemaDir.get_path(),
-            Gio.SettingsSchemaSource.get_default(),
-            false
-        );
-    } else {
-        schemaSource = Gio.SettingsSchemaSource.get_default();
-    }
-
-    const schemaObj = schemaSource.lookup(schema, true);
-    if (!schemaObj) {
-        throw new Error(
-            'Schema' + schema + ' could not be found for extension ' +
-            Me.metadata.uuid + '. Please check your installation.'
-        );
-    }
-
-    const args = { settings_schema: schemaObj };
-    // let path = schema.replace('.', '/');
-    // if (path) {
-    //     args.path = path;
-    // }
-
-    return new Gio.Settings(args);
 }
 
 // // Credits: https://stackoverflow.com/questions/65830466/gnome-shell-extension-send-request-with-authorization-bearer-headers/65841700
