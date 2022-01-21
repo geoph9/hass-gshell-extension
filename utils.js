@@ -8,7 +8,7 @@ const TOKEN_SCHEMA = Secret.Schema.new("org.gnome.hass-data.Password",
 	}
 );
 
-const VALID_TOGGLABLES = ['switch.', 'light.', 'fan.'];
+const VALID_TOGGLABLES = ['switch.', 'light.', 'fan.', 'input_boolean.'];
 
 /**
  * 
