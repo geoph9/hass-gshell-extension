@@ -456,6 +456,7 @@ function enable() {
 function disable () {
     hassExtension._deleteTempStatsPanel();
     hassExtension.destroy();
+    hassExtension = null;
 
     // Disable shortcut
     Main.wm.removeKeybinding("hass-shortcut");
