@@ -97,5 +97,6 @@ while [[ $# -gt 0 ]] ; do
 done
 
 download_stable
+glib-compile-schemas "$HOME"/.local/share/gnome-shell/extensions/hass-gshell@geoph9-on-github
 
 exit 0;
