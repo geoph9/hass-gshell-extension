@@ -1,0 +1,294 @@
+# Spanish translation for Home Assistant Extension.
+# Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
+# This file is distributed under the same license as the PACKAGE package.
+# Óscar Fernández Díaz <oscfdezdz@tuta.io>, 2022.
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: \n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2022-05-07 17:25+0200\n"
+"PO-Revision-Date: 2022-05-07 17:25+0200\n"
+"Last-Translator: \n"
+"Language-Team: \n"
+"Language: es\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+"X-Generator: Poedit 3.0.1\n"
+
+#: schemas/org.gnome.shell.extensions.hass-data.gschema.xml:16
+msgid "Panel Icon."
+msgstr "Icono del panel."
+
+#: schemas/org.gnome.shell.extensions.hass-data.gschema.xml:17
+msgid "The default icon that will be visible in the panel."
+msgstr "El icono predeterminado que será visible en el panel."
+
+#: schemas/org.gnome.shell.extensions.hass-data.gschema.xml:22
+msgid "Complete list of valid panel icons for the extension."
+msgstr "Lista completa de iconos del panel válidos para la extensión."
+
+#: schemas/org.gnome.shell.extensions.hass-data.gschema.xml:23
+msgid ""
+"The paths have to be relative to the directory where the 'extension.js' file "
+"is located."
+msgstr ""
+"Las rutas tienen que ser relativas al directorio donde se encuentra el "
+"archivo 'extension.js'."
+
+#: schemas/org.gnome.shell.extensions.hass-data.gschema.xml:28
+msgid "Refresh Rate"
+msgstr "Tasa de refresco"
+
+#: schemas/org.gnome.shell.extensions.hass-data.gschema.xml:29
+msgid ""
+"(Currently Broken) The refresh rate for the weather statistics in seconds "
+"(works only if \"Refresh Temperature/Humidity Sensors\" is enabled)."
+msgstr ""
+"(Actualmente roto) La frecuencia de actualización de las estadísticas "
+"meteorológicas en segundos (sólo funciona si está activada la opción "
+"\"Actualizar sensores de temperatura/humedad\")."
+
+#: schemas/org.gnome.shell.extensions.hass-data.gschema.xml:34
+msgid "Refresh Temperature/Humidity Sensors"
+msgstr "Actualizar los sensores de temperatura/humedad"
+
+#: schemas/org.gnome.shell.extensions.hass-data.gschema.xml:35
+msgid ""
+"(Currently Broken) Whether or not you want to refresh the temperature and/or "
+"humidity sensor values."
+msgstr ""
+"(Actualmente roto) Si desea o no refrescar los valores del sensor de "
+"temperatura y/o humedad."
+
+#: schemas/org.gnome.shell.extensions.hass-data.gschema.xml:40
+msgid "Show notifications"
+msgstr "Mostrar notificaciones"
+
+#: schemas/org.gnome.shell.extensions.hass-data.gschema.xml:41
+msgid "Show notifications when enabled/disabled."
+msgstr "Mostrar notificaciones cuando se activa/desactiva."
+
+#: schemas/org.gnome.shell.extensions.hass-data.gschema.xml:46
+msgid "Show Temperature/Humidity"
+msgstr "Mostrar temperatura/humedad"
+
+#: schemas/org.gnome.shell.extensions.hass-data.gschema.xml:47
+msgid ""
+"Whether to show the temperature and/or humidity values (assuming you have "
+"provided the corresponding entity ids)."
+msgstr ""
+"Si se muestran los valores de temperatura y/o humedad (suponiendo que se han "
+"proporcionado los identificadores de entidad correspondientes)."
+
+#: schemas/org.gnome.shell.extensions.hass-data.gschema.xml:52
+msgid "Show Humidity"
+msgstr "Mostrar humedad"
+
+#: schemas/org.gnome.shell.extensions.hass-data.gschema.xml:53
+msgid "Whether to show humidity value or not."
+msgstr "Mostrar o no el valor de la humedad."
+
+#: schemas/org.gnome.shell.extensions.hass-data.gschema.xml:58
+msgid "Temperature ID"
+msgstr "Identificador de temperatura"
+
+#: schemas/org.gnome.shell.extensions.hass-data.gschema.xml:59
+msgid "Your Home Assistant EntityID for the temperature sensor."
+msgstr "El EntityID de Home Assistant para el sensor de temperatura."
+
+#: schemas/org.gnome.shell.extensions.hass-data.gschema.xml:64
+msgid "Humidity ID"
+msgstr "Identificador de humedad"
+
+#: schemas/org.gnome.shell.extensions.hass-data.gschema.xml:65
+msgid "Your Home Assistant EntityID for the humidity sensor."
+msgstr "El EntityID de Home Assistant para el sensor de humedad."
+
+#: schemas/org.gnome.shell.extensions.hass-data.gschema.xml:70
+msgid "Access Token"
+msgstr "Testigo de acceso"
+
+#: schemas/org.gnome.shell.extensions.hass-data.gschema.xml:71
+msgid ""
+"Long Live Access Token for Home Assistant (Go to Profile->Bottom-of-the-page-"
+">Long-Live-Access-Tokens and create a new one)."
+msgstr ""
+"Testigo de acceso de larga duración para Home Assistant (Vaya a Perfil-"
+">Fondo de la página->Testigos de acceso de larga duración y cree uno nuevo)."
+
+#: schemas/org.gnome.shell.extensions.hass-data.gschema.xml:76
+msgid "URL"
+msgstr "URL"
+
+#: schemas/org.gnome.shell.extensions.hass-data.gschema.xml:77
+msgid "The url where your hass instance is hosted."
+msgstr "La url donde está alojada su instancia de hass."
+
+#: schemas/org.gnome.shell.extensions.hass-data.gschema.xml:82
+msgid "Complete list of entity ids for home-assistant switches."
+msgstr ""
+"Lista completa de identificadores de entidad para los interruptores de "
+"asistencia domiciliaria."
+
+#: schemas/org.gnome.shell.extensions.hass-data.gschema.xml:83
+msgid ""
+"Full list of home assistant switches. It is meant to be filled automatically "
+"after pressing the 'Scan' button in the Preferences menu."
+msgstr ""
+"Lista completa de interruptores del asistente doméstico. Está pensada para "
+"que se rellene automáticamente tras pulsar el botón \"Escanear\" en el menú "
+"de Preferencias."
+
+#: schemas/org.gnome.shell.extensions.hass-data.gschema.xml:88
+msgid "Entity ids for home-assistant switches."
+msgstr "Identificadores de entidad para los interruptores de Home Assistant."
+
+#: schemas/org.gnome.shell.extensions.hass-data.gschema.xml:89
+msgid ""
+"Entity ids for home-assistant switches. E.g. switch.livingroom_lights_relay."
+msgstr ""
+"Identificadores de entidad para los interruptores de asistencia al hogar. "
+"Por ejemplo, switch.livingroom_lights_relay."
+
+#: schemas/org.gnome.shell.extensions.hass-data.gschema.xml:94 prefs.js:56
+msgid "Panel Sensors"
+msgstr "Sensores del panel"
+
+#: schemas/org.gnome.shell.extensions.hass-data.gschema.xml:95
+msgid ""
+"List of entity ids for the sensor values that you want to show in the panel ."
+msgstr ""
+"Lista de identificadores de entidades para los valores de los sensores que "
+"desea mostrar en el panel."
+
+#: schemas/org.gnome.shell.extensions.hass-data.gschema.xml:100
+msgid "Entity ids for home assistant sensors."
+msgstr "Identificadores de entidad para los sensores de Home Assistant."
+
+#: schemas/org.gnome.shell.extensions.hass-data.gschema.xml:101
+msgid ""
+"Entity ids for home-assistant sensors. E.g. sensor.livingroom_temperature ."
+msgstr ""
+"Identificadores de entidad para los sensores de asistencia al hogar. Por "
+"ejemplo, sensor.livingroom_temperature ."
+
+#: schemas/org.gnome.shell.extensions.hass-data.gschema.xml:112
+msgid "Home Assistant Extension - Shortcut Key"
+msgstr "Home Assistant Extension - Atajo del teclado"
+
+#: schemas/org.gnome.shell.extensions.hass-data.gschema.xml:113
+msgid "Shortcut key on how to open the extension's menu from the tray."
+msgstr "Atajo para abrir el menú de la extensión desde la bandeja."
+
+#: extension.js:77
+msgid "Toggle:"
+msgstr "Conmutar:"
+
+#: extension.js:95
+msgid "HASS Events"
+msgstr "Eventos de HASS"
+
+#: extension.js:97
+msgid "Start Home Assistant"
+msgstr "Iniciar Home Assistant"
+
+#: extension.js:98
+msgid "Stop Home Assistant"
+msgstr "Detener Home Assistant"
+
+#: extension.js:99
+msgid "Close Home Assistant"
+msgstr "Cerrar Home Assistant"
+
+#: extension.js:115
+msgid "Preferences"
+msgstr "Preferencias"
+
+#: prefs.js:48
+msgid "General Settings"
+msgstr "Ajustes generales"
+
+#: prefs.js:51
+msgid "Togglables"
+msgstr "Conmutables"
+
+#: prefs.js:82
+msgid "Global options:"
+msgstr "Opciones globales:"
+
+#: prefs.js:100
+msgid "Temperature/Humidity options:"
+msgstr "Opciones de temperatura/humedad:"
+
+#: prefs.js:129
+msgid "Panel Icon Options:"
+msgstr "Opciones de iconos del panel:"
+
+#: prefs.js:146
+msgid " Icon"
+msgstr " Icono"
+
+#: prefs.js:154
+msgid ""
+"You will need to restart your session in order for this change to take "
+"effect."
+msgstr "Deberá reiniciar su sesión para que este cambio surta efecto."
+
+#: prefs.js:155
+msgid ""
+"On Xorg, you can do that by Alt+F2 and then pressing 'r' and Enter. If this "
+"doesn't work (Wayland), you have to logout and re-login."
+msgstr ""
+"En Xorg, puede hacerlo con Alt+F2 y luego pulsando 'r' y Enter. Si esto no "
+"funciona (Wayland), debe cerrar la sesión y volver a iniciarla."
+
+#: prefs.js:279
+msgid "Togglable Entities:"
+msgstr "Entidades conmutables:"
+
+#: prefs.js:284
+msgid "Choose Togglable Entities:"
+msgstr "Seleccionar entidades conmutables:"
+
+#: prefs.js:307
+msgid "Group Switches"
+msgstr "Interruptores de grupo"
+
+#: prefs.js:314
+msgid "Experimental"
+msgstr "Experimental"
+
+#: prefs.js:315
+msgid "Does not currently work."
+msgstr "No funciona actualmente."
+
+#: prefs.js:406
+msgid "Sensors:"
+msgstr "Sensores:"
+
+#: prefs.js:411
+msgid "Choose Which Sensors Should Appear on the Panel:"
+msgstr "Seleccione los sensores que deben aparecer en el panel:"
+
+#: prefs.js:583
+msgid "Do you want to have the '"
+msgstr "¿Quiere tener el '"
+
+#: prefs.js:583
+msgid "' icon in your panel?"
+msgstr "' icono en su panel?"
+
+#: prefs.js:585
+msgid "Do you want to show "
+msgstr "¿Quiere mostrar "
+
+#: prefs.js:585
+msgid " in the tray menu?"
+msgstr " en la bandeja del menú?"
+
+#: prefs.js:632
+msgid "Add"
+msgstr "Añadir"
