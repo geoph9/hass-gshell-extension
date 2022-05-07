@@ -5,7 +5,8 @@ const ExtensionUtils = imports.misc.extensionUtils;
 const Me = ExtensionUtils.getCurrentExtension();
 const Utils = Me.imports.utils;
 const Settings = Me.imports.settings;
-const _  = Settings._;
+const Gettext = imports.gettext.domain(Me.metadata['gettext-domain']);
+const _ = Gettext.gettext;
 
 // const Convenience = Me.imports.utils;
 const Convenience = imports.misc.extensionUtils;
@@ -31,6 +32,7 @@ let _settings = Convenience.getSettings(HASS_SETTINGS);
 
 function init() {
     schema = _settings.settings_schema;
+    Convenience.initTranslations();
     log(`initializing ${Me.metadata.name} Preferences`);
 }
 
@@ -141,7 +143,7 @@ function _buildGeneralSettings() {
                       .split("-")
                       .map(word => word.charAt(0).toUpperCase() + word.slice(1))
                       .join(" ");
-        let [iconItem, panelIconCheckBox] = _makeCheckBox(label + " Icon", checked, superGroup);
+        let [iconItem, panelIconCheckBox] = _makeCheckBox(label + _(" Icon"), checked, superGroup);
         optionsList.push(iconItem);
         iconCheckBoxes.push({
             icon: ic,
@@ -149,8 +151,8 @@ function _buildGeneralSettings() {
         });
     }
     optionsList.push(_optionsItem(
-        "You will need to restart your session in order for this change to take effect.",
-        "On Xorg, you can do that by Alt+F2 and then pressing 'r' and Enter. If this doesn't work (Wayland), you have to logout and re-login.",
+        _("You will need to restart your session in order for this change to take effect."),
+        _("On Xorg, you can do that by Alt+F2 and then pressing 'r' and Enter. If this doesn't work (Wayland), you have to logout and re-login."),
         new Gtk.Label(),
         null
     ));
@@ -309,8 +311,8 @@ function _buildTogglableSettings() {
         )
     );
     optionsList.push(_optionsItem(
-        "Experimental",
-        "Does not currently work.",
+        _("Experimental"),
+        _("Does not currently work."),
         new Gtk.Label(),
         null
     ));
@@ -627,7 +629,7 @@ function _newGtkEntryButton() {
     let addButton = new Gtk.Button({
         halign: Gtk.Align.END,
         valign: Gtk.Align.CENTER, 
-        label: "Add",
+        label: _("Add"),
         hexpand: true
     });
     return [textEntry, addButton]
