@@ -4,11 +4,6 @@ const ExtensionUtils = imports.misc.extensionUtils;
 const Me = ExtensionUtils.getCurrentExtension();
 const Utils = Me.imports.utils;
 
-
-const Gettext = imports.gettext.domain(Me.metadata['gettext-domain']);
-// var _ = Gettext.gettext;
-var _ = (t) => t;
-
 const PANEL_ICON_PATH = "default-panel-icon";
 const VALID_PANEL_ICONS = 'valid-panel-icons';
 const HASS_ACCESS_TOKEN = 'hass-access-token';
