@@ -457,6 +457,7 @@ function enable() {
 
 function disable () {
     hassExtension._deleteTempStatsPanel();
+    hassExtension._deleteSensorsPanel();
     hassExtension.destroy();
     hassExtension = null;
 
