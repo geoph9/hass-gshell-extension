@@ -7,6 +7,8 @@ const PopupMenu = imports.ui.popupMenu;
 const Convenience = imports.misc.extensionUtils;
 const Me = Convenience.getCurrentExtension();
 // const Util = imports.misc.util;
+const Gettext = imports.gettext.domain(Me.metadata['gettext-domain']);
+const _ = Gettext.gettext;
 
 const Lang = imports.lang;
 
@@ -72,7 +74,7 @@ var HassExtension = GObject.registerClass ({
         for (let entity of togglables) {
             if (entity.entity_id === "" || !entity.entity_id.includes("."))
                 continue
-            let pmItem = new PopupMenu.PopupMenuItem('Toggle:');
+            let pmItem = new PopupMenu.PopupMenuItem(_('Toggle:'));
             pmItem.add_child(
                 new St.Label({
                     text : entity.name
@@ -90,11 +92,11 @@ var HassExtension = GObject.registerClass ({
         this.menu.addMenuItem(new PopupMenu.PopupSeparatorMenuItem());
 
         // Now build the submenu containing the HASS events
-        let subItem = new PopupMenu.PopupSubMenuMenuItem('HASS Events');
+        let subItem = new PopupMenu.PopupSubMenuMenuItem(_('HASS Events'));
         this.menu.addMenuItem(subItem);
-        let start_hass_item = new PopupMenu.PopupMenuItem('Start Home Assistant');
-        let stop_hass_item = new PopupMenu.PopupMenuItem('Stop Home Assistant');
-        let close_hass_item = new PopupMenu.PopupMenuItem('Close Home Assistant');
+        let start_hass_item = new PopupMenu.PopupMenuItem(_('Start Home Assistant'));
+        let stop_hass_item = new PopupMenu.PopupMenuItem(_('Stop Home Assistant'));
+        let close_hass_item = new PopupMenu.PopupMenuItem(_('Close Home Assistant'));
         subItem.menu.addMenuItem(start_hass_item, 0);
         subItem.menu.addMenuItem(stop_hass_item, 1);
         subItem.menu.addMenuItem(close_hass_item, 2);
@@ -110,7 +112,7 @@ var HassExtension = GObject.registerClass ({
 
         // Settings button (Preferences)
         let popupImageMenuItem = new PopupMenu.PopupImageMenuItem(
-            "Preferences",
+            _("Preferences"),
             'security-high-symbolic',
         );
         popupImageMenuItem.connect('activate', () => {
@@ -427,7 +429,7 @@ var HassExtension = GObject.registerClass ({
 
 
 function init() {
-
+  Convenience.initTranslations();
 }
 
 
@@ -455,6 +457,7 @@ function enable() {
 
 function disable () {
     hassExtension._deleteTempStatsPanel();
+    hassExtension._deleteSensorsPanel();
     hassExtension.destroy();
     hassExtension = null;
 
