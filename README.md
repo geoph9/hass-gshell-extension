@@ -5,8 +5,6 @@ This is a simple gnome shell extension which allows you to control your home ass
 Currently, the extension only supports temperature (and humidity) sensors and also toggling lights or switches. In addition, 
 you can also use this extension in order to send `start`, `stop` or `close` events to your Home Assistant instance. 
 
-**Note:** Supports Gnome 40 and Gnome 3.38.
-
 ## Contents
 
 - [Installation](#installation)
@@ -22,7 +20,6 @@ you can also use this extension in order to send `start`, `stop` or `close` even
     - [Preferences (Settings)](#preferences-settings)
     - [Changing the Togglables](#changing-the-togglables)
 - [Security](#security)
-- [Gnome Version](#gnome-version)
 - [Updating](#updating)
 - [Removing the Extension](#removing-the-extension)
 - [Feature Requests](#feature-requests)
@@ -71,9 +68,9 @@ mkdir -p "$HOME"/.local/share/gnome-shell/extensions
 git clone https://github.com/geoph9/hass-gshell-extension.git "$HOME"/.local/share/gnome-shell/extensions/hass-gshell@geoph9-on-github
 ```
 
-Then open Gnome Tweaks (or the Extensions app on Gnome 40) and enable the extension.
+Then open Gnome Tweaks (or the Extensions app on Gnome >=40) and enable the extension.
 
-**Note:** Ubuntu 21.04 will not ship with `Gnome 40` and so you will still need to use the `Gnome 3.38` version. You can install that by using the `build.sh` script above, with the default settings.
+**Note:** Ubuntu 21.04 does not ship with `Gnome 40` and so you will still need to use the `Gnome 3.38` version. You can install that by using the `build.sh` script above, with the default settings.
 
 ### Installing from Gnome Extensions
 
@@ -128,7 +125,7 @@ By pressing `Hass Events` a new sublist will appear:
 
 ### Preferences (Settings)
 
-**NOTE:** This is for Gnome 40. Gnome 3.38 has a different menu but with similar functionality.
+**NOTE:** This is for Gnome >=40. Gnome 3.38 has a different menu but with similar functionality.
 
 By pressing the `Preferences` button you will get the following:
 
@@ -168,15 +165,6 @@ The last block refers to grouping switches. For example, you could have one togg
 I am using the `Secret` library in order to store the access token in the running secret service (like gnome-keyring or ksecretservice) [source](https://developer.gnome.org/libsecret/unstable/js-store-example.html). This makes it safer to use your access token since it is more difficult to have it stolen by a third party. So, your token is as safe as your current user (this means that if a third party knows your user password and has access to your machine then they can theoretically get the token, but if that is the case then you probably have more improtant things to worry about).
 
 In general, if you think that you have an exposed access token, then you should go to your profile and delete it. Pay attention to this especially if you are hosting your instance on the internet (and not locally).
-
-
-## Gnome Version
-
-Below are the `gnome-shell` versions that each branch supports: 
-
-- `[master]`: Gnome 40
-- `[gnome3.38]`: Gnome 3.38
-- `[gnome40]`: Development branch of Gnome 40
 
 ## Updating
 
