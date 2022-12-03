@@ -19,6 +19,8 @@ const VALID_TOGGLABLES = ['switch.', 'light.', 'fan.', 'input_boolean.'];
  */
 function _constructMessage(type, url, data=null) {
     // Initialize message and set the required headers
+    // let message = Soup.Message.new_from_encoded_form(
+    log(`hass-gshell: Constructing Message for ${url}`);
     let message = Soup.Message.new(type, url);
     message.request_headers.append(
       'Authorization',
@@ -27,7 +29,8 @@ function _constructMessage(type, url, data=null) {
     if (data !== null){
         // Set body data: Should be in json format, e.g. '{"entity_id": "switch.some_relay"}'
         // TODO: Maybe perform a check here
-        message.set_request('application/json', 2, data);
+        let bytes2 = GLib.Bytes.new(JSON.stringify(data));
+        message.set_request_body_from_bytes('application/json', bytes2);
     }
     message.request_headers.set_content_type("application/json", null);
     return message
@@ -43,20 +46,22 @@ function _constructMessage(type, url, data=null) {
 function send_request(url, type='GET', data=null) {
     // Initialize session
     let session = Soup.Session.new();
-    session.set_property(Soup.SESSION_TIMEOUT, 3);
-    session.set_property(Soup.SESSION_USER_AGENT, "hass-gshell");
-
-    // Initialize message and set the required headers
+    
     let message = _constructMessage(type, url, data);
-    let responseCode = session.send_message(message);
-    if (responseCode == Soup.Status.OK) {
+    let result = session.send_and_read(
+        message,
+        null
+    );
+    if (message.get_status() == Soup.Status.OK) {
         try {
-            return JSON.parse(message['response-body'].data);
-        } catch(error) {
+            let decoder = new TextDecoder('utf-8');
+            let response = decoder.decode(result.get_data());
+            return JSON.parse(response)
+        } catch (error) {
             logError(error, `Could not send request to ${url}.`);
         }
     }
-    return false;
+    return false
 }
 
 /**
@@ -146,25 +151,6 @@ function arraysEqual(a, b) {
  * @param {String} schema_name 
  * @return {Gio.Settings} The settings corresponding to the input schema
  */
-// function getSettings(schema_name) {
-//     if (schema_name !== undefined) {
-//         schema_name = `org.gnome.shell.extensions.${schema_name}`;
-//     } else {
-//         schema_name = Me.metadata['settings-schema'];
-//     }
-//     let GioSSS = Gio.SettingsSchemaSource;
-//     let schemaSource = GioSSS.new_from_directory(
-//       Me.dir.get_child("schemas").get_path(),
-//       GioSSS.get_default(),
-//       false
-//     );
-//     let schemaObj = schemaSource.lookup(schema_name, true);
-//     if (!schemaObj) {
-//         throw new Error('Schema ' + schema_name + ' could not be found for extension ' + Me.metadata.uuid + '. Please check your installation.');
-//     }
-//     return new Gio.Settings({ settings_schema : schemaObj });
-// }
-
 function getSettings(schema) {
     const schemaDir = Me.dir.get_child('schemas');
     let schemaSource;

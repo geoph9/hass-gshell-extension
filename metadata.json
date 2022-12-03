@@ -2,11 +2,11 @@
     "name" : "Home Assistant Extension",
     "description" : "A simple gnome shell extension for Home Assistant. Check the README on github for additional help!\n\nMain points:\n- You need to provide the url of your hass, a long live access token obtained from your profile page (on your hass web instance) and the entity ids of the entities you want to have as togglable.\n- In order to add some local temperature/humidity sensor, you may also provide a temperature and/or a humidity entity id (which should match the corresponding ids of your hass instance).",
     "shell-version" : [
-        "40", "41", "42"
+        "43"
     ],
     "url" : "https://github.com/geoph9/hass-gshell-extension",
     "settings-schema": "org.gnome.shell.extensions.hass-data",
     "gettext-domain": "hass-gshell",
     "uuid" : "hass-gshell@geoph9-on-github",
-    "version" : "1.5.3"
+    "version" : "11.1"
 }
