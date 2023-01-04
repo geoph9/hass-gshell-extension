@@ -1,7 +1,7 @@
 const {Soup, Gio, GLib, Secret} = imports.gi;
 const Me = imports.misc.extensionUtils.getCurrentExtension();
 
-const TOKEN_SCHEMA = Secret.Schema.new("org.gnome.hass-data.Password",
+var TOKEN_SCHEMA = Secret.Schema.new("org.gnome.hass-data.Password",
 	Secret.SchemaFlags.NONE,
 	{
 		"token_string": Secret.SchemaAttributeType.STRING,
