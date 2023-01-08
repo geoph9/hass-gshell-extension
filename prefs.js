@@ -9,7 +9,7 @@ const Gettext = imports.gettext.domain(Me.metadata['gettext-domain']);
 const _ = Gettext.gettext;
 
 // const Convenience = Me.imports.utils;
-const Convenience = imports.misc.extensionUtils;
+// const Convenience = imports.misc.extensionUtils;
 
 const HASS_ACCESS_TOKEN = 'hass-access-token';
 const HASS_URL = 'hass-url';
@@ -27,12 +27,12 @@ const HASS_SETTINGS = 'org.gnome.shell.extensions.hass-data';
 
 let notebook;
 let schema;
-let _settings = Convenience.getSettings(HASS_SETTINGS);
+let _settings = ExtensionUtils.getSettings(HASS_SETTINGS);
 // _settings.connect('changed', _refresh.bind(this)); // TODO: Refresh
 
 function init() {
     schema = _settings.settings_schema;
-    Convenience.initTranslations();
+    ExtensionUtils.initTranslations();
     log(`initializing ${Me.metadata.name} Preferences`);
 }
 
@@ -524,7 +524,7 @@ function _makeGtkEntryButton(name, isAccessToken) {
             if (textEntry.get_text().trim() !== "") {
                 // Synchronously (the UI will block): https://developer.gnome.org/libsecret/unstable/js-store-example.html
                 Secret.password_store_sync(
-                    Utils.TOKEN_SCHEMA, 
+                    Utils.getTokenSchema(), 
                     {"token_string": "user_token"}, 
                     Secret.COLLECTION_DEFAULT,
                     "long_live_access_token", 

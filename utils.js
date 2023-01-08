@@ -1,12 +1,19 @@
 const {Soup, Gio, GLib, Secret} = imports.gi;
 const Me = imports.misc.extensionUtils.getCurrentExtension();
 
-const TOKEN_SCHEMA = Secret.Schema.new("org.gnome.hass-data.Password",
-	Secret.SchemaFlags.NONE,
-	{
-		"token_string": Secret.SchemaAttributeType.STRING,
-	}
-);
+let TOKEN_SCHEMA;
+
+function getTokenSchema() {
+    if (!TOKEN_SCHEMA) {
+        TOKEN_SCHEMA = Secret.Schema.new("org.gnome.hass-data.Password",
+            Secret.SchemaFlags.NONE,
+            {
+                "token_string": Secret.SchemaAttributeType.STRING,
+            }
+        );
+    }
+    return TOKEN_SCHEMA;
+}
 
 const VALID_TOGGLABLES = ['switch.', 'light.', 'fan.', 'input_boolean.'];
 
@@ -24,7 +31,7 @@ function _constructMessage(type, url, data=null) {
     let message = Soup.Message.new(type, url);
     message.request_headers.append(
       'Authorization',
-      `Bearer ${Secret.password_lookup_sync(TOKEN_SCHEMA, {"token_string": "user_token"}, null)}`
+      `Bearer ${Secret.password_lookup_sync(getTokenSchema(), {"token_string": "user_token"}, null)}`
     )
     if (data !== null){
         // Set body data: Should be in json format, e.g. '{"entity_id": "switch.some_relay"}'
@@ -186,7 +193,7 @@ function getSettings(schema) {
 //   let message = Soup.Message.new(type, url);
 //   message.request_headers.append(
 //     'Authorization',
-//     `Bearer ${Secret.password_lookup_sync(TOKEN_SCHEMA, {"token_string": "user_token"}, null)}`
+//     `Bearer ${Secret.password_lookup_sync(getTokenSchema(), {"token_string": "user_token"}, null)}`
 //   )
 //   if (data !== null){
 //     // Set body data: Should be in json format, e.g. '{"entity_id": "switch.some_relay"}'
