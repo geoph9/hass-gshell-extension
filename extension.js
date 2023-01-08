@@ -10,8 +10,6 @@ const Me = Convenience.getCurrentExtension();
 const Gettext = imports.gettext.domain(Me.metadata['gettext-domain']);
 const _ = Gettext.gettext;
 
-const Lang = imports.lang;
-
 // MainLoop for updating the time every X seconds.
 const Mainloop = imports.mainloop;
 const Utils = Me.imports.utils;
@@ -30,13 +28,13 @@ var HassExtension = GObject.registerClass ({
     _init() {
         super._init(0, Me.metadata.name, false);
         this._settings = Convenience.getSettings(HASS_SETTINGS);
-        this._settings.connect("changed", Lang.bind(this, function() {
+        this._settings.connect("changed", () => {
             if (this.needsRebuild()) {
                 this.rebuildTray();
                 this.buildTempSensorStats();
                 this.buildPanelSensorEntities();
             }
-        }));
+        });
 
         // Add tray icon
         let icon_path = this._settings.get_string('default-panel-icon');

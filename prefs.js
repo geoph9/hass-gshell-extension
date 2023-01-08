@@ -9,7 +9,7 @@ const Gettext = imports.gettext.domain(Me.metadata['gettext-domain']);
 const _ = Gettext.gettext;
 
 // const Convenience = Me.imports.utils;
-const Convenience = imports.misc.extensionUtils;
+// const Convenience = imports.misc.extensionUtils;
 
 const HASS_ACCESS_TOKEN = 'hass-access-token';
 const HASS_URL = 'hass-url';
@@ -25,20 +25,20 @@ const DO_REFRESH = 'refresh-weather';
 const REFRESH_RATE = 'weather-refresh-seconds';
 const HASS_SETTINGS = 'org.gnome.shell.extensions.hass-data';
 
-let notebook;
-let schema;
-let _settings = Convenience.getSettings(HASS_SETTINGS);
+// let notebook;
+// let schema;
+// let _settings = ExtensionUtils.getSettings(HASS_SETTINGS);
 // _settings.connect('changed', _refresh.bind(this)); // TODO: Refresh
 
 function init() {
-    schema = _settings.settings_schema;
-    Convenience.initTranslations();
+    // schema = _settings.settings_schema;
+    ExtensionUtils.initTranslations();
     log(`initializing ${Me.metadata.name} Preferences`);
 }
 
 function buildPrefsWidget() {
     const prefsWidget = new Gtk.Grid();
-    notebook = new Gtk.Notebook({
+    let notebook = new Gtk.Notebook({
         tab_pos: Gtk.PositionType.LEFT,
         hexpand: true
     });
@@ -61,6 +61,9 @@ function buildPrefsWidget() {
 
 function _buildGeneralSettings() {
     const mscOptions = new Settings.MscOptions();
+    let _settings = ExtensionUtils.getSettings(HASS_SETTINGS);
+    // _settings.connect('changed', _refresh.bind(this)); // TODO: Refresh
+    let schema = _settings.settings_schema;
 
     let miscUI = new Gtk.Box({
         orientation: Gtk.Orientation.VERTICAL,
@@ -86,10 +89,10 @@ function _buildGeneralSettings() {
         )
     );
     // Add the HASS url option
-    let [urlItem, urlTextEntry, urlAddButton] = _makeGtkEntryButton(HASS_URL)
+    let [urlItem, urlTextEntry, urlAddButton] = _makeGtkEntryButton(HASS_URL, false, schema=schema)
     optionsList.push(urlItem);
     // Add the HASS Access Token option
-    let [tokItem, tokenTextEntry, tokenAddButton] = _makeGtkEntryButton(HASS_ACCESS_TOKEN, true)
+    let [tokItem, tokenTextEntry, tokenAddButton] = _makeGtkEntryButton(HASS_ACCESS_TOKEN, true, schema)
     optionsList.push(tokItem);
 
     // //////////////////////////////////////////////////////////
@@ -104,22 +107,22 @@ function _buildGeneralSettings() {
         )
     );
     // Show Temperature/Humidity Switch
-    let [tempItem, tempHumiSwitch] = _makeSwitch(SHOW_WEATHER_STATS)
+    let [tempItem, tempHumiSwitch] = _makeSwitch(SHOW_WEATHER_STATS, schema)
     optionsList.push(tempItem);
     // Show Humidity Switch
-    let [humiItem, humiSwitch] = _makeSwitch(SHOW_HUMIDITY)
+    let [humiItem, humiSwitch] = _makeSwitch(SHOW_HUMIDITY, schema)
     optionsList.push(humiItem);
     // Refresh Temperature/Humidity Switch (TODO: Does not work currently)
-    let [doRefItem, doRefreshSwitch] = _makeSwitch(DO_REFRESH)
+    let [doRefItem, doRefreshSwitch] = _makeSwitch(DO_REFRESH, schema)
     optionsList.push(doRefItem);
     // Refresh rate for Temperature/Humidity (TODO: Does not work currently)
-    let [refRateItem, refreshRateTextEntry, refreshRateAddButton] = _makeGtkEntryButton(REFRESH_RATE)
+    let [refRateItem, refreshRateTextEntry, refreshRateAddButton] = _makeGtkEntryButton(REFRESH_RATE, false, schema)
     optionsList.push(refRateItem);
     // Add the temperature id option
-    let [tempTextItem, tempTextEntry, tempAddButton] = _makeGtkEntryButton(TEMPERATURE_ID)
+    let [tempTextItem, tempTextEntry, tempAddButton] = _makeGtkEntryButton(TEMPERATURE_ID, false, schema)
     optionsList.push(tempTextItem);
     // Add the humidity id option
-    let [humiTextItem, humiTextEntry, humiAddButton] = _makeGtkEntryButton(HUMIDITY_ID)
+    let [humiTextItem, humiTextEntry, humiAddButton] = _makeGtkEntryButton(HUMIDITY_ID, false, schema)
     optionsList.push(humiTextItem);
 
     // //////////////////////////////////////////////////////////
@@ -516,7 +519,7 @@ function _makeTitle(label) {
     return '<b>'+label+'</b>';
 }
 
-function _makeGtkEntryButton(name, isAccessToken) {
+function _makeGtkEntryButton(name, isAccessToken, schema) {
     let key = schema.get_key(name);
     let [textEntry, addButton] = _newGtkEntryButton();
     if (isAccessToken === true) {
@@ -524,7 +527,7 @@ function _makeGtkEntryButton(name, isAccessToken) {
             if (textEntry.get_text().trim() !== "") {
                 // Synchronously (the UI will block): https://developer.gnome.org/libsecret/unstable/js-store-example.html
                 Secret.password_store_sync(
-                    Utils.TOKEN_SCHEMA, 
+                    Utils.getTokenSchema(), 
                     {"token_string": "user_token"}, 
                     Secret.COLLECTION_DEFAULT,
                     "long_live_access_token", 
@@ -554,7 +557,7 @@ function _makeGtkEntryButton(name, isAccessToken) {
     ]
 }
 
-function _makeSwitch(name) {
+function _makeSwitch(name, schema) {
     let key = schema.get_key(name);
     let gtkSwitch = _newGtkSwitch();
     return [
