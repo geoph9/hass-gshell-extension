@@ -8,5 +8,5 @@
     "settings-schema": "org.gnome.shell.extensions.hass-data",
     "gettext-domain": "hass-gshell",
     "uuid" : "hass-gshell@geoph9-on-github",
-    "version" : "12.1"
+    "version" : "12.2"
 }
