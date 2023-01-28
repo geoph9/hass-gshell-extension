@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # Get gnome version
-vers=$(gnome-shell --version | cut -d ' ' -f 3-)
+vers=$(gnome-shell --version | cut -d ' ' -f 3- | cut -d. -f1)
 if [[ $vers == 40* ]] ; then  # e.g. convert 40.0 to 40
   vers="40";
 fi
