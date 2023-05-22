@@ -53,8 +53,13 @@ function _constructMessage(type, url, data=null) {
 function send_request(url, type='GET', data=null) {
     // Initialize session
     let session = Soup.Session.new();
-    
-    let message = _constructMessage(type, url, data);
+    let message;
+    try{
+        message = _constructMessage(type, url, data);
+    } catch (error) {
+        logError(error, `hass-gshell: Could not construct ${type} message for ${url}`); 
+        return false
+    }
     let result = session.send_and_read(
         message,
         null
@@ -77,6 +82,9 @@ function send_request(url, type='GET', data=null) {
  * @return {Object} Array of dictionaries with 'entity_id' and 'name' entries
  */
 function discoverSwitches(base_url) {
+    if ( !base_url || base_url === "http:///" || base_url === "https:///" ) {
+        return [];
+    }
     let url = `${base_url}api/states`
     let data = send_request(url, 'GET');
     if (data === false) {
@@ -187,33 +195,6 @@ function getSettings(schema) {
 
     return new Gio.Settings(args);
 }
-
-// // Credits: https://stackoverflow.com/questions/65830466/gnome-shell-extension-send-request-with-authorization-bearer-headers/65841700
-// function send_request(url, type='GET', data=null) {
-//   let message = Soup.Message.new(type, url);
-//   message.request_headers.append(
-//     'Authorization',
-//     `Bearer ${Secret.password_lookup_sync(getTokenSchema(), {"token_string": "user_token"}, null)}`
-//   )
-//   if (data !== null){
-//     // Set body data: Should be in json format, e.g. '{"entity_id": "switch.some_relay"}'
-//     // TODO: Maybe perform a check here
-//     message.set_request('application/json', 2, data);
-//   }
-//   message.request_headers.set_content_type("application/json", null);
-//   let output = false;
-//   var soupSession = new Soup.Session();
-//   soupSession.queue_message(message, (sess, msg) => {
-//     if (msg.status_code == 200) {
-//       try {
-//         output = JSON.parse(msg['response-body'].data);
-//       } catch(error) {
-//         logError(error, "Could not send GET request to " + url);
-//       }
-//     }
-//   });
-//   return output;
-// }
 
 const getMethods = (obj) => {
   let properties = new Set()
