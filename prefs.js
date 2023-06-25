@@ -42,7 +42,7 @@ function buildPrefsWidget() {
         tab_pos: Gtk.PositionType.LEFT,
         hexpand: true
     });
-    
+
     prefsWidget.attach(notebook, 0, 0, 1, 1);
 
     let general_settings = new Gtk.Label({ label: _('General Settings'), halign: Gtk.Align.START});
@@ -52,7 +52,7 @@ function buildPrefsWidget() {
     // TODO
     // notebook.append_page(_buildTogglables(), togglables);
     notebook.append_page(_buildTogglableSettings(), togglables);
-    
+
     let panelSensors = new Gtk.Label({ label: _('Panel Sensors'), halign: Gtk.Align.START});
     notebook.append_page(_buildSensorSettings(), panelSensors);
 
@@ -297,7 +297,7 @@ function _buildTogglableSettings() {
         optionsList.push(togglableItem);
         togglableCheckBoxes.push({
             entity: tog,
-            cb: togglableCheckBox, 
+            cb: togglableCheckBox,
             checked: checked
         });
     }
@@ -424,12 +424,12 @@ function _buildSensorSettings() {
         optionsList.push(sensorItem);
         sensorCheckBoxes.push({
             entity: sensor,
-            cb: sensorCheckBox, 
+            cb: sensorCheckBox,
             checked: checked
         });
     }
 
-    
+
 
     // //////////////////////////////////////////////////////////
     // ////////////////// Building the boxes ////////////////////
@@ -505,9 +505,9 @@ function _optionsItem(text, tooltip, widget, button) {
         label = text;
     }
     item[0].push(label);
-    if (widget) 
+    if (widget)
         item[0].push(widget);
-    if (tooltip) 
+    if (tooltip)
         item.push(tooltip);
     if (button)
         item[0].push(button)
@@ -527,11 +527,11 @@ function _makeGtkEntryButton(name, isAccessToken, schema) {
             if (textEntry.get_text().trim() !== "") {
                 // Synchronously (the UI will block): https://developer.gnome.org/libsecret/unstable/js-store-example.html
                 Secret.password_store_sync(
-                    Utils.getTokenSchema(), 
-                    {"token_string": "user_token"}, 
+                    Utils.getTokenSchema(),
+                    {"token_string": "user_token"},
                     Secret.COLLECTION_DEFAULT,
-                    "long_live_access_token", 
-                    textEntry.get_text(), 
+                    "long_live_access_token",
+                    textEntry.get_text(),
                     null
                 );
                 textEntry.set_text("Success!");
@@ -539,7 +539,7 @@ function _makeGtkEntryButton(name, isAccessToken, schema) {
                 textEntry.set_text("Invalid Token!");
             }
         });
-    } 
+    }
     // else {
     //     addButton.connect('clicked', () => {
     //         _settings.set_string(name, textEntry.get_text())
@@ -572,10 +572,10 @@ function _makeSwitch(name, schema) {
 }
 
 /**
- * 
+ *
  * @param {String} name The name of the text on the left of the check box.
  * @param {boolean} checked (Optional) Whether the box is checked or not. Defaults to false.
- * @param {Gtk.CheckButton} buttonGroup (Optional) A check button group which the new checkbutton will belong to. 
+ * @param {Gtk.CheckButton} buttonGroup (Optional) A check button group which the new checkbutton will belong to.
  * If provided then the checkbutton will be a radio button.
  * @return {Gtk.CheckButton} A new Gtk.CheckButton instance.
  */
@@ -631,7 +631,7 @@ function _newGtkEntryButton() {
 
     let addButton = new Gtk.Button({
         halign: Gtk.Align.END,
-        valign: Gtk.Align.CENTER, 
+        valign: Gtk.Align.CENTER,
         label: _("Add"),
         hexpand: true
     });

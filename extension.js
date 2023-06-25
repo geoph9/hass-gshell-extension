@@ -62,8 +62,8 @@ var HassExtension = GObject.registerClass ({
         for (let item in oldItems) {
             oldItems[item].destroy();
         }
-        // I am using an array of objects because I want to get a full copy of the 
-        // pmItem and the entityId. If I don't do that then the pmItem will be connected 
+        // I am using an array of objects because I want to get a full copy of the
+        // pmItem and the entityId. If I don't do that then the pmItem will be connected
         // only to the laste entry of 'togglable_ent_ids' which means that whichever entry
         // of the menu you press, you will always toggle the same button
         var pmItems = [];
@@ -218,12 +218,12 @@ var HassExtension = GObject.registerClass ({
         trayNeedsRebuild = this._needsRebuildTempPanel(trayNeedsRebuild);
         // Do the same for all extra sensor entities
         trayNeedsRebuild = this._needsRebuildSensorPanel(trayNeedsRebuild);
-        
+
         return trayNeedsRebuild;
     }
 
     /**
-     * 
+     *
      * @return {Array} An array of objects with keys: 'entity_id' and 'name' to be used when rebuilding the tray entries (the togglers).
      */
     _getTogglableEntities() {
@@ -251,7 +251,7 @@ var HassExtension = GObject.registerClass ({
     }
 
     /**
-     * 
+     *
      * @return {Array} An array of objects with keys: 'entity_id' and 'name' to be used when rebuilding the panel entries (the sensors).
      */
     _getSensorEntities() {
@@ -307,12 +307,12 @@ var HassExtension = GObject.registerClass ({
             this.weatherStatsPanelText.text = out;
         } catch (error) {
             logError(error, "Could not refresh weather stats...");
-            // will execute this function only once and abort. 
+            // will execute this function only once and abort.
             // Remove in order to make the Main loop continue working.
             return false;
         }
         // By returning true, the function will continue refresing every X seconds
-        return true; 
+        return true;
     }
 
     _refreshPanelSensors() {
@@ -333,12 +333,12 @@ var HassExtension = GObject.registerClass ({
             this.sensorsPanelText.text = outText;
         } catch (error) {
             logError(error, "Could not refresh sensor stats...");
-            // will execute this function only once and abort. 
+            // will execute this function only once and abort.
             // Remove in order to make the Main loop continue working.
             return false;
         }
         // By returning true, the function will continue refresing every X seconds
-        return true; 
+        return true;
     }
 
     _getPanelSensorData(entity_id) {
