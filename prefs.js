@@ -39,7 +39,7 @@ function init() {
 function buildPrefsWidget() {
     const prefsWidget = new Gtk.Grid();
     let notebook = new Gtk.Notebook({
-        tab_pos: Gtk.PositionType.LEFT,
+        tab_pos: Gtk.PositionType.TOP,
         hexpand: true
     });
 
@@ -168,7 +168,7 @@ function _buildGeneralSettings() {
     let frameBox;
     let canFocus;
     for (let item of optionsList) {
-        if (!item[0][1]) {
+        if (item[0].length === 1) {
             let lbl = new Gtk.Label();
             lbl.set_markup(item[0][0]);
             frame = new Gtk.Frame({
@@ -270,6 +270,14 @@ function _buildTogglableSettings() {
         hexpand: true,
         vexpand: true,
     });
+    let searchEntry = new Gtk.SearchEntry({
+        halign: Gtk.Align.START,
+        valign: Gtk.Align.CENTER,
+        hexpand: true
+    });
+    searchEntry.set_search_delay(200);
+    miscUI.append(searchEntry);
+
     let optionsList = [];
 
     // //////////////////////////////////////////////////////////
@@ -292,8 +300,11 @@ function _buildTogglableSettings() {
     let togglableCheckBoxes = [];
     for (let tog of togglables) {
         let checked = false;
-        if (enabledEntities.includes(tog)) checked = true;
-        let [togglableItem, togglableCheckBox] = _makeCheckBox(tog, checked);
+        if (enabledEntities.includes(tog.entity_id)) checked = true;
+        let [togglableItem, togglableCheckBox] = _makeCheckBox(
+            "%s (%s)".format(tog.name, tog.entity_id),
+            checked
+        );
         optionsList.push(togglableItem);
         togglableCheckBoxes.push({
             entity: tog,
@@ -303,31 +314,13 @@ function _buildTogglableSettings() {
     }
 
     // //////////////////////////////////////////////////////////
-    // /// Grouping multiple switches into a single togglable ///
-    // //////////////////////////////////////////////////////////
-    optionsList.push(
-        _optionsItem(
-            _makeTitle(_('Group Switches')),
-            null,
-            null,
-            null
-        )
-    );
-    optionsList.push(_optionsItem(
-        _("Experimental"),
-        _("Does not currently work."),
-        new Gtk.Label(),
-        null
-    ));
-
-    // //////////////////////////////////////////////////////////
     // ////////////////// Building the boxes ////////////////////
     // //////////////////////////////////////////////////////////
     let frame;
     let frameBox;
     for (let item_id in optionsList) {
         let item = optionsList[item_id];
-        if (!item[0][1]) {
+        if (item[0].length === 1) {
             let lbl = new Gtk.Label();
             lbl.set_markup(item[0][0]);
             frame = new Gtk.Frame({
@@ -360,6 +353,14 @@ function _buildTogglableSettings() {
         frameBox.append(box);
     }
 
+    searchEntry.connect('search-changed', () => {
+        let pattern = searchEntry.get_text().toLowerCase();
+        frameBox.set_filter_func(function(row) {
+            let label = row.child.get_last_child().get_text();
+            return label ? label.toLowerCase().includes(pattern) : true;
+        });
+    });
+
     // //////////////////////////////////////////////////////////
     // /////////////// Handlers for Checkboxes //////////////////
     // //////////////////////////////////////////////////////////
@@ -373,7 +374,11 @@ function _buildTogglableSettings() {
             } else {
                 currentEntities.push(togCheckBox.entity)
             }
-            mscOptions.enabledEntities = mscOptions.togglableEntities.filter(ent => currentEntities.includes(ent));
+            mscOptions.enabledEntities = mscOptions.togglableEntities.map(
+                ent => ent.entity_id
+            ).filter(
+                ent => currentEntities.includes(ent)
+            );
         });
     }
 
@@ -397,12 +402,20 @@ function _buildSensorSettings() {
         hexpand: true,
         vexpand: true,
     });
+    let searchEntry = new Gtk.SearchEntry({
+        halign: Gtk.Align.START,
+        valign: Gtk.Align.CENTER,
+        hexpand: true
+    });
+    searchEntry.set_search_delay(200);
+    miscUI.append(searchEntry);
+
     let optionsList = [];
 
     // //////////////////////////////////////////////////////////
     // ////// Which sensors should be shown on the panel ////////
     // //////////////////////////////////////////////////////////
-    let allSensors = mscOptions.hassSensorIds;
+    let allSensors = mscOptions.hassSensorEntities;
     let enabledSensors = mscOptions.enabledSensors;
     if (allSensors.length === 0) {
         optionsList.push(_optionsItem(
@@ -419,8 +432,11 @@ function _buildSensorSettings() {
     let sensorCheckBoxes = [];
     for (let sensor of allSensors) {
         let checked = false;
-        if (enabledSensors.includes(sensor)) checked = true;
-        let [sensorItem, sensorCheckBox] = _makeCheckBox(sensor, checked);
+        if (enabledSensors.includes(sensor.entity_id)) checked = true;
+        let [sensorItem, sensorCheckBox] = _makeCheckBox(
+            "%s (%s)".format(sensor.name, sensor.entity_id),
+            checked
+        );
         optionsList.push(sensorItem);
         sensorCheckBoxes.push({
             entity: sensor,
@@ -438,7 +454,7 @@ function _buildSensorSettings() {
     let frameBox;
     for (let item_id in optionsList) {
         let item = optionsList[item_id];
-        if (!item[0][1]) {
+        if (item[0].length === 1) {
             let lbl = new Gtk.Label();
             lbl.set_markup(item[0][0]);
             frame = new Gtk.Frame({
@@ -471,6 +487,14 @@ function _buildSensorSettings() {
         frameBox.append(box);
     }
 
+    searchEntry.connect('search-changed', () => {
+        let pattern = searchEntry.get_text().toLowerCase();
+        frameBox.set_filter_func(function(row) {
+            let label = row.child.get_last_child().get_text();
+            return label ? label.toLowerCase().includes(pattern) : true;
+        });
+    });
+
     // //////////////////////////////////////////////////////////
     // /////////////// Handlers for Checkboxes //////////////////
     // //////////////////////////////////////////////////////////
@@ -484,7 +508,11 @@ function _buildSensorSettings() {
             } else {
                 currentSensors.push(sensorCheckBox.entity)
             }
-            mscOptions.enabledSensors = mscOptions.hassSensorIds.filter(ent => currentSensors.includes(ent));
+            mscOptions.enabledSensors = mscOptions.hassSensorEntities.map(
+                ent => ent.entity_id
+            ).filter(
+                ent => currentSensors.includes(ent)
+            );
         });
     }
 
@@ -587,22 +615,21 @@ function _makeCheckBox(name, checked, buttonGroup) {
     } else {
         desc = _("Do you want to show ") + name + _(" in the tray menu?");
     }
-    return [
-        _optionsItem(
-            name,
-            desc,
-            gtkCheckBox,
-            null
-        ),
-        gtkCheckBox
-    ]
+
+    let label = new Gtk.Label({
+        halign: Gtk.Align.START,
+        hexpand: true
+    });
+    label.set_text(name);
+
+    let item = [[gtkCheckBox, label], desc];
+    return [item, gtkCheckBox];
 }
 
 function _newGtkCheckBox(checked, buttonGroup) {
     let cb = new Gtk.CheckButton({
-        halign: Gtk.Align.END,
-        valign: Gtk.Align.CENTER,
-        hexpand: true
+        halign: Gtk.Align.START,
+        valign: Gtk.Align.CENTER
     });
     if (checked === true) {
         cb.set_active(true)

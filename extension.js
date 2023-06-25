@@ -230,7 +230,7 @@ var HassExtension = GObject.registerClass ({
         // Initialize the switched if this is the first time the function is being called
         if (this.allSwitches === undefined) {
             this.allSwitches = Utils.discoverSwitches(this.base_url);
-            this._settings.set_strv(HASS_TOGGLABLE_ENTITIES, this.allSwitches.map(entry => entry.entity_id))
+            this._settings.set_strv(HASS_TOGGLABLE_ENTITIES, this.allSwitches.map(entry => JSON.stringify(entry)));
         }
         if (this.togglable_ent_ids === undefined) {  // || this.togglable_ent_ids.length === 0) {
             // If the togglable entities provided by the user are empty then simply use all of the available entities
@@ -258,7 +258,7 @@ var HassExtension = GObject.registerClass ({
         // Initialize the switched if this is the first time the function is being called
         if (this.allSensors === undefined) {
             this.allSensors = Utils.discoverSensors(this.base_url);
-            this._settings.set_strv(HASS_PANEL_SENSOR_IDS, this.allSensors.map(entry => entry.entity_id))
+            this._settings.set_strv(HASS_PANEL_SENSOR_IDS, this.allSensors.map(entry => JSON.stringify(entry)))
         }
         if (!this.panelSensorIds || this.panelSensorIds.length === 0) {
             // If the sensor entities provided by the user are empty then use nothing

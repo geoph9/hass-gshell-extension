@@ -103,7 +103,7 @@ function discoverSwitches(base_url) {
             )
         }
     }
-    return entities
+    return entities.sort((a,b) => (a.name > b.name) ? 1 : ((b.name > a.name) ? -1 : 0));
 }
 
 /**
@@ -136,7 +136,7 @@ function discoverSensors(base_url) {
             )
         }
     }
-    return entities
+    return entities.sort((a,b) => (a.name > b.name) ? 1 : ((b.name > a.name) ? -1 : 0));
 }
 
 /**
