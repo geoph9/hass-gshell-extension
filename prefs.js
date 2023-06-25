@@ -290,7 +290,7 @@ function _buildTogglableSettings() {
 
     // Add the togglable check boxes option
     let togglableCheckBoxes = [];
-    for (let tog of togglables) {
+    for (let tog of togglables.sort()) {
         let checked = false;
         if (enabledEntities.includes(tog)) checked = true;
         let [togglableItem, togglableCheckBox] = _makeCheckBox(tog, checked);
@@ -417,7 +417,7 @@ function _buildSensorSettings() {
 
     // Add the togglable check boxes option
     let sensorCheckBoxes = [];
-    for (let sensor of allSensors) {
+    for (let sensor of allSensors.sort()) {
         let checked = false;
         if (enabledSensors.includes(sensor)) checked = true;
         let [sensorItem, sensorCheckBox] = _makeCheckBox(sensor, checked);
