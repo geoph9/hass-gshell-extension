@@ -562,8 +562,8 @@ function _makeSwitch(name, schema) {
     let gtkSwitch = _newGtkSwitch();
     return [
         _optionsItem(
-            key.get_summary(),
-            key.get_description(),
+            _(key.get_summary()),
+            _(key.get_description()),
             gtkSwitch,
             null
         ),
