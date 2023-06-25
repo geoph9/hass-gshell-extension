@@ -7,16 +7,125 @@ msgid ""
 msgstr ""
 "Project-Id-Version: \n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2022-05-07 17:25+0200\n"
-"PO-Revision-Date: 2022-05-07 17:25+0200\n"
-"Last-Translator: \n"
+"POT-Creation-Date: 2023-06-25 09:46+0200\n"
+"PO-Revision-Date: 2023-06-25 09:51+0200\n"
+"Last-Translator: Benjamin Renard\n"
 "Language-Team: \n"
 "Language: es\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
-"X-Generator: Poedit 3.0.1\n"
+"X-Generator: Poedit 3.2.2\n"
+
+#: extension.js:75
+msgid "Toggle:"
+msgstr "Conmutar:"
+
+#: extension.js:93
+msgid "HASS Events"
+msgstr "Eventos de HASS"
+
+#: extension.js:95
+msgid "Start Home Assistant"
+msgstr "Iniciar Home Assistant"
+
+#: extension.js:96
+msgid "Stop Home Assistant"
+msgstr "Detener Home Assistant"
+
+#: extension.js:97
+msgid "Close Home Assistant"
+msgstr "Cerrar Home Assistant"
+
+#: extension.js:113
+msgid "Preferences"
+msgstr "Preferencias"
+
+#: prefs.js:48
+msgid "General Settings"
+msgstr "Ajustes generales"
+
+#: prefs.js:51
+msgid "Togglables"
+msgstr "Conmutables"
+
+#: prefs.js:56 schemas/org.gnome.shell.extensions.hass-data.gschema.xml:94
+msgid "Panel Sensors"
+msgstr "Sensores del panel"
+
+#: prefs.js:85
+msgid "Global options:"
+msgstr "Opciones globales:"
+
+#: prefs.js:103
+msgid "Temperature/Humidity options:"
+msgstr "Opciones de temperatura/humedad:"
+
+#: prefs.js:132
+msgid "Panel Icon Options:"
+msgstr "Opciones de iconos del panel:"
+
+#: prefs.js:149
+#, javascript-format
+msgid "%s Icon"
+msgstr "Icono %s"
+
+#: prefs.js:157
+msgid ""
+"You will need to restart your session in order for this change to take "
+"effect."
+msgstr "Deberá reiniciar su sesión para que este cambio surta efecto."
+
+#: prefs.js:158
+msgid ""
+"On Xorg, you can do that by Alt+F2 and then pressing 'r' and Enter. If this "
+"doesn't work (Wayland), you have to logout and re-login."
+msgstr ""
+"En Xorg, puede hacerlo con Alt+F2 y luego pulsando 'r' y Enter. Si esto no "
+"funciona (Wayland), debe cerrar la sesión y volver a iniciarla."
+
+#: prefs.js:282
+msgid "Togglable Entities:"
+msgstr "Entidades conmutables:"
+
+#: prefs.js:287
+msgid "Choose Togglable Entities:"
+msgstr "Seleccionar entidades conmutables:"
+
+#: prefs.js:310
+msgid "Group Switches"
+msgstr "Interruptores de grupo"
+
+#: prefs.js:317
+msgid "Experimental"
+msgstr "Experimental"
+
+#: prefs.js:318
+msgid "Does not currently work."
+msgstr "No funciona actualmente."
+
+#: prefs.js:409
+msgid "Sensors:"
+msgstr "Sensores:"
+
+#: prefs.js:414
+msgid "Choose Which Sensors Should Appear on the Panel:"
+msgstr "Seleccione los sensores que deben aparecer en el panel:"
+
+#: prefs.js:586
+#, javascript-format
+msgid "Do you want to have the '%s' icon in your panel?"
+msgstr "¿Quiere tener el '%s' icono en su panel?"
+
+#: prefs.js:588
+#, javascript-format
+msgid "Do you want to show %s in the tray menu?"
+msgstr "¿Quiere mostrar %s en la bandeja del menú?"
+
+#: prefs.js:635
+msgid "Add"
+msgstr "Añadir"
 
 #: schemas/org.gnome.shell.extensions.hass-data.gschema.xml:16
 msgid "Panel Icon."
@@ -153,10 +262,6 @@ msgstr ""
 "Identificadores de entidad para los interruptores de asistencia al hogar. "
 "Por ejemplo, switch.livingroom_lights_relay."
 
-#: schemas/org.gnome.shell.extensions.hass-data.gschema.xml:94 prefs.js:56
-msgid "Panel Sensors"
-msgstr "Sensores del panel"
-
 #: schemas/org.gnome.shell.extensions.hass-data.gschema.xml:95
 msgid ""
 "List of entity ids for the sensor values that you want to show in the panel ."
@@ -183,112 +288,8 @@ msgstr "Home Assistant Extension - Atajo del teclado"
 msgid "Shortcut key on how to open the extension's menu from the tray."
 msgstr "Atajo para abrir el menú de la extensión desde la bandeja."
 
-#: extension.js:77
-msgid "Toggle:"
-msgstr "Conmutar:"
+#~ msgid "' icon in your panel?"
+#~ msgstr "' icono en su panel?"
 
-#: extension.js:95
-msgid "HASS Events"
-msgstr "Eventos de HASS"
-
-#: extension.js:97
-msgid "Start Home Assistant"
-msgstr "Iniciar Home Assistant"
-
-#: extension.js:98
-msgid "Stop Home Assistant"
-msgstr "Detener Home Assistant"
-
-#: extension.js:99
-msgid "Close Home Assistant"
-msgstr "Cerrar Home Assistant"
-
-#: extension.js:115
-msgid "Preferences"
-msgstr "Preferencias"
-
-#: prefs.js:48
-msgid "General Settings"
-msgstr "Ajustes generales"
-
-#: prefs.js:51
-msgid "Togglables"
-msgstr "Conmutables"
-
-#: prefs.js:82
-msgid "Global options:"
-msgstr "Opciones globales:"
-
-#: prefs.js:100
-msgid "Temperature/Humidity options:"
-msgstr "Opciones de temperatura/humedad:"
-
-#: prefs.js:129
-msgid "Panel Icon Options:"
-msgstr "Opciones de iconos del panel:"
-
-#: prefs.js:146
-msgid " Icon"
-msgstr " Icono"
-
-#: prefs.js:154
-msgid ""
-"You will need to restart your session in order for this change to take "
-"effect."
-msgstr "Deberá reiniciar su sesión para que este cambio surta efecto."
-
-#: prefs.js:155
-msgid ""
-"On Xorg, you can do that by Alt+F2 and then pressing 'r' and Enter. If this "
-"doesn't work (Wayland), you have to logout and re-login."
-msgstr ""
-"En Xorg, puede hacerlo con Alt+F2 y luego pulsando 'r' y Enter. Si esto no "
-"funciona (Wayland), debe cerrar la sesión y volver a iniciarla."
-
-#: prefs.js:279
-msgid "Togglable Entities:"
-msgstr "Entidades conmutables:"
-
-#: prefs.js:284
-msgid "Choose Togglable Entities:"
-msgstr "Seleccionar entidades conmutables:"
-
-#: prefs.js:307
-msgid "Group Switches"
-msgstr "Interruptores de grupo"
-
-#: prefs.js:314
-msgid "Experimental"
-msgstr "Experimental"
-
-#: prefs.js:315
-msgid "Does not currently work."
-msgstr "No funciona actualmente."
-
-#: prefs.js:406
-msgid "Sensors:"
-msgstr "Sensores:"
-
-#: prefs.js:411
-msgid "Choose Which Sensors Should Appear on the Panel:"
-msgstr "Seleccione los sensores que deben aparecer en el panel:"
-
-#: prefs.js:583
-msgid "Do you want to have the '"
-msgstr "¿Quiere tener el '"
-
-#: prefs.js:583
-msgid "' icon in your panel?"
-msgstr "' icono en su panel?"
-
-#: prefs.js:585
-msgid "Do you want to show "
-msgstr "¿Quiere mostrar "
-
-#: prefs.js:585
-msgid " in the tray menu?"
-msgstr " en la bandeja del menú?"
-
-#: prefs.js:632
-msgid "Add"
-msgstr "Añadir"
+#~ msgid " in the tray menu?"
+#~ msgstr " en la bandeja del menú?"
