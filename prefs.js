@@ -275,7 +275,9 @@ function _buildTogglableSettings() {
         valign: Gtk.Align.CENTER,
         hexpand: true
     });
-    searchEntry.set_search_delay(200);
+    if (typeof searchEntry.set_search_delay === "function") {
+        searchEntry.set_search_delay(150);
+    }
     miscUI.append(searchEntry);
 
     let optionsList = [];
