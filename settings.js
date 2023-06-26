@@ -105,10 +105,10 @@ var MscOptions = class MscOptions {
 
     // Togglable settings
     get togglableEntities() {
-        return this._gsettings.get_strv(HASS_TOGGLABLE_ENTITIES);
+        return this._gsettings.get_strv(HASS_TOGGLABLE_ENTITIES).map(ent => JSON.parse(ent));
     }
     set togglableEntities(entities) {
-        this._gsettings.set_strv(HASS_TOGGLABLE_ENTITIES, entities);
+        this._gsettings.set_strv(HASS_TOGGLABLE_ENTITIES, entities.map(ent => JSON.stringify(ent)));
     }
 
     get enabledEntities() {
@@ -119,11 +119,11 @@ var MscOptions = class MscOptions {
     }
 
     // Panel Icons for Extra Sensors
-    get hassSensorIds() {
-        return this._gsettings.get_strv(HASS_PANEL_SENSOR_IDS);
+    get hassSensorEntities() {
+        return this._gsettings.get_strv(HASS_PANEL_SENSOR_IDS).map(ent => JSON.parse(ent));
     }
-    set hassSensorIds(sensorIds) {
-        this._gsettings.set_strv(HASS_PANEL_SENSOR_IDS, sensorIds);
+    set hassSensorEntities(entities) {
+        this._gsettings.set_strv(HASS_PANEL_SENSOR_IDS, entities.map(ent => JSON.stringify(ent)));
     }
 
     get enabledSensors() {
