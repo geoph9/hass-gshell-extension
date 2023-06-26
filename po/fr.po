@@ -1,232 +1,236 @@
-# Spanish translation for Home Assistant Extension.
+# SOME DESCRIPTIVE TITLE.
 # Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
 # This file is distributed under the same license as the PACKAGE package.
-# Óscar Fernández Díaz <oscfdezdz@tuta.io>, 2022.
+# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
 #
 msgid ""
 msgstr ""
 "Project-Id-Version: \n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2023-06-25 09:46+0200\n"
-"PO-Revision-Date: 2023-06-25 09:51+0200\n"
+"PO-Revision-Date: 2023-06-25 10:00+0200\n"
 "Last-Translator: Benjamin Renard\n"
 "Language-Team: \n"
-"Language: es\n"
+"Language: fr_FR\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+"Plural-Forms: nplurals=2; plural=(n > 1);\n"
 "X-Generator: Poedit 3.2.2\n"
 
 #: extension.js:75
 msgid "Toggle:"
-msgstr "Conmutar:"
+msgstr "Allumer/Éteindre :"
 
 #: extension.js:93
 msgid "HASS Events"
-msgstr "Eventos de HASS"
+msgstr "Évènements HASS"
 
 #: extension.js:95
 msgid "Start Home Assistant"
-msgstr "Iniciar Home Assistant"
+msgstr "Démarrer Home Assistant"
 
 #: extension.js:96
 msgid "Stop Home Assistant"
-msgstr "Detener Home Assistant"
+msgstr "Arrêter Home Assistant"
 
 #: extension.js:97
 msgid "Close Home Assistant"
-msgstr "Cerrar Home Assistant"
+msgstr "Fermer Home Assistant"
 
 #: extension.js:113
 msgid "Preferences"
-msgstr "Preferencias"
+msgstr "Préférences"
 
 #: prefs.js:48
 msgid "General Settings"
-msgstr "Ajustes generales"
+msgstr "Paramètres générals"
 
 #: prefs.js:51
 msgid "Togglables"
-msgstr "Conmutables"
+msgstr "Interrupteurs"
 
 #: prefs.js:56 schemas/org.gnome.shell.extensions.hass-data.gschema.xml:94
 msgid "Panel Sensors"
-msgstr "Sensores del panel"
+msgstr "Capteurs de la barre des tâches"
 
 #: prefs.js:85
 msgid "Global options:"
-msgstr "Opciones globales:"
+msgstr "Options générales :"
 
 #: prefs.js:103
 msgid "Temperature/Humidity options:"
-msgstr "Opciones de temperatura/humedad:"
+msgstr "Options de température/humidité :"
 
 #: prefs.js:132
 msgid "Panel Icon Options:"
-msgstr "Opciones de iconos del panel:"
+msgstr "Options de l'icône de la barre des tâches :"
 
 #: prefs.js:149
 #, javascript-format
 msgid "%s Icon"
-msgstr "Icono %s"
+msgstr "Icône %s"
 
 #: prefs.js:157
 msgid ""
 "You will need to restart your session in order for this change to take "
 "effect."
-msgstr "Deberá reiniciar su sesión para que este cambio surta efecto."
+msgstr ""
+"Vous devrez redémarrer votre sessions pour que ce changement soit effectif."
 
 #: prefs.js:158
 msgid ""
 "On Xorg, you can do that by Alt+F2 and then pressing 'r' and Enter. If this "
 "doesn't work (Wayland), you have to logout and re-login."
 msgstr ""
-"En Xorg, puede hacerlo con Alt+F2 y luego pulsando 'r' y Enter. Si esto no "
-"funciona (Wayland), debe cerrar la sesión y volver a iniciarla."
+"Sur Xorg, vous pouvez faire cela avec Alt+F2 puis taper \"r\" et Entrer. Si "
+"cela ne fonctionne pas (Wayland), vous devez vous fermer votre session puis "
+"la ré-ouvrir."
 
 #: prefs.js:282
 msgid "Togglable Entities:"
-msgstr "Entidades conmutables:"
+msgstr "Entités interrupteurs :"
 
 #: prefs.js:287
 msgid "Choose Togglable Entities:"
-msgstr "Seleccionar entidades conmutables:"
+msgstr "Sélectionner les entités interrupteurs :"
 
 #: prefs.js:310
 msgid "Group Switches"
-msgstr "Interruptores de grupo"
+msgstr "Groupes d'interrupteurs"
 
 #: prefs.js:317
 msgid "Experimental"
-msgstr "Experimental"
+msgstr "Expérimental"
 
 #: prefs.js:318
 msgid "Does not currently work."
-msgstr "No funciona actualmente."
+msgstr "Ne fonctionne pas actuellement."
 
 #: prefs.js:409
 msgid "Sensors:"
-msgstr "Sensores:"
+msgstr "Capteurs :"
 
 #: prefs.js:414
 msgid "Choose Which Sensors Should Appear on the Panel:"
-msgstr "Seleccione los sensores que deben aparecer en el panel:"
+msgstr "Sélectionner les capteurs qui apparaîtront dans la barre des tâches :"
 
 #: prefs.js:586
 #, javascript-format
 msgid "Do you want to have the '%s' icon in your panel?"
-msgstr "¿Quiere tener el '%s' icono en su panel?"
+msgstr "Avez-vous l'icône \"%s\" dans la barre des tâches ?"
 
 #: prefs.js:588
 #, javascript-format
 msgid "Do you want to show %s in the tray menu?"
-msgstr "¿Quiere mostrar %s en la bandeja del menú?"
+msgstr "Voulez-vous afficher %s dans la zone de notification ?"
 
 #: prefs.js:635
 msgid "Add"
-msgstr "Añadir"
+msgstr "Ajouter"
 
 #: schemas/org.gnome.shell.extensions.hass-data.gschema.xml:16
 msgid "Panel Icon."
-msgstr "Icono del panel."
+msgstr "Icône de la barre des tâches."
 
 #: schemas/org.gnome.shell.extensions.hass-data.gschema.xml:17
 msgid "The default icon that will be visible in the panel."
-msgstr "El icono predeterminado que será visible en el panel."
+msgstr "L'icône par défaut qui sera visible dans la barre des tâches."
 
 #: schemas/org.gnome.shell.extensions.hass-data.gschema.xml:22
 msgid "Complete list of valid panel icons for the extension."
-msgstr "Lista completa de iconos del panel válidos para la extensión."
+msgstr ""
+"Liste complète des icônes de la barre des tâches valides pour l'extension."
 
 #: schemas/org.gnome.shell.extensions.hass-data.gschema.xml:23
 msgid ""
 "The paths have to be relative to the directory where the 'extension.js' file "
 "is located."
 msgstr ""
-"Las rutas tienen que ser relativas al directorio donde se encuentra el "
-"archivo 'extension.js'."
+"Les chemins doivent être relatifs au dossier contenant le fichier "
+"\"extention.js\"."
 
 #: schemas/org.gnome.shell.extensions.hass-data.gschema.xml:28
 msgid "Refresh Rate"
-msgstr "Tasa de refresco"
+msgstr "Fréquence de rafraîchissement"
 
 #: schemas/org.gnome.shell.extensions.hass-data.gschema.xml:29
 msgid ""
 "(Currently Broken) The refresh rate for the weather statistics in seconds "
 "(works only if \"Refresh Temperature/Humidity Sensors\" is enabled)."
 msgstr ""
-"(Actualmente roto) La frecuencia de actualización de las estadísticas "
-"meteorológicas en segundos (sólo funciona si está activada la opción "
-"\"Actualizar sensores de temperatura/humedad\")."
+"(Actuellement en panne) Le taux de rafraîchissement des statistiques météo "
+"en secondes (fonctionne uniquement si \"Rafraîchir les capteurs de "
+"température/humidité\" est activé)."
 
 #: schemas/org.gnome.shell.extensions.hass-data.gschema.xml:34
 msgid "Refresh Temperature/Humidity Sensors"
-msgstr "Actualizar los sensores de temperatura/humedad"
+msgstr "Rafraîchir les capteurs de température/humidité"
 
 #: schemas/org.gnome.shell.extensions.hass-data.gschema.xml:35
 msgid ""
 "(Currently Broken) Whether or not you want to refresh the temperature and/or "
 "humidity sensor values."
 msgstr ""
-"(Actualmente roto) Si desea o no refrescar los valores del sensor de "
-"temperatura y/o humedad."
+"(Actuellement en panne) Si vous souhaitez ou non actualiser les valeurs des "
+"capteurs de température et/ou d'humidité."
 
 #: schemas/org.gnome.shell.extensions.hass-data.gschema.xml:40
 msgid "Show notifications"
-msgstr "Mostrar notificaciones"
+msgstr "Afficher les notifications"
 
 #: schemas/org.gnome.shell.extensions.hass-data.gschema.xml:41
 msgid "Show notifications when enabled/disabled."
-msgstr "Mostrar notificaciones cuando se activa/desactiva."
+msgstr "Afficher les notifications lorsqu'elles sont activées/désactivées."
 
 #: schemas/org.gnome.shell.extensions.hass-data.gschema.xml:46
 msgid "Show Temperature/Humidity"
-msgstr "Mostrar temperatura/humedad"
+msgstr "Afficher la température/l'humidité"
 
 #: schemas/org.gnome.shell.extensions.hass-data.gschema.xml:47
 msgid ""
 "Whether to show the temperature and/or humidity values (assuming you have "
 "provided the corresponding entity ids)."
 msgstr ""
-"Si se muestran los valores de temperatura y/o humedad (suponiendo que se han "
-"proporcionado los identificadores de entidad correspondientes)."
+"Indique s'il faut afficher les valeurs de température et/ou d'humidité (en "
+"supposant que vous avez fourni les identifiants d'entité correspondants)."
 
 #: schemas/org.gnome.shell.extensions.hass-data.gschema.xml:52
 msgid "Show Humidity"
-msgstr "Mostrar humedad"
+msgstr "Afficher l'humidité"
 
 #: schemas/org.gnome.shell.extensions.hass-data.gschema.xml:53
 msgid "Whether to show humidity value or not."
-msgstr "Mostrar o no el valor de la humedad."
+msgstr "Afficher ou non la valeur d'humidité."
 
 #: schemas/org.gnome.shell.extensions.hass-data.gschema.xml:58
 msgid "Temperature ID"
-msgstr "Identificador de temperatura"
+msgstr "Identifiant température"
 
 #: schemas/org.gnome.shell.extensions.hass-data.gschema.xml:59
 msgid "Your Home Assistant EntityID for the temperature sensor."
-msgstr "El EntityID de Home Assistant para el sensor de temperatura."
+msgstr ""
+"Votre identifiant d'entité Home Assistant pour le capteur de température."
 
 #: schemas/org.gnome.shell.extensions.hass-data.gschema.xml:64
 msgid "Humidity ID"
-msgstr "Identificador de humedad"
+msgstr "Identifiant humidité"
 
 #: schemas/org.gnome.shell.extensions.hass-data.gschema.xml:65
 msgid "Your Home Assistant EntityID for the humidity sensor."
-msgstr "El EntityID de Home Assistant para el sensor de humedad."
+msgstr "Votre identifiant d'entité Home Assistant pour le capteur d'humidité."
 
 #: schemas/org.gnome.shell.extensions.hass-data.gschema.xml:70
 msgid "Access Token"
-msgstr "Testigo de acceso"
+msgstr "Jeton d'accès"
 
 #: schemas/org.gnome.shell.extensions.hass-data.gschema.xml:71
 msgid ""
 "Long Live Access Token for Home Assistant (Go to Profile->Bottom-of-the-page-"
 ">Long-Live-Access-Tokens and create a new one)."
 msgstr ""
-"Testigo de acceso de larga duración para Home Assistant (Vaya a Perfil-"
-">Fondo de la página->Testigos de acceso de larga duración y cree uno nuevo)."
+"Jeton d'accès de longue durée pour Home Assistant (Allez dans Profil-> Bas "
+"de la page-> Jetons d'accès de longue durée et créez-en un nouveau)."
 
 #: schemas/org.gnome.shell.extensions.hass-data.gschema.xml:76
 msgid "URL"
@@ -234,62 +238,66 @@ msgstr "URL"
 
 #: schemas/org.gnome.shell.extensions.hass-data.gschema.xml:77
 msgid "The url where your hass instance is hosted."
-msgstr "La url donde está alojada su instancia de hass."
+msgstr "L'url où votre instance hass est hébergée."
 
 #: schemas/org.gnome.shell.extensions.hass-data.gschema.xml:82
 msgid "Complete list of entity ids for home-assistant switches."
 msgstr ""
-"Lista completa de identificadores de entidad para los interruptores de "
-"asistencia domiciliaria."
+"Liste complète des identifiants d'entité des interrupteurs d'Home Assistant."
 
 #: schemas/org.gnome.shell.extensions.hass-data.gschema.xml:83
 msgid ""
 "Full list of home assistant switches. It is meant to be filled automatically "
 "after pressing the 'Scan' button in the Preferences menu."
 msgstr ""
-"Lista completa de interruptores del asistente doméstico. Está pensada para "
-"que se rellene automáticamente tras pulsar el botón \"Escanear\" en el menú "
-"de Preferencias."
+"Liste complète des interrupteurs d'Home Assistant. Elle est censé être "
+"remplie automatiquement après avoir appuyé sur le bouton 'Scan' dans le menu "
+"Préférences."
 
 #: schemas/org.gnome.shell.extensions.hass-data.gschema.xml:88
 msgid "Entity ids for home-assistant switches."
-msgstr "Identificadores de entidad para los interruptores de Home Assistant."
+msgstr "ID d'entité des interrupteurs d'Home Assistant."
 
 #: schemas/org.gnome.shell.extensions.hass-data.gschema.xml:89
 msgid ""
 "Entity ids for home-assistant switches. E.g. switch.livingroom_lights_relay."
 msgstr ""
-"Identificadores de entidad para los interruptores de asistencia al hogar. "
-"Por ejemplo, switch.livingroom_lights_relay."
+"ID d'entité des interrupteurs d'Home Assistant. Ex : switch."
+"livingroom_lights_relay."
 
 #: schemas/org.gnome.shell.extensions.hass-data.gschema.xml:95
 msgid ""
 "List of entity ids for the sensor values that you want to show in the panel ."
 msgstr ""
-"Lista de identificadores de entidades para los valores de los sensores que "
-"desea mostrar en el panel."
+"Liste des ID d'entité des capteurs dont vous souhaitez afficher la valeur "
+"dans la barre des tâches."
 
 #: schemas/org.gnome.shell.extensions.hass-data.gschema.xml:100
 msgid "Entity ids for home assistant sensors."
-msgstr "Identificadores de entidad para los sensores de Home Assistant."
+msgstr "ID d'entité des capteurs d'Home Assistant."
 
 #: schemas/org.gnome.shell.extensions.hass-data.gschema.xml:101
 msgid ""
 "Entity ids for home-assistant sensors. E.g. sensor.livingroom_temperature ."
 msgstr ""
-"Identificadores de entidad para los sensores de asistencia al hogar. Por "
-"ejemplo, sensor.livingroom_temperature ."
+"ID d'entité des capteurs d'Home Assistant.. Ex : sensor."
+"livingroom_temperature."
 
 #: schemas/org.gnome.shell.extensions.hass-data.gschema.xml:112
 msgid "Home Assistant Extension - Shortcut Key"
-msgstr "Home Assistant Extension - Atajo del teclado"
+msgstr "Extension Home Assistant - Raccourci clavier"
 
 #: schemas/org.gnome.shell.extensions.hass-data.gschema.xml:113
 msgid "Shortcut key on how to open the extension's menu from the tray."
-msgstr "Atajo para abrir el menú de la extensión desde la bandeja."
+msgstr ""
+"Raccourci clavier pour ouvrir le menu de l'extension à partir de la zone de "
+"notification."
+
+#~ msgid " Icon"
+#~ msgstr " Icône"
 
 #~ msgid "' icon in your panel?"
-#~ msgstr "' icono en su panel?"
+#~ msgstr "\" dans la barre des tâches ?"
 
 #~ msgid " in the tray menu?"
-#~ msgstr " en la bandeja del menú?"
+#~ msgstr " dans la barre des tâches ?"
