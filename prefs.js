@@ -146,7 +146,7 @@ function _buildGeneralSettings() {
                       .split("-")
                       .map(word => word.charAt(0).toUpperCase() + word.slice(1))
                       .join(" ");
-        let [iconItem, panelIconCheckBox] = _makeCheckBox(label + _(" Icon"), checked, superGroup);
+        let [iconItem, panelIconCheckBox] = _makeCheckBox(_("%s Icon").format(label), checked, superGroup);
         optionsList.push(iconItem);
         iconCheckBoxes.push({
             icon: ic,
@@ -590,8 +590,8 @@ function _makeSwitch(name, schema) {
     let gtkSwitch = _newGtkSwitch();
     return [
         _optionsItem(
-            key.get_summary(),
-            key.get_description(),
+            _(key.get_summary()),
+            _(key.get_description()),
             gtkSwitch,
             null
         ),
@@ -611,9 +611,9 @@ function _makeCheckBox(name, checked, buttonGroup) {
     let gtkCheckBox = _newGtkCheckBox(checked, buttonGroup);
     let desc;
     if (buttonGroup !== undefined) {
-        desc = _("Do you want to have the '") + name + _("' icon in your panel?");
+        desc = _("Do you want to have the '%s' icon in your panel?").format(name);
     } else {
-        desc = _("Do you want to show ") + name + _(" in the tray menu?");
+        desc = _("Do you want to show %s in the tray menu?").format(name)
     }
 
     let label = new Gtk.Label({
