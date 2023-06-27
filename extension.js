@@ -92,7 +92,7 @@ var HassExtension = GObject.registerClass ({
     }
 
     rebuildTray() {
-        log("Rebuilding tray...");
+        log(`${MyUUID}: Rebuilding tray...`);
         // Destroy the previous menu items
         let oldItems = this.menu._getMenuItems();
         for (let item in oldItems) {
@@ -150,7 +150,7 @@ var HassExtension = GObject.registerClass ({
             'security-high-symbolic',
         );
         popupImageMenuItem.connect('activate', () => {
-            log("Opening Preferences...");
+            log(`${MyUUID}: Opening Preferences...`);
             ExtensionUtils.openPrefs();
         });
         this.menu.addMenuItem(popupImageMenuItem);
@@ -342,7 +342,7 @@ var HassExtension = GObject.registerClass ({
             }
             this.weatherStatsPanelText.text = out;
         } catch (error) {
-            logError(error, "Could not refresh weather stats...");
+            logError(error, `${MyUUID}: Could not refresh weather stats...`);
             // will execute this function only once and abort.
             // Remove in order to make the Main loop continue working.
             return false;
@@ -364,11 +364,11 @@ var HassExtension = GObject.registerClass ({
             if (outText.length > 2) {
                 outText = outText.substring(0, outText.length-3)
             }
-            log("WILL USE OUT TEXT:");
-            log(outText);
+            log(`${MyUUID}: WILL USE OUT TEXT:`);
+            log(`${MyUUID}: ${outText}`);
             this.sensorsPanelText.text = outText;
         } catch (error) {
-            logError(error, "Could not refresh sensor stats...");
+            logError(error, `${MyUUID}: Could not refresh sensor stats...`);
             // will execute this function only once and abort.
             // Remove in order to make the Main loop continue working.
             return false;

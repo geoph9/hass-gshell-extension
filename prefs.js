@@ -8,8 +8,7 @@ const Settings = Me.imports.settings;
 const Gettext = imports.gettext.domain(Me.metadata['gettext-domain']);
 const _ = Gettext.gettext;
 
-// const Convenience = Me.imports.utils;
-// const Convenience = imports.misc.extensionUtils;
+const MyUUID = Me.metadata.uuid;
 
 const HASS_ACCESS_TOKEN = 'hass-access-token';
 const HASS_URL = 'hass-url';
@@ -27,7 +26,7 @@ const REFRESH_RATE = 'weather-refresh-seconds';
 function init() {
     // schema = _settings.settings_schema;
     ExtensionUtils.initTranslations();
-    log(`initializing ${Me.metadata.name} Preferences`);
+    log(`${MyUUID}: initializing ${Me.metadata.name} Preferences`);
 }
 
 function buildPrefsWidget() {
@@ -241,7 +240,6 @@ function _buildGeneralSettings() {
     // //////////////////////////////////////////////////////////
     for (let icCheckbox of iconCheckBoxes) {
         icCheckbox.rb.connect('notify::active', () => {
-            // log("New radio button will be:" + icCheckbox.icon);
             mscOptions.panelIcon = icCheckbox.icon;
         });
     }

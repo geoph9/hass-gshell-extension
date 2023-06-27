@@ -1,5 +1,6 @@
 const {Soup, Gio, GLib, Secret} = imports.gi;
 const Me = imports.misc.extensionUtils.getCurrentExtension();
+const MyUUID = Me.metadata.uuid;
 
 let TOKEN_SCHEMA;
 
@@ -27,7 +28,7 @@ const VALID_TOGGLABLES = ['switch.', 'light.', 'fan.', 'input_boolean.'];
 function _constructMessage(type, url, data=null) {
     // Initialize message and set the required headers
     // let message = Soup.Message.new_from_encoded_form(
-    log(`hass-gshell: Constructing Message for ${url}`);
+    log(`${MyUUID}: Constructing Message for ${url}`);
     let message = Soup.Message.new(type, url);
     message.request_headers.append(
       'Authorization',
@@ -57,7 +58,7 @@ function send_request(url, type='GET', data=null) {
     try{
         message = _constructMessage(type, url, data);
     } catch (error) {
-        logError(error, `hass-gshell: Could not construct ${type} message for ${url}`);
+        logError(error, `${MyUUID}: Could not construct ${type} message for ${url}`);
         return false
     }
     let result = session.send_and_read(
@@ -70,7 +71,7 @@ function send_request(url, type='GET', data=null) {
             let response = decoder.decode(result.get_data());
             return JSON.parse(response)
         } catch (error) {
-            logError(error, `Could not send request to ${url}.`);
+            logError(error, `${MyUUID}: Could not send request to ${url}.`);
         }
     }
     return false
