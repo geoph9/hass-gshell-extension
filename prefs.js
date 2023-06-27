@@ -361,18 +361,22 @@ function _buildTogglableSettings() {
     for (let togCheckBox of togglableCheckBoxes) {
         togCheckBox.cb.set_active(togCheckBox.checked)
         togCheckBox.cb.connect('notify::active', () => {
+            log(`${MyUUID}: Toogle ${togCheckBox.entity.name} (${togCheckBox.entity.entity_id}) as togglable in menu`);
             let currentEntities = mscOptions.enabledEntities;
-            let index = currentEntities.indexOf(togCheckBox.entity);
+            let index = currentEntities.indexOf(togCheckBox.entity.entity_id);
             if (index > -1) { // then it exists and so we pop
+                log(`${MyUUID}: Entity ${togCheckBox.entity.name} (${togCheckBox.entity.entity_id}) currently present, remove it`);
                 currentEntities.splice(index, 1)
             } else {
-                currentEntities.push(togCheckBox.entity)
+                log(`${MyUUID}: Entity ${togCheckBox.entity.name} (${togCheckBox.entity.entity_id}) not currently present, add it`);
+                currentEntities.push(togCheckBox.entity.entity_id)
             }
             mscOptions.enabledEntities = mscOptions.togglableEntities.map(
                 ent => ent.entity_id
             ).filter(
                 ent => currentEntities.includes(ent)
             );
+            log(`${MyUUID}: ${mscOptions.enabledEntities.length} togglable entities enabled: ${mscOptions.enabledEntities.join(', ')}`);
         });
     }
 
@@ -495,18 +499,22 @@ function _buildSensorSettings() {
     for (let sensorCheckBox of sensorCheckBoxes) {
         sensorCheckBox.cb.set_active(sensorCheckBox.checked)
         sensorCheckBox.cb.connect('notify::active', () => {
+            log(`${MyUUID}: Toogle ${sensorCheckBox.entity.name} (${sensorCheckBox.entity.entity_id}) sensor presence in status bar`);
             let currentSensors = mscOptions.enabledSensors;
-            let index = currentSensors.indexOf(sensorCheckBox.entity);
+            let index = currentSensors.indexOf(sensorCheckBox.entity.entity_id);
             if (index > -1) { // then it exists and so we pop
+                log(`${MyUUID}: Sensor ${sensorCheckBox.entity.name} (${sensorCheckBox.entity.entity_id}) currently present, remove it`);
                 currentSensors.splice(index, 1)
             } else {
-                currentSensors.push(sensorCheckBox.entity)
+                log(`${MyUUID}: Sensor ${sensorCheckBox.entity.name} (${sensorCheckBox.entity.entity_id}) not currently present, add it`);
+                currentSensors.push(sensorCheckBox.entity.entity_id)
             }
             mscOptions.enabledSensors = mscOptions.hassSensorEntities.map(
                 ent => ent.entity_id
             ).filter(
                 ent => currentSensors.includes(ent)
             );
+            log(`${MyUUID}: ${mscOptions.enabledSensors.length} sensors enabled: ${mscOptions.enabledSensors.join(', ')}`);
         });
     }
 
