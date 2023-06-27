@@ -4,8 +4,8 @@ const Main = imports.ui.main;
 const PanelMenu = imports.ui.panelMenu;
 const PopupMenu = imports.ui.popupMenu;
 
-const Convenience = imports.misc.extensionUtils;
-const Me = Convenience.getCurrentExtension();
+const ExtensionUtils = imports.misc.extensionUtils;
+const Me = ExtensionUtils.getCurrentExtension();
 // const Util = imports.misc.util;
 const Gettext = imports.gettext.domain(Me.metadata['gettext-domain']);
 const _ = Gettext.gettext;
@@ -14,12 +14,13 @@ const _ = Gettext.gettext;
 const Mainloop = imports.mainloop;
 const Utils = Me.imports.utils;
 
+const MyUUID = Me.metadata.uuid;
+
 const HASS_TOGGLABLE_ENTITIES = 'hass-togglable-entities';
 const HASS_ENABLED_ENTITIES = 'hass-enabled-entities';
 const HASS_PANEL_SENSOR_IDS = 'hass-panel-sensor-ids';
 const HASS_ENABLED_SENSOR_IDS = 'hass-enabled-sensor-ids';
 const HASS_SETTINGS = 'org.gnome.shell.extensions.hass-data';
-let hassExtension;
 
 // Credits for organizing this class: https://github.com/vchlum/hue-lights/
 var HassExtension = GObject.registerClass ({
@@ -27,7 +28,13 @@ var HassExtension = GObject.registerClass ({
 }, class HassMenu extends PanelMenu.Button {
     _init() {
         super._init(0, Me.metadata.name, false);
-        this._settings = Convenience.getSettings(HASS_SETTINGS);
+        this._settings = ExtensionUtils.getSettings(HASS_SETTINGS);
+    }
+
+    enable() {
+        Main.panel.addToStatusArea('hass-extension', this, 1);
+        this.enableShortcut();
+
         this._settings.connect("changed", () => {
             if (this.needsRebuild()) {
                 this.rebuildTray();
@@ -53,6 +60,36 @@ var HassExtension = GObject.registerClass ({
         this.buildTempSensorStats();
         // Build panel entries for other sensors;
         this.buildPanelSensorEntities();
+    }
+
+    enableShortcut() {
+        // For the Shortcut
+        // Shell.ActionMode.NORMAL
+        // Shell.ActionMode.OVERVIEW
+        // Shell.ActionMode.LOCK_SCREEN
+        let mode = Shell.ActionMode.ALL;
+
+        // Meta.KeyBindingFlags.PER_WINDOW
+        // Meta.KeyBindingFlags.BUILTIN
+        // Meta.KeyBindingFlags.IGNORE_AUTOREPEAT
+        let flag = Meta.KeyBindingFlags.NONE;
+
+        let shortcut_settings = ExtensionUtils.getSettings('org.gnome.shell.extensions.hass-shortcut');
+
+        Main.wm.addKeybinding("hass-shortcut", shortcut_settings, flag, mode, () => {
+            this.menu.toggle();
+        });
+    }
+
+    disable () {
+        this._deleteTempStatsPanel();
+        this._deleteSensorsPanel();
+        this.disableShortcut();
+        this.destroy();
+    }
+
+    disableShortcut() {
+        Main.wm.removeKeybinding("hass-shortcut");
     }
 
     rebuildTray() {
@@ -115,7 +152,7 @@ var HassExtension = GObject.registerClass ({
         );
         popupImageMenuItem.connect('activate', () => {
             log("Opening Preferences...");
-            Convenience.openPrefs();
+            ExtensionUtils.openPrefs();
         });
         this.menu.addMenuItem(popupImageMenuItem);
     }
@@ -425,40 +462,8 @@ var HassExtension = GObject.registerClass ({
     }
 })
 
-
 function init() {
-  Convenience.initTranslations();
-}
-
-
-function enable() {
-    hassExtension = new HassExtension();
-    Main.panel.addToStatusArea('hass-extension', hassExtension, 1);
-    // For the Shortcut
-    // Shell.ActionMode.NORMAL
-    // Shell.ActionMode.OVERVIEW
-    // Shell.ActionMode.LOCK_SCREEN
-    let mode = Shell.ActionMode.ALL;
-
-    // Meta.KeyBindingFlags.PER_WINDOW
-    // Meta.KeyBindingFlags.BUILTIN
-    // Meta.KeyBindingFlags.IGNORE_AUTOREPEAT
-    let flag = Meta.KeyBindingFlags.NONE;
-
-    let shortcut_settings = Convenience.getSettings('org.gnome.shell.extensions.hass-shortcut');
-
-    Main.wm.addKeybinding("hass-shortcut", shortcut_settings, flag, mode, () => {
-        hassExtension.menu.toggle();
-    });
-}
-
-
-function disable () {
-    hassExtension._deleteTempStatsPanel();
-    hassExtension._deleteSensorsPanel();
-    hassExtension.destroy();
-    hassExtension = null;
-
-    // Disable shortcut
-    Main.wm.removeKeybinding("hass-shortcut");
+    log(`${MyUUID}: initializing...`);
+    ExtensionUtils.initTranslations();
+    return new HassExtension();
 }
