@@ -166,7 +166,8 @@ function arraysEqual(a, b) {
  * @param {String} schema_name
  * @return {Gio.Settings} The settings corresponding to the input schema
  */
-function getSettings(schema) {
+function getSettings(schema=null) {
+    schema = schema ? schema : Me.metadata['settings-schema'];
     const schemaDir = Me.dir.get_child('schemas');
     let schemaSource;
     if (schemaDir.query_exists(null)) {

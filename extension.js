@@ -20,7 +20,6 @@ const HASS_TOGGLABLE_ENTITIES = 'hass-togglable-entities';
 const HASS_ENABLED_ENTITIES = 'hass-enabled-entities';
 const HASS_PANEL_SENSOR_IDS = 'hass-panel-sensor-ids';
 const HASS_ENABLED_SENSOR_IDS = 'hass-enabled-sensor-ids';
-const HASS_SETTINGS = 'org.gnome.shell.extensions.hass-data';
 
 // Credits for organizing this class: https://github.com/vchlum/hue-lights/
 var HassExtension = GObject.registerClass ({
@@ -28,7 +27,7 @@ var HassExtension = GObject.registerClass ({
 }, class HassMenu extends PanelMenu.Button {
     _init() {
         super._init(0, Me.metadata.name, false);
-        this._settings = ExtensionUtils.getSettings(HASS_SETTINGS);
+        this._settings = ExtensionUtils.getSettings();
     }
 
     enable() {

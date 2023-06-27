@@ -23,12 +23,6 @@ const TEMPERATURE_ID = 'temp-entity-id';
 const HUMIDITY_ID = 'humidity-entity-id';
 const DO_REFRESH = 'refresh-weather';
 const REFRESH_RATE = 'weather-refresh-seconds';
-const HASS_SETTINGS = 'org.gnome.shell.extensions.hass-data';
-
-// let notebook;
-// let schema;
-// let _settings = ExtensionUtils.getSettings(HASS_SETTINGS);
-// _settings.connect('changed', _refresh.bind(this)); // TODO: Refresh
 
 function init() {
     // schema = _settings.settings_schema;
@@ -61,7 +55,7 @@ function buildPrefsWidget() {
 
 function _buildGeneralSettings() {
     const mscOptions = new Settings.MscOptions();
-    let _settings = ExtensionUtils.getSettings(HASS_SETTINGS);
+    let _settings = ExtensionUtils.getSettings();
     // _settings.connect('changed', _refresh.bind(this)); // TODO: Refresh
     let schema = _settings.settings_schema;
 

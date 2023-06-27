@@ -21,11 +21,9 @@ const HUMIDITY_ID = 'humidity-entity-id';
 const DO_REFRESH = 'refresh-weather';
 const REFRESH_RATE = 'weather-refresh-seconds';
 
-const HASS_SETTINGS = 'org.gnome.shell.extensions.hass-data';
-
 var MscOptions = class MscOptions {
     constructor() {
-        this._gsettings = Utils.getSettings(HASS_SETTINGS);
+        this._gsettings = Utils.getSettings();
         this._connectionIds = [];
     }
 
