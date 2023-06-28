@@ -121,9 +121,9 @@ function computeURL(path, hass_url=null) {
 /**
  * Get entities
  *
- * @param {function} callback The callback to run with the result
- * @param {function} on_error The callback to run on error
- * @param {boolean} force_reload Force reloading cache (optional, default: false)
+ * @param {Function} callback The callback to run with the result
+ * @param {Function} on_error The callback to run on error
+ * @param {Boolean} force_reload Force reloading cache (optional, default: false)
  *
  */
 function getEntities(callback, on_error=null, force_reload=false) {
@@ -175,10 +175,10 @@ function invalidateEntitiesCache() {
 /**
  * Get togglables
  *
- * @param {function} callback The callback to run with the result
- * @param {function} on_error The callback to run on error
- * @param {boolean} only_enabled Filter on enabled togglables (optional, default: false)
- * @param {boolean} force_reload Force reloading cache (optional, default: false)
+ * @param {Function} callback The callback to run with the result
+ * @param {Function} on_error The callback to run on error
+ * @param {Boolean} only_enabled Filter on enabled togglables (optional, default: false)
+ * @param {Boolean} force_reload Force reloading cache (optional, default: false)
  *
  */
 function getTogglables(callback, on_error=null, only_enabled=false, force_reload=false) {
@@ -204,10 +204,10 @@ function getTogglables(callback, on_error=null, only_enabled=false, force_reload
 /**
  * Get sensors
  *
- * @param {function} callback The callback to run with the result
- * @param {function} on_error The callback to run on error
- * @param {boolean} only_enabled Filter on enabled togglables (optional, default: false)
- * @param {boolean} force_reload Force reloading cache (optional, default: false)
+ * @param {Function} callback The callback to run with the result
+ * @param {Function} on_error The callback to run on error
+ * @param {Boolean} only_enabled Filter on enabled togglables (optional, default: false)
+ * @param {Boolean} force_reload Force reloading cache (optional, default: false)
  *
  */
 function getSensors(callback, on_error=null, only_enabled=false, force_reload=false) {
@@ -240,10 +240,10 @@ function getSensors(callback, on_error=null, only_enabled=false, force_reload=fa
 /**
  * Get a sensor by its id
  *
- * @param {string} sensor_id The expected sensor ID
- * @param {function} callback The callback to run with the result
- * @param {function} on_not_found The callback to run if sensor is not found (or on error)
- * @param {boolean} force_reload Force reloading cache (optional, default: false)
+ * @param {String} sensor_id The expected sensor ID
+ * @param {Function} callback The callback to run with the result
+ * @param {Function} on_not_found The callback to run if sensor is not found (or on error)
+ * @param {Boolean} force_reload Force reloading cache (optional, default: false)
  *
  */
 function getSensor(sensor_id, callback, on_not_found=null, force_reload=false) {
@@ -265,8 +265,8 @@ function getSensor(sensor_id, callback, on_not_found=null, force_reload=false) {
 
 /**
  * Compute sensor state as display by the extension
- * @param {string} sensor  The sensor object
- * @return {string} The computed sensor state
+ * @param {String} sensor  The sensor object
+ * @return {String} The computed sensor state
  */
 function computeSensorState(sensor) {
     return `${sensor.state} ${sensor.unit}`;
@@ -276,7 +276,7 @@ function computeSensorState(sensor) {
  * Check equality of elements of two arrays
  * @param {Array} a Array 1
  * @param {Array} b Array 2
- * @return {boolean} true if the two arrays have the same elements. false otherwise.
+ * @return {Boolean} true if the two arrays have the same elements. false otherwise.
  */
 function arraysEqual(a, b) {
     if (a === b) return true;

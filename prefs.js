@@ -600,7 +600,7 @@ function _makeSwitch(name, schema) {
 /**
  *
  * @param {String} name The name of the text on the left of the check box.
- * @param {boolean} checked (Optional) Whether the box is checked or not. Defaults to false.
+ * @param {Boolean} checked (Optional) Whether the box is checked or not. Defaults to false.
  * @param {Gtk.CheckButton} buttonGroup (Optional) A check button group which the new checkbutton will belong to.
  * If provided then the checkbutton will be a radio button.
  * @return {Gtk.CheckButton} A new Gtk.CheckButton instance.
