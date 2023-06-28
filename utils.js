@@ -1,5 +1,8 @@
 const {Soup, Gio, GLib, Secret} = imports.gi;
 const Me = imports.misc.extensionUtils.getCurrentExtension();
+const MscOptions = Me.imports.settings.MscOptions;
+
+const mscOptions = new MscOptions();
 const MyUUID = Me.metadata.uuid;
 
 let TOKEN_SCHEMA;
@@ -46,98 +49,226 @@ function _constructMessage(type, url, data=null) {
 
 /**
  *
- * @param {String} url The url which you want to 'ping'
- * @param {String} type Request type (e.g. 'GET', 'POST')
- * @param {Object} data (optional) Data that you want to send with the request (must be in json format)
+ * @param {String} url The url which you want to request
+ * @param {String} type Request type (e.g. 'GET', 'POST', default: GET)
+ * @param {Object} data Data that you want to send with the request (optional, must be in json format, default: null)
+ * @param {Function} callback The callback for request result (optional)
+ * @param {Function} on_error The callback to run on request error (optional)
  * @return {Object} The response of the request (returns false if the request was unsuccessful)
  */
-function send_request(url, type='GET', data=null) {
+function send_async_request(url, type, data, callback=null, on_error=null) {
+    type = type ? type : 'GET';
     // Initialize session
     let session = Soup.Session.new();
+    session.set_timeout(5);
     let message;
     try{
         message = _constructMessage(type, url, data);
     } catch (error) {
         logError(error, `${MyUUID}: Could not construct ${type} message for ${url}`);
-        return false
+        if (on_error) on_error();
+        return
     }
-    let result = session.send_and_read(
-        message,
-        null
+    try {
+        log(`${MyUUID}: Sending ${type} request on ${url}...`);
+        let result = session.send_and_read_async(
+            message,
+            GLib.PRIORITY_DEFAULT,
+            null,
+            (session, result) => {
+                log(`${MyUUID}: Handling result of ${type} request on ${url}...`);
+                if (message.get_status() == Soup.Status.OK) {
+                    result = session.send_and_read_finish(result);
+                    if (!callback) {
+                        log(`${MyUUID}: ${type} request on ${url}: success`);
+                        return;
+                    }
+                    try {
+                        log(`${MyUUID}: Decoding result of ${type} request on ${url}..`);
+                        let decoder = new TextDecoder('utf-8');
+                        let response = decoder.decode(result.get_data());
+                        log(`${MyUUID}: run callback for ${type} request on ${url}`);
+                        callback(JSON.parse(response));
+                    } catch (error) {
+                        logError(error, `${MyUUID}: fail to decode result of request on ${url}.`);
+                        if (on_error) on_error();
+                    }
+                }
+                else {
+                    log(`${MyUUID}: invalid return of request on ${url} (status: ${message.get_status()}`);
+                    if (on_error) on_error();
+                }
+            }
+        );
+    } catch (error) {
+        logError(error, `${MyUUID}: error durring request on ${url}: ${error}`);
+        if (on_error) on_error();
+    }
+}
+
+
+// Compute HASS URL
+function computeURL(path, hass_url=null) {
+    let url = hass_url ? hass_url : mscOptions.hassUrl;
+    if (!url.startsWith("http")) url = `http://${url}` // use http:// by default
+    if (!path)
+        return url
+    if (!url.endsWith("/")) url += "/";  //  needs a trailing slash
+    return url + path
+}
+
+/**
+ * Get entities
+ *
+ * @param {function} callback The callback to run with the result
+ * @param {function} on_error The callback to run on error
+ * @param {boolean} force_reload Force reloading cache (optional, default: false)
+ *
+ */
+function getEntities(callback, on_error=null, force_reload=false) {
+    let entities = mscOptions.entitiesCache;
+    if (entities.length == 0 || force_reload) {
+        log(`${MyUUID}: get entities from API`);
+        send_async_request(
+            this.computeURL('api/states'), 'GET', null,
+            function (response) {
+                if (Array.isArray(response)) {
+                    let entities = [];
+                    for (let ent of response) {
+                        entities.push(
+                          {
+                            'entity_id': ent.entity_id,
+                            'name': ent.attributes.friendly_name,
+                            'attributes': ent.attributes,
+                            'state': ent.state,
+                          }
+                        )
+                    }
+                    log(`${MyUUID}: ${entities.length} entities retreived, sort it by name`);
+                    entities = entities.sort((a,b) => (a.name > b.name) ? 1 : ((b.name > a.name) ? -1 : 0));
+                    log(`${MyUUID}: update entities cache`);
+                    mscOptions.entitiesCache = entities;
+                    callback(entities);
+                }
+                else if (on_error) {
+                    on_error();
+                }
+            }.bind(this),
+            on_error
+        );
+    }
+    else {
+        log(`${MyUUID}: get entities from cache`);
+        callback(entities);
+    }
+}
+
+/**
+ * Invalidate entities cache
+ */
+function invalidateEntitiesCache() {
+    log(`${MyUUID}: invalidate entities cache`);
+    mscOptions.entitiesCache = [];
+}
+
+/**
+ * Get togglables
+ *
+ * @param {function} callback The callback to run with the result
+ * @param {function} on_error The callback to run on error
+ * @param {boolean} only_enabled Filter on enabled togglables (optional, default: false)
+ * @param {boolean} force_reload Force reloading cache (optional, default: false)
+ *
+ */
+function getTogglables(callback, on_error=null, only_enabled=false, force_reload=false) {
+    getEntities(
+        function(entities) {
+            let togglables = [];
+            for (let ent of entities) {
+                if (only_enabled && !mscOptions.enabledEntities.includes(ent.entity_id))
+                    continue;
+                // Filter on togglable
+                if (VALID_TOGGLABLES.filter(tog => ent.entity_id.startsWith(tog)).length == 0)
+                    continue;
+                togglables.push({'entity_id': ent.entity_id, 'name': ent.name});
+            }
+            log(`${MyUUID}: ${togglables.length} ${only_enabled?'enabled ':''}togglable entities found`);
+            callback(togglables);
+        },
+        on_error,
+        force_reload
     );
-    if (message.get_status() == Soup.Status.OK) {
-        try {
-            let decoder = new TextDecoder('utf-8');
-            let response = decoder.decode(result.get_data());
-            return JSON.parse(response)
-        } catch (error) {
-            logError(error, `${MyUUID}: Could not send request to ${url}.`);
-        }
-    }
-    return false
 }
 
 /**
+ * Get sensors
  *
- * @param {String} base_url The base url of the Home Assistant instance
- * @return {Object} Array of dictionaries with 'entity_id' and 'name' entries
+ * @param {function} callback The callback to run with the result
+ * @param {function} on_error The callback to run on error
+ * @param {boolean} only_enabled Filter on enabled togglables (optional, default: false)
+ * @param {boolean} force_reload Force reloading cache (optional, default: false)
+ *
  */
-function discoverSwitches(base_url) {
-    if ( !base_url || base_url === "http:///" || base_url === "https:///" ) {
-        return [];
-    }
-    let url = `${base_url}api/states`
-    let data = send_request(url, 'GET');
-    if (data === false) {
-        return [];
-    }
-    let entities = [];
-    for (let ent of data) {
-        // Save all the switchable/togglable entities in the entities array
-        if (VALID_TOGGLABLES.filter(tog => ent.entity_id.startsWith(tog)).length > 0) {
-        // if (ent.entity_id.startsWith('switch.') || ent.entity_id.startsWith('light.')) {
-            entities.push(
-              {
-                'entity_id': ent.entity_id,
-                'name': ent.attributes.friendly_name
-              }
-            )
-        }
-    }
-    return entities.sort((a,b) => (a.name > b.name) ? 1 : ((b.name > a.name) ? -1 : 0));
+function getSensors(callback, on_error=null, only_enabled=false, force_reload=false) {
+    getEntities(
+        function(entities) {
+            let sensors = [];
+            for (let ent of entities) {
+                if (only_enabled && !mscOptions.enabledSensors.includes(ent.entity_id))
+                    continue;
+                if (!ent.entity_id.startsWith('sensor.')) continue;
+                if (!ent.state || !ent.attributes.unit_of_measurement) continue;
+                if (ent.state === "unknown" || ent.state === "unavailable") continue;
+                sensors.push(
+                  {
+                    'entity_id': ent.entity_id,
+                    'name': ent.name,
+                    'unit': ent.attributes.unit_of_measurement,
+                    'state': ent.state,
+                  }
+                )
+            }
+            log(`${MyUUID}: ${sensors.length} ${only_enabled?'enabled ':''}sensor entities found`);
+            callback(sensors);
+        },
+        on_error,
+        force_reload
+    );
 }
 
 /**
+ * Get a sensor by its id
  *
- * @param {String} base_url The base url of the Home Assistant instance
- * @return {Object} Array of dictionaries with 'entity_id' and 'name' entries
+ * @param {string} sensor_id The expected sensor ID
+ * @param {function} callback The callback to run with the result
+ * @param {function} on_not_found The callback to run if sensor is not found (or on error)
+ * @param {boolean} force_reload Force reloading cache (optional, default: false)
+ *
  */
-function discoverSensors(base_url) {
-    let url = `${base_url}api/states`
-    let data = send_request(url, 'GET');
-    if (data === false) {
-        return [];
-    }
-    let entities = [];
-    for (let ent of data) {
-        // Save all the switchable/togglable entities in the entities array
-        if (ent.entity_id.startsWith('sensor.')) {
-            if (!ent.state || !ent.attributes.unit_of_measurement){
-                continue
+function getSensor(sensor_id, callback, on_not_found=null, force_reload=false) {
+    getSensors(
+        function(sensors) {
+            for (let sensor of sensors) {
+                if (sensor.entity_id == sensor_id) {
+                    callback(sensor);
+                    return;
+                }
             }
-            if (ent.state === "unknown" || ent.state === "unavailable"){
-                continue
-            }
-            entities.push(
-              {
-                'entity_id': ent.entity_id,
-                'name': ent.attributes.friendly_name,
-                'unit': ent.attributes.unit_of_measurement
-              }
-            )
-        }
-    }
-    return entities.sort((a,b) => (a.name > b.name) ? 1 : ((b.name > a.name) ? -1 : 0));
+            if (on_not_found) on_not_found();
+        },
+        on_not_found,
+        false,
+        force_reload
+    );
+}
+
+/**
+ * Compute sensor state as display by the extension
+ * @param {string} sensor  The sensor object
+ * @return {string} The computed sensor state
+ */
+function computeSensorState(sensor) {
+    return `${sensor.state} ${sensor.unit}`;
 }
 
 /**

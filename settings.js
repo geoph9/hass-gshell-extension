@@ -12,6 +12,7 @@ const HASS_TOGGLABLE_ENTITIES = 'hass-togglable-entities';
 const HASS_ENABLED_ENTITIES = 'hass-enabled-entities';
 const HASS_PANEL_SENSOR_IDS = 'hass-panel-sensor-ids';
 const HASS_ENABLED_SENSOR_IDS = 'hass-enabled-sensor-ids';
+const MyUUID = Me.metadata.uuid;
 // const HASS_SHORTCUT = 'hass-shortcut';
 const SHOW_NOTIFICATIONS_KEY = 'show-notifications';
 const SHOW_WEATHER_STATS = 'show-weather-stats';
@@ -101,14 +102,15 @@ var MscOptions = class MscOptions {
         this._gsettings.set_string(REFRESH_RATE, humiId);
     }
 
-    // Togglable settings
-    get togglableEntities() {
-        return this._gsettings.get_strv(HASS_TOGGLABLE_ENTITIES).map(ent => JSON.parse(ent));
+    // Entities cache
+    get entitiesCache() {
+        return this._gsettings.get_strv(HASS_ENTITIES_CACHE).map(ent => JSON.parse(ent));
     }
-    set togglableEntities(entities) {
-        this._gsettings.set_strv(HASS_TOGGLABLE_ENTITIES, entities.map(ent => JSON.stringify(ent)));
+    set entitiesCache(entities) {
+        this._gsettings.set_strv(HASS_ENTITIES_CACHE, entities.map(ent => JSON.stringify(ent)));
     }
 
+    // Togglable entities of menu
     get enabledEntities() {
         return this._gsettings.get_strv(HASS_ENABLED_ENTITIES);
     }
@@ -116,14 +118,7 @@ var MscOptions = class MscOptions {
         this._gsettings.set_strv(HASS_ENABLED_ENTITIES, entities);
     }
 
-    // Panel Icons for Extra Sensors
-    get hassSensorEntities() {
-        return this._gsettings.get_strv(HASS_PANEL_SENSOR_IDS).map(ent => JSON.parse(ent));
-    }
-    set hassSensorEntities(entities) {
-        this._gsettings.set_strv(HASS_PANEL_SENSOR_IDS, entities.map(ent => JSON.stringify(ent)));
-    }
-
+    // Panel extra sensors
     get enabledSensors() {
         return this._gsettings.get_strv(HASS_ENABLED_SENSOR_IDS);
     }

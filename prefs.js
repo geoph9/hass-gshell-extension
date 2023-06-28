@@ -42,12 +42,18 @@ function buildPrefsWidget() {
     notebook.append_page(_buildGeneralSettings(), general_settings);
 
     let togglables = new Gtk.Label({ label: _('Togglables'), halign: Gtk.Align.START});
-    // TODO
-    // notebook.append_page(_buildTogglables(), togglables);
-    notebook.append_page(_buildTogglableSettings(), togglables);
+    let togglablesScrollWindow = new Gtk.ScrolledWindow();
+    notebook.append_page(togglablesScrollWindow, togglables);
+    Utils.getTogglables(function(togglables) {
+        _buildTogglableSettings(togglablesScrollWindow, togglables);
+    });
 
     let panelSensors = new Gtk.Label({ label: _('Panel Sensors'), halign: Gtk.Align.START});
-    notebook.append_page(_buildSensorSettings(), panelSensors);
+    let panelSensorsScrollWindow = new Gtk.ScrolledWindow();
+    notebook.append_page(panelSensorsScrollWindow, panelSensors);
+    Utils.getSensors(function(sensors) {
+        _buildSensorSettings(panelSensorsScrollWindow, sensors);
+    });
 
     return prefsWidget;
 }
@@ -217,6 +223,8 @@ function _buildGeneralSettings() {
     // urlAddButton.clicked = mscOptions.hassUrl;
     urlTextEntry.set_text(mscOptions.hassUrl);
     urlAddButton.connect('clicked', () => {
+        // Always invalidate entities cache in case of HASS URL change
+        Utils.invalidateEntitiesCache();
         mscOptions.hassUrl = urlTextEntry.get_text();
     });
 
@@ -247,10 +255,9 @@ function _buildGeneralSettings() {
     return miscUI;
 }
 
-function _buildTogglableSettings() {
+function _buildTogglableSettings(scrollWindow, togglables) {
     const mscOptions = new Settings.MscOptions();
 
-    const scrollWindow = new Gtk.ScrolledWindow();
     let miscUI = new Gtk.Box({
         orientation: Gtk.Orientation.VERTICAL,
         spacing:       10,
@@ -277,7 +284,6 @@ function _buildTogglableSettings() {
     // //////////////////////////////////////////////////////////
     // /////////// Which switches should be togglable ///////////
     // //////////////////////////////////////////////////////////
-    let togglables = mscOptions.togglableEntities;
     let enabledEntities = mscOptions.enabledEntities;
     if (togglables.length === 0) {
         optionsList.push(_optionsItem(
@@ -371,7 +377,7 @@ function _buildTogglableSettings() {
                 log(`${MyUUID}: Entity ${togCheckBox.entity.name} (${togCheckBox.entity.entity_id}) not currently present, add it`);
                 currentEntities.push(togCheckBox.entity.entity_id)
             }
-            mscOptions.enabledEntities = mscOptions.togglableEntities.map(
+            mscOptions.enabledEntities = togglables.map(
                 ent => ent.entity_id
             ).filter(
                 ent => currentEntities.includes(ent)
@@ -381,14 +387,11 @@ function _buildTogglableSettings() {
     }
 
     scrollWindow.set_child(miscUI)
-
-    return scrollWindow;
 }
 
-function _buildSensorSettings() {
+function _buildSensorSettings(scrollWindow, allSensors) {
     const mscOptions = new Settings.MscOptions();
 
-    const scrollWindow = new Gtk.ScrolledWindow();
     let miscUI = new Gtk.Box({
         orientation: Gtk.Orientation.VERTICAL,
         spacing:       10,
@@ -413,7 +416,6 @@ function _buildSensorSettings() {
     // //////////////////////////////////////////////////////////
     // ////// Which sensors should be shown on the panel ////////
     // //////////////////////////////////////////////////////////
-    let allSensors = mscOptions.hassSensorEntities;
     let enabledSensors = mscOptions.enabledSensors;
     if (allSensors.length === 0) {
         optionsList.push(_optionsItem(
@@ -509,7 +511,7 @@ function _buildSensorSettings() {
                 log(`${MyUUID}: Sensor ${sensorCheckBox.entity.name} (${sensorCheckBox.entity.entity_id}) not currently present, add it`);
                 currentSensors.push(sensorCheckBox.entity.entity_id)
             }
-            mscOptions.enabledSensors = mscOptions.hassSensorEntities.map(
+            mscOptions.enabledSensors = allSensors.map(
                 ent => ent.entity_id
             ).filter(
                 ent => currentSensors.includes(ent)
@@ -519,8 +521,6 @@ function _buildSensorSettings() {
     }
 
     scrollWindow.set_child(miscUI)
-
-    return scrollWindow;
 }
 
 function _optionsItem(text, tooltip, widget, button) {
@@ -564,6 +564,8 @@ function _makeGtkEntryButton(name, isAccessToken, schema) {
                     textEntry.get_text(),
                     null
                 );
+                // Always invalidate entities cache in case of HASS Token change
+                Utils.invalidateEntitiesCache();
                 textEntry.set_text("Success!");
             } else {
                 textEntry.set_text("Invalid Token!");
