@@ -260,10 +260,21 @@ var HassExtension = GObject.registerClass ({
                     this._refreshWeatherStats(temp_sensor);
 
                     if (this.doRefresh === true) {
+                        if (this.refreshTimeout) {
+                            log(`${MyUUID}: cancel previous temperature/humidity sensors refresh timer...`);
+                            Mainloop.source_remove(this.refreshTimeout);
+                        }
                         // Update weather stats every X seconds
+                        log(
+                            `${MyUUID}: schedule refreshing temperature/humidity sensors state `
+                            + `every ${this.refreshSeconds} seconds`
+                        );
                         this.refreshTimeout = Mainloop.timeout_add_seconds(this.refreshSeconds,  () => {
+                            log(`${MyUUID}: refreshing temperature/humidity sensors...`);
                             this._needsRebuildTempPanel();
                             this._refreshWeatherStats();
+                            // We have to return true to keep the timer alive
+                            return true;
                         });
                     }
 
