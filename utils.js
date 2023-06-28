@@ -110,7 +110,8 @@ function send_async_request(url, type, data, callback=null, on_error=null) {
 // Compute HASS URL
 function computeURL(path, hass_url=null) {
     let url = hass_url ? hass_url : mscOptions.hassUrl;
-    if (!url.startsWith("http")) url = `http://${url}` // use http:// by default
+    if (!RegExp('^https?://').exec(url))
+        url = `http://${url}` // use http:// by default
     if (!path)
         return url
     if (!url.endsWith("/")) url += "/";  //  needs a trailing slash
