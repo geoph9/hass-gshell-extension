@@ -97,7 +97,7 @@ var MscOptions = class MscOptions {
         return this._gsettings.get_string(REFRESH_RATE);
     }
     set refreshRate(rate) {
-        this._gsettings.set_string(REFRESH_RATE, humiId);
+        this._gsettings.set_string(REFRESH_RATE, rate);
     }
 
     // Entities cache
