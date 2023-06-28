@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2023-06-28 04:25+0200\n"
+"POT-Creation-Date: 2023-06-28 14:47+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -123,7 +123,7 @@ msgid "Do you want to show %s in the tray menu?"
 msgstr ""
 
 #: prefs.js:660
-msgid "Add"
+msgid "Apply"
 msgstr ""
 
 #: schemas/org.gnome.shell.extensions.hass-data.gschema.xml:16

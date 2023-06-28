@@ -657,7 +657,7 @@ function _newGtkEntryButton() {
     let addButton = new Gtk.Button({
         halign: Gtk.Align.END,
         valign: Gtk.Align.CENTER,
-        label: _("Add"),
+        label: _("Apply"),
         hexpand: true
     });
     return [textEntry, addButton]

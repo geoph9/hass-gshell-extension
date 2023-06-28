@@ -7,8 +7,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: \n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2023-06-28 04:25+0200\n"
-"PO-Revision-Date: 2023-06-28 04:25+0200\n"
+"POT-Creation-Date: 2023-06-28 14:47+0200\n"
+"PO-Revision-Date: 2023-06-28 14:47+0200\n"
 "Last-Translator: Benjamin Renard <brenard@easter-eggs.com>\n"
 "Language-Team: \n"
 "Language: fr_FR\n"
@@ -130,8 +130,8 @@ msgid "Do you want to show %s in the tray menu?"
 msgstr "Voulez-vous afficher %s dans la zone de notification ?"
 
 #: prefs.js:660
-msgid "Add"
-msgstr "Ajouter"
+msgid "Apply"
+msgstr "Appliquer"
 
 #: schemas/org.gnome.shell.extensions.hass-data.gschema.xml:16
 msgid "Panel Icon."
@@ -277,6 +277,9 @@ msgid "Shortcut key on how to open the extension's menu from the tray."
 msgstr ""
 "Raccourci clavier pour ouvrir le menu de l'extension à partir de la zone de "
 "notification."
+
+#~ msgid "Add"
+#~ msgstr "Ajouter"
 
 #~ msgid "Group Switches"
 #~ msgstr "Groupes d'interrupteurs"
