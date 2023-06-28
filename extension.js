@@ -26,6 +26,7 @@ var HassExtension = GObject.registerClass ({
     }
 
     enable() {
+        log(`${MyUUID}: enabling...`);
         Main.panel.addToStatusArea('hass-extension', this, 1);
         this.enableShortcut();
 
@@ -77,9 +78,11 @@ var HassExtension = GObject.registerClass ({
     }
 
     disable () {
+        log(`${MyUUID}: disabling...`);
         this._deleteTempStatsPanel();
         this._deleteSensorsPanel();
         this.disableShortcut();
+        this._deleteMenuItems();
         this.destroy();
     }
 
@@ -98,10 +101,7 @@ var HassExtension = GObject.registerClass ({
     rebuildTray() {
         log(`${MyUUID}: Rebuilding tray...`);
         // Destroy the previous menu items
-        let oldItems = this.menu._getMenuItems();
-        for (let item in oldItems) {
-            oldItems[item].destroy();
-        }
+        this._deleteMenuItems();
 
         let completeTrayMenu = function() {
             log(`${MyUUID}: Complete tray menu`);
@@ -217,11 +217,10 @@ var HassExtension = GObject.registerClass ({
                         this._needsRebuildSensorPanel();
                         this._refreshPanelSensors();
                     });
+                    Main.panel._rightBox.insert_child_at_index(this.sensorsPanel, 1);
                 }
 
                 this._refreshPanelSensors(panelSensors);
-
-                Main.panel._rightBox.insert_child_at_index(this.sensorsPanel, 1);
             }.bind(this),
             function() {
                 log(`${MyUUID}: Fail to load enabled panel sensors`);
@@ -254,6 +253,7 @@ var HassExtension = GObject.registerClass ({
                             this._needsRebuildTempPanel();
                             this._refreshWeatherStats();
                         });
+                        Main.panel._rightBox.insert_child_at_index(this.weatherStatsPanel, 1);
                     }
 
                     // Refresh is done in enable(), don't force reload in this case
@@ -277,8 +277,6 @@ var HassExtension = GObject.registerClass ({
                             return true;
                         });
                     }
-
-                    Main.panel._rightBox.insert_child_at_index(this.weatherStatsPanel, 1);
                 }.bind(this),
                 function() {
                     log(`${MyUUID}: fail to retreive temperature sensor`);
@@ -436,6 +434,11 @@ var HassExtension = GObject.registerClass ({
         return !Utils.arraysEqual(tmp, this.panelSensorIds);
     }
 
+    _deleteMenuItems() {
+        // Destroy the previous menu items
+        this.menu.removeAll();
+    }
+
     _deleteTempStatsPanel() {
 
         if (this.weatherStatsPanel !== undefined) {
@@ -453,8 +456,18 @@ var HassExtension = GObject.registerClass ({
     }
 })
 
+let extension;
+
 function init() {
     log(`${MyUUID}: initializing...`);
     ExtensionUtils.initTranslations();
-    return new HassExtension();
+}
+
+function enable() {
+    extension = new HassExtension();
+    extension.enable()
+}
+
+function disable() {
+    extension.disable();
 }
