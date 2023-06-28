@@ -65,12 +65,6 @@
       <description>Your Home Assistant EntityID for the humidity sensor.</description>
     </key>
 
-    <key type="s" name="hass-access-token">
-      <default>""</default>
-      <summary>Access Token</summary>
-      <description>Long Live Access Token for Home Assistant (Go to Profile->Bottom-of-the-page->Long-Live-Access-Tokens and create a new one).</description>
-    </key>
-
     <key type="s" name="hass-url">
       <default>""</default>
       <summary>URL</summary>

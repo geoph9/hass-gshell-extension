@@ -8,7 +8,6 @@ const MyUUID = Me.metadata.uuid;
 
 var PANEL_ICON_PATH = 'default-panel-icon';
 var VALID_PANEL_ICONS = 'valid-panel-icons';
-var HASS_ACCESS_TOKEN = 'hass-access-token';
 var HASS_URL = 'hass-url';
 var HASS_ENTITIES_CACHE = 'hass-entities-cache';
 var HASS_ENABLED_ENTITIES = 'hass-enabled-entities';

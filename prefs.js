@@ -75,10 +75,10 @@ function _buildGeneralSettings() {
         )
     );
     // Add the HASS url option
-    let [urlItem, urlTextEntry, urlAddButton] = _makeGtkEntryButton(Settings.HASS_URL, false, schema=schema)
+    let [urlItem, urlTextEntry, urlAddButton] = _makeGtkEntryButton(Settings.HASS_URL, schema)
     optionsList.push(urlItem);
     // Add the HASS Access Token option
-    let [tokItem, tokenTextEntry, tokenAddButton] = _makeGtkEntryButton(Settings.HASS_ACCESS_TOKEN, true, schema)
+    let [tokItem, tokenTextEntry, tokenAddButton] = _makeGtkAccessTokenEntryButton()
     optionsList.push(tokItem);
 
     // //////////////////////////////////////////////////////////
@@ -102,13 +102,13 @@ function _buildGeneralSettings() {
     let [doRefItem, doRefreshSwitch] = _makeSwitch(Settings.DO_REFRESH, schema)
     optionsList.push(doRefItem);
     // Refresh rate for Temperature/Humidity (TODO: Does not work currently)
-    let [refRateItem, refreshRateTextEntry, refreshRateAddButton] = _makeGtkEntryButton(Settings.REFRESH_RATE, false, schema)
+    let [refRateItem, refreshRateTextEntry, refreshRateAddButton] = _makeGtkEntryButton(Settings.REFRESH_RATE, schema)
     optionsList.push(refRateItem);
     // Add the temperature id option
-    let [tempTextItem, tempTextEntry, tempAddButton] = _makeGtkEntryButton(Settings.TEMPERATURE_ID, false, schema)
+    let [tempTextItem, tempTextEntry, tempAddButton] = _makeGtkEntryButton(Settings.TEMPERATURE_ID, schema)
     optionsList.push(tempTextItem);
     // Add the humidity id option
-    let [humiTextItem, humiTextEntry, humiAddButton] = _makeGtkEntryButton(Settings.HUMIDITY_ID, false, schema)
+    let [humiTextItem, humiTextEntry, humiAddButton] = _makeGtkEntryButton(Settings.HUMIDITY_ID, schema)
     optionsList.push(humiTextItem);
 
     // //////////////////////////////////////////////////////////
@@ -536,38 +536,45 @@ function _makeTitle(label) {
     return '<b>'+label+'</b>';
 }
 
-function _makeGtkEntryButton(name, isAccessToken, schema) {
+function _makeGtkEntryButton(name, schema) {
     let key = schema.get_key(name);
     let [textEntry, addButton] = _newGtkEntryButton();
-    if (isAccessToken === true) {
-        addButton.connect('clicked', () => {
-            if (textEntry.get_text().trim() !== "") {
-                // Synchronously (the UI will block): https://developer.gnome.org/libsecret/unstable/js-store-example.html
-                Secret.password_store_sync(
-                    Utils.getTokenSchema(),
-                    {"token_string": "user_token"},
-                    Secret.COLLECTION_DEFAULT,
-                    "long_live_access_token",
-                    textEntry.get_text(),
-                    null
-                );
-                // Always invalidate entities cache in case of HASS Token change
-                Utils.invalidateEntitiesCache();
-                textEntry.set_text("Success!");
-            } else {
-                textEntry.set_text("Invalid Token!");
-            }
-        });
-    }
-    // else {
-    //     addButton.connect('clicked', () => {
-    //         _settings.set_string(name, textEntry.get_text())
-    //     });
-    // }
     return [
         _optionsItem(
             _(key.get_summary()),
             _(key.get_description()),
+            textEntry,
+            addButton
+        ),
+        textEntry,
+        addButton
+    ]
+}
+
+function _makeGtkAccessTokenEntryButton() {
+    let [textEntry, addButton] = _newGtkEntryButton();
+    addButton.connect('clicked', () => {
+        if (textEntry.get_text().trim() !== "") {
+            // Synchronously (the UI will block): https://developer.gnome.org/libsecret/unstable/js-store-example.html
+            Secret.password_store_sync(
+                Utils.getTokenSchema(),
+                {"token_string": "user_token"},
+                Secret.COLLECTION_DEFAULT,
+                "long_live_access_token",
+                textEntry.get_text(),
+                null
+            );
+            // Always invalidate entities cache in case of HASS Token change
+            Utils.invalidateEntitiesCache();
+            textEntry.set_text("Success!");
+        } else {
+            textEntry.set_text("Invalid Token!");
+        }
+    });
+    return [
+        _optionsItem(
+            _("Access Token"),
+            _("Long Live Access Token for Home Assistant (Go to Profile->Bottom-of-the-page->Long-Live-Access-Tokens and create a new one)."),
             textEntry,
             addButton
         ),
