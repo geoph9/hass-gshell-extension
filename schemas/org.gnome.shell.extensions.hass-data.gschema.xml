@@ -74,7 +74,7 @@
     <key type="as" name="hass-entities-cache">
       <default>[]</default>
       <summary>Home-Assistant entities's state cache.</summary>
-      <description>Home-Assistant entities's state cache. It is meant to be filled automatically after pressing the 'Scan' button in the Preferences menu.</description>
+      <description>Home-Assistant entities's state cache. It is meant to be filled automatically on start-up or after pressing the 'Refresh' button in the Preferences menu.</description>
     </key>
 
     <key type="as" name="hass-enabled-entities">

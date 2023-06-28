@@ -7,9 +7,9 @@ msgid ""
 msgstr ""
 "Project-Id-Version: \n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2023-06-25 09:46+0200\n"
-"PO-Revision-Date: 2023-06-25 10:00+0200\n"
-"Last-Translator: Benjamin Renard\n"
+"POT-Creation-Date: 2023-06-28 04:25+0200\n"
+"PO-Revision-Date: 2023-06-28 04:25+0200\n"
+"Last-Translator: Benjamin Renard <brenard@easter-eggs.com>\n"
 "Language-Team: \n"
 "Language: fr_FR\n"
 "MIME-Version: 1.0\n"
@@ -18,67 +18,71 @@ msgstr ""
 "Plural-Forms: nplurals=2; plural=(n > 1);\n"
 "X-Generator: Poedit 3.2.2\n"
 
-#: extension.js:75
-msgid "Toggle:"
-msgstr "Allumer/Éteindre :"
-
-#: extension.js:93
+#: extension.js:109
 msgid "HASS Events"
 msgstr "Évènements HASS"
 
-#: extension.js:95
+#: extension.js:111
 msgid "Start Home Assistant"
 msgstr "Démarrer Home Assistant"
 
-#: extension.js:96
+#: extension.js:112
 msgid "Stop Home Assistant"
 msgstr "Arrêter Home Assistant"
 
-#: extension.js:97
+#: extension.js:113
 msgid "Close Home Assistant"
 msgstr "Fermer Home Assistant"
 
-#: extension.js:113
+#: extension.js:129
+msgid "Refresh"
+msgstr "Rafraîchir"
+
+#: extension.js:142
 msgid "Preferences"
 msgstr "Préférences"
 
-#: prefs.js:48
+#: extension.js:165
+msgid "Toggle:"
+msgstr "Allumer/Éteindre :"
+
+#: prefs.js:28
 msgid "General Settings"
 msgstr "Paramètres générals"
 
-#: prefs.js:51
+#: prefs.js:31
 msgid "Togglables"
 msgstr "Interrupteurs"
 
-#: prefs.js:56 schemas/org.gnome.shell.extensions.hass-data.gschema.xml:94
+#: prefs.js:38
 msgid "Panel Sensors"
 msgstr "Capteurs de la barre des tâches"
 
-#: prefs.js:85
+#: prefs.js:71
 msgid "Global options:"
 msgstr "Options générales :"
 
-#: prefs.js:103
+#: prefs.js:89
 msgid "Temperature/Humidity options:"
 msgstr "Options de température/humidité :"
 
-#: prefs.js:132
+#: prefs.js:118
 msgid "Panel Icon Options:"
 msgstr "Options de l'icône de la barre des tâches :"
 
-#: prefs.js:149
+#: prefs.js:135
 #, javascript-format
 msgid "%s Icon"
 msgstr "Icône %s"
 
-#: prefs.js:157
+#: prefs.js:143
 msgid ""
 "You will need to restart your session in order for this change to take "
 "effect."
 msgstr ""
 "Vous devrez redémarrer votre sessions pour que ce changement soit effectif."
 
-#: prefs.js:158
+#: prefs.js:144
 msgid ""
 "On Xorg, you can do that by Alt+F2 and then pressing 'r' and Enter. If this "
 "doesn't work (Wayland), you have to logout and re-login."
@@ -87,25 +91,13 @@ msgstr ""
 "cela ne fonctionne pas (Wayland), vous devez vous fermer votre session puis "
 "la ré-ouvrir."
 
-#: prefs.js:282
+#: prefs.js:277
 msgid "Togglable Entities:"
 msgstr "Entités interrupteurs :"
 
-#: prefs.js:287
+#: prefs.js:282
 msgid "Choose Togglable Entities:"
 msgstr "Sélectionner les entités interrupteurs :"
-
-#: prefs.js:310
-msgid "Group Switches"
-msgstr "Groupes d'interrupteurs"
-
-#: prefs.js:317
-msgid "Experimental"
-msgstr "Expérimental"
-
-#: prefs.js:318
-msgid "Does not currently work."
-msgstr "Ne fonctionne pas actuellement."
 
 #: prefs.js:409
 msgid "Sensors:"
@@ -115,17 +107,29 @@ msgstr "Capteurs :"
 msgid "Choose Which Sensors Should Appear on the Panel:"
 msgstr "Sélectionner les capteurs qui apparaîtront dans la barre des tâches :"
 
-#: prefs.js:586
+#: prefs.js:576
+msgid "Access Token"
+msgstr "Jeton d'accès"
+
+#: prefs.js:577
+msgid ""
+"Long Live Access Token for Home Assistant (Go to Profile->Bottom-of-the-page-"
+">Long-Live-Access-Tokens and create a new one)."
+msgstr ""
+"Jeton d'accès de longue durée pour Home Assistant (Allez dans Profil-> Bas "
+"de la page-> Jetons d'accès de longue durée et créez-en un nouveau)."
+
+#: prefs.js:612
 #, javascript-format
 msgid "Do you want to have the '%s' icon in your panel?"
 msgstr "Avez-vous l'icône \"%s\" dans la barre des tâches ?"
 
-#: prefs.js:588
+#: prefs.js:614
 #, javascript-format
 msgid "Do you want to show %s in the tray menu?"
 msgstr "Voulez-vous afficher %s dans la zone de notification ?"
 
-#: prefs.js:635
+#: prefs.js:660
 msgid "Add"
 msgstr "Ajouter"
 
@@ -221,77 +225,79 @@ msgid "Your Home Assistant EntityID for the humidity sensor."
 msgstr "Votre identifiant d'entité Home Assistant pour le capteur d'humidité."
 
 #: schemas/org.gnome.shell.extensions.hass-data.gschema.xml:70
-msgid "Access Token"
-msgstr "Jeton d'accès"
-
-#: schemas/org.gnome.shell.extensions.hass-data.gschema.xml:71
-msgid ""
-"Long Live Access Token for Home Assistant (Go to Profile->Bottom-of-the-page-"
-">Long-Live-Access-Tokens and create a new one)."
-msgstr ""
-"Jeton d'accès de longue durée pour Home Assistant (Allez dans Profil-> Bas "
-"de la page-> Jetons d'accès de longue durée et créez-en un nouveau)."
-
-#: schemas/org.gnome.shell.extensions.hass-data.gschema.xml:76
 msgid "URL"
 msgstr "URL"
 
-#: schemas/org.gnome.shell.extensions.hass-data.gschema.xml:77
+#: schemas/org.gnome.shell.extensions.hass-data.gschema.xml:71
 msgid "The url where your hass instance is hosted."
 msgstr "L'url où votre instance hass est hébergée."
 
-#: schemas/org.gnome.shell.extensions.hass-data.gschema.xml:82
-msgid "Complete list of entity ids for home-assistant switches."
-msgstr ""
-"Liste complète des identifiants d'entité des interrupteurs d'Home Assistant."
+#: schemas/org.gnome.shell.extensions.hass-data.gschema.xml:76
+msgid "Home-Assistant entities's state cache."
+msgstr "Cache de l'état des entités d'Home-Assistant."
 
-#: schemas/org.gnome.shell.extensions.hass-data.gschema.xml:83
+#: schemas/org.gnome.shell.extensions.hass-data.gschema.xml:77
 msgid ""
-"Full list of home assistant switches. It is meant to be filled automatically "
-"after pressing the 'Scan' button in the Preferences menu."
+"Home-Assistant entities's state cache. It is meant to be filled "
+"automatically on start-up or after pressing the 'Refresh' button in the "
+"Preferences menu."
 msgstr ""
-"Liste complète des interrupteurs d'Home Assistant. Elle est censé être "
-"remplie automatiquement après avoir appuyé sur le bouton 'Scan' dans le menu "
-"Préférences."
+"Cache de l'état des entités d'Home-Assistant. Elle est censé être remplie "
+"automatiquement au démarrage ou après avoir appuyé sur le bouton "
+"'Rafraîchir' dans le menu Préférences."
 
-#: schemas/org.gnome.shell.extensions.hass-data.gschema.xml:88
+#: schemas/org.gnome.shell.extensions.hass-data.gschema.xml:82
 msgid "Entity ids for home-assistant switches."
 msgstr "ID d'entité des interrupteurs d'Home Assistant."
 
-#: schemas/org.gnome.shell.extensions.hass-data.gschema.xml:89
+#: schemas/org.gnome.shell.extensions.hass-data.gschema.xml:83
 msgid ""
 "Entity ids for home-assistant switches. E.g. switch.livingroom_lights_relay."
 msgstr ""
 "ID d'entité des interrupteurs d'Home Assistant. Ex : switch."
 "livingroom_lights_relay."
 
-#: schemas/org.gnome.shell.extensions.hass-data.gschema.xml:95
-msgid ""
-"List of entity ids for the sensor values that you want to show in the panel ."
-msgstr ""
-"Liste des ID d'entité des capteurs dont vous souhaitez afficher la valeur "
-"dans la barre des tâches."
-
-#: schemas/org.gnome.shell.extensions.hass-data.gschema.xml:100
+#: schemas/org.gnome.shell.extensions.hass-data.gschema.xml:88
 msgid "Entity ids for home assistant sensors."
 msgstr "ID d'entité des capteurs d'Home Assistant."
 
-#: schemas/org.gnome.shell.extensions.hass-data.gschema.xml:101
+#: schemas/org.gnome.shell.extensions.hass-data.gschema.xml:89
 msgid ""
 "Entity ids for home-assistant sensors. E.g. sensor.livingroom_temperature ."
 msgstr ""
 "ID d'entité des capteurs d'Home Assistant.. Ex : sensor."
 "livingroom_temperature."
 
-#: schemas/org.gnome.shell.extensions.hass-data.gschema.xml:112
+#: schemas/org.gnome.shell.extensions.hass-data.gschema.xml:100
 msgid "Home Assistant Extension - Shortcut Key"
 msgstr "Extension Home Assistant - Raccourci clavier"
 
-#: schemas/org.gnome.shell.extensions.hass-data.gschema.xml:113
+#: schemas/org.gnome.shell.extensions.hass-data.gschema.xml:101
 msgid "Shortcut key on how to open the extension's menu from the tray."
 msgstr ""
 "Raccourci clavier pour ouvrir le menu de l'extension à partir de la zone de "
 "notification."
+
+#~ msgid "Group Switches"
+#~ msgstr "Groupes d'interrupteurs"
+
+#~ msgid "Experimental"
+#~ msgstr "Expérimental"
+
+#~ msgid "Does not currently work."
+#~ msgstr "Ne fonctionne pas actuellement."
+
+#~ msgid "Complete list of entity ids for home-assistant switches."
+#~ msgstr ""
+#~ "Liste complète des identifiants d'entité des interrupteurs d'Home "
+#~ "Assistant."
+
+#~ msgid ""
+#~ "List of entity ids for the sensor values that you want to show in the "
+#~ "panel ."
+#~ msgstr ""
+#~ "Liste des ID d'entité des capteurs dont vous souhaitez afficher la valeur "
+#~ "dans la barre des tâches."
 
 #~ msgid " Icon"
 #~ msgstr " Icône"

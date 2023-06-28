@@ -29,10 +29,7 @@ var HassExtension = GObject.registerClass ({
         Main.panel.addToStatusArea('hass-extension', this, 1);
         this.enableShortcut();
 
-        this._settings.connect("changed", () => {
-            log(`${MyUUID}: configuration updated, trigger refresh`);
-            this.refresh();
-        });
+        this._settings.connect("changed", () => this.refresh());
 
         // Add tray icon
         let Settings = Me.imports.settings;
@@ -126,6 +123,19 @@ var HassExtension = GObject.registerClass ({
             close_hass_item.connect('activate', () => {
                 this._triggerHassEvent('close');
             });
+
+            // Settings button (Preferences)
+            let refreshMenuItem = new PopupMenu.PopupImageMenuItem(
+                _("Refresh"),
+                'view-refresh',
+            );
+            refreshMenuItem.connect('activate', () => {
+                this.menu.toggle();
+                log(`${MyUUID}: invalidate entities cache and refreshing...`);
+                Utils.invalidateEntitiesCache();
+                this.refresh(true);
+            });
+            this.menu.addMenuItem(refreshMenuItem);
 
             // Settings button (Preferences)
             let popupImageMenuItem = new PopupMenu.PopupImageMenuItem(
