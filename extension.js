@@ -16,9 +16,6 @@ const Utils = Me.imports.utils;
 
 const MyUUID = Me.metadata.uuid;
 
-const HASS_ENABLED_ENTITIES = 'hass-enabled-entities';
-const HASS_ENABLED_SENSOR_IDS = 'hass-enabled-sensor-ids';
-
 // Credits for organizing this class: https://github.com/vchlum/hue-lights/
 var HassExtension = GObject.registerClass ({
     GTypeName: "HassMenu"
@@ -38,7 +35,8 @@ var HassExtension = GObject.registerClass ({
         });
 
         // Add tray icon
-        let icon_path = this._settings.get_string('default-panel-icon');
+        let Settings = Me.imports.settings;
+        let icon_path = this._settings.get_string(Settings.PANEL_ICON_PATH);
         // Make sure the path is valid
         icon_path = icon_path.startsWith("/") ? icon_path : "/" + icon_path;
         let icon = new St.Icon({
@@ -281,8 +279,9 @@ var HassExtension = GObject.registerClass ({
         trayNeedsRebuild = trayNeedsRebuild || (tmp !== this.base_url);
 
         // Check togglable ids
+        let Settings = Me.imports.settings;
         tmp = this.togglable_ent_ids;
-        this.togglable_ent_ids = this._settings.get_strv(HASS_ENABLED_ENTITIES);
+        this.togglable_ent_ids = this._settings.get_strv(Settings.HASS_ENABLED_ENTITIES);
         trayNeedsRebuild = trayNeedsRebuild || !Utils.arraysEqual(tmp, this.togglable_ent_ids);
 
         // Do the same for all of the weather entities
@@ -371,37 +370,38 @@ var HassExtension = GObject.registerClass ({
     }
 
     _needsRebuildTempPanel() {
+        let Settings = Me.imports.settings;
         let needRebuild = false;
         let tmp;
 
         // Check show weather stats
         tmp = this.showWeatherStats;
-        this.showWeatherStats = this._settings.get_boolean('show-weather-stats');
+        this.showWeatherStats = this._settings.get_boolean(Settings.SHOW_WEATHER_STATS);
         needRebuild = needRebuild || (tmp !== this.showWeatherStats);
 
         // Check show humidity
         tmp = this.showHumidity;
-        this.showHumidity = this._settings.get_boolean('show-humidity');
+        this.showHumidity = this._settings.get_boolean(Settings.SHOW_HUMIDITY);
         needRebuild = needRebuild || (tmp !== this.showHumidity);
 
         // Check temperature id change
         tmp = this.tempEntityID;
-        this.tempEntityID = this._settings.get_string("temp-entity-id");
+        this.tempEntityID = this._settings.get_string(Settings.TEMPERATURE_ID);
         needRebuild = needRebuild || (tmp !== this.tempEntityID);
 
         // Check humidity id change
         tmp = this.humidityEntityID;
-        this.humidityEntityID = this._settings.get_string("humidity-entity-id");
+        this.humidityEntityID = this._settings.get_string(Settings.HUMIDITY_ID);
         needRebuild = needRebuild || (tmp !== this.humidityEntityID);
 
         // Check refresh seconds changed
         tmp = this.refreshSeconds;
-        this.refreshSeconds = Number(this._settings.get_string('weather-refresh-seconds'));
+        this.refreshSeconds = Number(this._settings.get_string(Settings.REFRESH_RATE));
         needRebuild = needRebuild || (tmp !== this.refreshSeconds);
 
         // Check doRefresh
         tmp = this.doRefresh;
-        this.doRefresh = this._settings.get_boolean("refresh-weather");
+        this.doRefresh = this._settings.get_boolean(Settings.DO_REFRESH);
         needRebuild = needRebuild || (tmp !== this.doRefresh);
 
         return needRebuild;
@@ -409,8 +409,9 @@ var HassExtension = GObject.registerClass ({
 
     _needsRebuildSensorPanel(){
         // Check togglable ids
+        let Settings = Me.imports.settings;
         let tmp = this.panelSensorIds;
-        this.panelSensorIds = this._settings.get_strv(HASS_ENABLED_SENSOR_IDS);
+        this.panelSensorIds = this._settings.get_strv(Settings.HASS_ENABLED_SENSOR_IDS);
         return !Utils.arraysEqual(tmp, this.panelSensorIds);
     }
 

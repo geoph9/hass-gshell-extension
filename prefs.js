@@ -10,19 +10,6 @@ const _ = Gettext.gettext;
 
 const MyUUID = Me.metadata.uuid;
 
-const HASS_ACCESS_TOKEN = 'hass-access-token';
-const HASS_URL = 'hass-url';
-const HASS_TOGGLABLE_ENTITIES = 'hass-togglable-entities';
-const HASS_ENABLED_ENTITIES = 'hass-enabled-entities';
-// const HASS_SHORTCUT = 'hass-shortcut';
-const SHOW_NOTIFICATIONS_KEY = 'show-notifications';
-const SHOW_WEATHER_STATS = 'show-weather-stats';
-const SHOW_HUMIDITY = 'show-humidity';
-const TEMPERATURE_ID = 'temp-entity-id';
-const HUMIDITY_ID = 'humidity-entity-id';
-const DO_REFRESH = 'refresh-weather';
-const REFRESH_RATE = 'weather-refresh-seconds';
-
 function init() {
     // schema = _settings.settings_schema;
     ExtensionUtils.initTranslations();
@@ -88,10 +75,10 @@ function _buildGeneralSettings() {
         )
     );
     // Add the HASS url option
-    let [urlItem, urlTextEntry, urlAddButton] = _makeGtkEntryButton(HASS_URL, false, schema=schema)
+    let [urlItem, urlTextEntry, urlAddButton] = _makeGtkEntryButton(Settings.HASS_URL, false, schema=schema)
     optionsList.push(urlItem);
     // Add the HASS Access Token option
-    let [tokItem, tokenTextEntry, tokenAddButton] = _makeGtkEntryButton(HASS_ACCESS_TOKEN, true, schema)
+    let [tokItem, tokenTextEntry, tokenAddButton] = _makeGtkEntryButton(Settings.HASS_ACCESS_TOKEN, true, schema)
     optionsList.push(tokItem);
 
     // //////////////////////////////////////////////////////////
@@ -106,22 +93,22 @@ function _buildGeneralSettings() {
         )
     );
     // Show Temperature/Humidity Switch
-    let [tempItem, tempHumiSwitch] = _makeSwitch(SHOW_WEATHER_STATS, schema)
+    let [tempItem, tempHumiSwitch] = _makeSwitch(Settings.SHOW_WEATHER_STATS, schema)
     optionsList.push(tempItem);
     // Show Humidity Switch
-    let [humiItem, humiSwitch] = _makeSwitch(SHOW_HUMIDITY, schema)
+    let [humiItem, humiSwitch] = _makeSwitch(Settings.SHOW_HUMIDITY, schema)
     optionsList.push(humiItem);
     // Refresh Temperature/Humidity Switch (TODO: Does not work currently)
-    let [doRefItem, doRefreshSwitch] = _makeSwitch(DO_REFRESH, schema)
+    let [doRefItem, doRefreshSwitch] = _makeSwitch(Settings.DO_REFRESH, schema)
     optionsList.push(doRefItem);
     // Refresh rate for Temperature/Humidity (TODO: Does not work currently)
-    let [refRateItem, refreshRateTextEntry, refreshRateAddButton] = _makeGtkEntryButton(REFRESH_RATE, false, schema)
+    let [refRateItem, refreshRateTextEntry, refreshRateAddButton] = _makeGtkEntryButton(Settings.REFRESH_RATE, false, schema)
     optionsList.push(refRateItem);
     // Add the temperature id option
-    let [tempTextItem, tempTextEntry, tempAddButton] = _makeGtkEntryButton(TEMPERATURE_ID, false, schema)
+    let [tempTextItem, tempTextEntry, tempAddButton] = _makeGtkEntryButton(Settings.TEMPERATURE_ID, false, schema)
     optionsList.push(tempTextItem);
     // Add the humidity id option
-    let [humiTextItem, humiTextEntry, humiAddButton] = _makeGtkEntryButton(HUMIDITY_ID, false, schema)
+    let [humiTextItem, humiTextEntry, humiAddButton] = _makeGtkEntryButton(Settings.HUMIDITY_ID, false, schema)
     optionsList.push(humiTextItem);
 
     // //////////////////////////////////////////////////////////

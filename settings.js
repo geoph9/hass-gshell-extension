@@ -4,23 +4,22 @@ const ExtensionUtils = imports.misc.extensionUtils;
 const Me = ExtensionUtils.getCurrentExtension();
 const Utils = Me.imports.utils;
 
-const PANEL_ICON_PATH = "default-panel-icon";
-const VALID_PANEL_ICONS = 'valid-panel-icons';
-const HASS_ACCESS_TOKEN = 'hass-access-token';
-const HASS_URL = 'hass-url';
-const HASS_TOGGLABLE_ENTITIES = 'hass-togglable-entities';
-const HASS_ENABLED_ENTITIES = 'hass-enabled-entities';
-const HASS_PANEL_SENSOR_IDS = 'hass-panel-sensor-ids';
-const HASS_ENABLED_SENSOR_IDS = 'hass-enabled-sensor-ids';
 const MyUUID = Me.metadata.uuid;
-// const HASS_SHORTCUT = 'hass-shortcut';
-const SHOW_NOTIFICATIONS_KEY = 'show-notifications';
-const SHOW_WEATHER_STATS = 'show-weather-stats';
-const SHOW_HUMIDITY = 'show-humidity';
-const TEMPERATURE_ID = 'temp-entity-id';
-const HUMIDITY_ID = 'humidity-entity-id';
-const DO_REFRESH = 'refresh-weather';
-const REFRESH_RATE = 'weather-refresh-seconds';
+
+var PANEL_ICON_PATH = 'default-panel-icon';
+var VALID_PANEL_ICONS = 'valid-panel-icons';
+var HASS_ACCESS_TOKEN = 'hass-access-token';
+var HASS_URL = 'hass-url';
+var HASS_ENTITIES_CACHE = 'hass-entities-cache';
+var HASS_ENABLED_ENTITIES = 'hass-enabled-entities';
+var HASS_ENABLED_SENSOR_IDS = 'hass-enabled-sensor-ids';
+var SHOW_NOTIFICATIONS_KEY = 'show-notifications';
+var SHOW_WEATHER_STATS = 'show-weather-stats';
+var SHOW_HUMIDITY = 'show-humidity';
+var TEMPERATURE_ID = 'temp-entity-id';
+var HUMIDITY_ID = 'humidity-entity-id';
+var DO_REFRESH = 'refresh-weather';
+var REFRESH_RATE = 'weather-refresh-seconds';
 
 var MscOptions = class MscOptions {
     constructor() {
