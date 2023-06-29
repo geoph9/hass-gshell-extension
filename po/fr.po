@@ -7,8 +7,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: \n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2023-06-28 14:47+0200\n"
-"PO-Revision-Date: 2023-06-28 14:47+0200\n"
+"POT-Creation-Date: 2023-06-30 01:36+0200\n"
+"PO-Revision-Date: 2023-06-30 01:37+0200\n"
 "Last-Translator: Benjamin Renard <brenard@easter-eggs.com>\n"
 "Language-Team: \n"
 "Language: fr_FR\n"
@@ -18,31 +18,31 @@ msgstr ""
 "Plural-Forms: nplurals=2; plural=(n > 1);\n"
 "X-Generator: Poedit 3.2.2\n"
 
-#: extension.js:109
+#: extension.js:232
 msgid "HASS Events"
 msgstr "Évènements HASS"
 
-#: extension.js:111
+#: extension.js:235
 msgid "Start Home Assistant"
 msgstr "Démarrer Home Assistant"
 
-#: extension.js:112
+#: extension.js:239
 msgid "Stop Home Assistant"
 msgstr "Arrêter Home Assistant"
 
-#: extension.js:113
+#: extension.js:243
 msgid "Close Home Assistant"
 msgstr "Fermer Home Assistant"
 
-#: extension.js:129
+#: extension.js:248
 msgid "Refresh"
 msgstr "Rafraîchir"
 
-#: extension.js:142
+#: extension.js:260
 msgid "Preferences"
 msgstr "Préférences"
 
-#: extension.js:165
+#: extension.js:290
 msgid "Toggle:"
 msgstr "Allumer/Éteindre :"
 
@@ -75,43 +75,27 @@ msgstr "Options de l'icône de la barre des tâches :"
 msgid "%s Icon"
 msgstr "Icône %s"
 
-#: prefs.js:143
-msgid ""
-"You will need to restart your session in order for this change to take "
-"effect."
-msgstr ""
-"Vous devrez redémarrer votre sessions pour que ce changement soit effectif."
-
-#: prefs.js:144
-msgid ""
-"On Xorg, you can do that by Alt+F2 and then pressing 'r' and Enter. If this "
-"doesn't work (Wayland), you have to logout and re-login."
-msgstr ""
-"Sur Xorg, vous pouvez faire cela avec Alt+F2 puis taper \"r\" et Entrer. Si "
-"cela ne fonctionne pas (Wayland), vous devez vous fermer votre session puis "
-"la ré-ouvrir."
-
-#: prefs.js:277
+#: prefs.js:270
 msgid "Togglable Entities:"
 msgstr "Entités interrupteurs :"
 
-#: prefs.js:282
+#: prefs.js:275
 msgid "Choose Togglable Entities:"
 msgstr "Sélectionner les entités interrupteurs :"
 
-#: prefs.js:409
+#: prefs.js:402
 msgid "Sensors:"
 msgstr "Capteurs :"
 
-#: prefs.js:414
+#: prefs.js:407
 msgid "Choose Which Sensors Should Appear on the Panel:"
 msgstr "Sélectionner les capteurs qui apparaîtront dans la barre des tâches :"
 
-#: prefs.js:576
+#: prefs.js:569
 msgid "Access Token"
 msgstr "Jeton d'accès"
 
-#: prefs.js:577
+#: prefs.js:570
 msgid ""
 "Long Live Access Token for Home Assistant (Go to Profile->Bottom-of-the-page-"
 ">Long-Live-Access-Tokens and create a new one)."
@@ -119,17 +103,17 @@ msgstr ""
 "Jeton d'accès de longue durée pour Home Assistant (Allez dans Profil-> Bas "
 "de la page-> Jetons d'accès de longue durée et créez-en un nouveau)."
 
-#: prefs.js:612
+#: prefs.js:605
 #, javascript-format
 msgid "Do you want to have the '%s' icon in your panel?"
 msgstr "Avez-vous l'icône \"%s\" dans la barre des tâches ?"
 
-#: prefs.js:614
+#: prefs.js:607
 #, javascript-format
 msgid "Do you want to show %s in the tray menu?"
 msgstr "Voulez-vous afficher %s dans la zone de notification ?"
 
-#: prefs.js:660
+#: prefs.js:653
 msgid "Apply"
 msgstr "Appliquer"
 
@@ -160,12 +144,12 @@ msgstr "Fréquence de rafraîchissement"
 
 #: schemas/org.gnome.shell.extensions.hass-data.gschema.xml:29
 msgid ""
-"(Currently Broken) The refresh rate for the weather statistics in seconds "
-"(works only if \"Refresh Temperature/Humidity Sensors\" is enabled)."
+"The refresh rate for the weather statistics in seconds (works only if "
+"\"Refresh Temperature/Humidity Sensors\" is enabled)."
 msgstr ""
-"(Actuellement en panne) Le taux de rafraîchissement des statistiques météo "
-"en secondes (fonctionne uniquement si \"Rafraîchir les capteurs de "
-"température/humidité\" est activé)."
+"Le taux de rafraîchissement des statistiques météo en secondes (fonctionne "
+"uniquement si \"Rafraîchir les capteurs de température/humidité\" est "
+"activé)."
 
 #: schemas/org.gnome.shell.extensions.hass-data.gschema.xml:34
 msgid "Refresh Temperature/Humidity Sensors"
@@ -173,11 +157,11 @@ msgstr "Rafraîchir les capteurs de température/humidité"
 
 #: schemas/org.gnome.shell.extensions.hass-data.gschema.xml:35
 msgid ""
-"(Currently Broken) Whether or not you want to refresh the temperature and/or "
-"humidity sensor values."
+"Whether or not you want to refresh the temperature and/or humidity sensor "
+"values."
 msgstr ""
-"(Actuellement en panne) Si vous souhaitez ou non actualiser les valeurs des "
-"capteurs de température et/ou d'humidité."
+"Si vous souhaitez ou non actualiser les valeurs des capteurs de température "
+"et/ou d'humidité."
 
 #: schemas/org.gnome.shell.extensions.hass-data.gschema.xml:40
 msgid "Show notifications"
@@ -263,7 +247,7 @@ msgstr "ID d'entité des capteurs d'Home Assistant."
 
 #: schemas/org.gnome.shell.extensions.hass-data.gschema.xml:89
 msgid ""
-"Entity ids for home-assistant sensors. E.g. sensor.livingroom_temperature ."
+"Entity ids for home-assistant sensors. E.g. sensor.livingroom_temperature."
 msgstr ""
 "ID d'entité des capteurs d'Home Assistant.. Ex : sensor."
 "livingroom_temperature."
@@ -277,6 +261,21 @@ msgid "Shortcut key on how to open the extension's menu from the tray."
 msgstr ""
 "Raccourci clavier pour ouvrir le menu de l'extension à partir de la zone de "
 "notification."
+
+#~ msgid ""
+#~ "You will need to restart your session in order for this change to take "
+#~ "effect."
+#~ msgstr ""
+#~ "Vous devrez redémarrer votre sessions pour que ce changement soit "
+#~ "effectif."
+
+#~ msgid ""
+#~ "On Xorg, you can do that by Alt+F2 and then pressing 'r' and Enter. If "
+#~ "this doesn't work (Wayland), you have to logout and re-login."
+#~ msgstr ""
+#~ "Sur Xorg, vous pouvez faire cela avec Alt+F2 puis taper \"r\" et Entrer. "
+#~ "Si cela ne fonctionne pas (Wayland), vous devez vous fermer votre session "
+#~ "puis la ré-ouvrir."
 
 #~ msgid "Add"
 #~ msgstr "Ajouter"

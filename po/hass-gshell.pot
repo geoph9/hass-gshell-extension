@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2023-06-28 14:47+0200\n"
+"POT-Creation-Date: 2023-06-30 01:36+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -17,31 +17,31 @@ msgstr ""
 "Content-Type: text/plain; charset=CHARSET\n"
 "Content-Transfer-Encoding: 8bit\n"
 
-#: extension.js:109
+#: extension.js:232
 msgid "HASS Events"
 msgstr ""
 
-#: extension.js:111
+#: extension.js:235
 msgid "Start Home Assistant"
 msgstr ""
 
-#: extension.js:112
+#: extension.js:239
 msgid "Stop Home Assistant"
 msgstr ""
 
-#: extension.js:113
+#: extension.js:243
 msgid "Close Home Assistant"
 msgstr ""
 
-#: extension.js:129
+#: extension.js:248
 msgid "Refresh"
 msgstr ""
 
-#: extension.js:142
+#: extension.js:260
 msgid "Preferences"
 msgstr ""
 
-#: extension.js:165
+#: extension.js:290
 msgid "Toggle:"
 msgstr ""
 
@@ -74,55 +74,43 @@ msgstr ""
 msgid "%s Icon"
 msgstr ""
 
-#: prefs.js:143
-msgid ""
-"You will need to restart your session in order for this change to take "
-"effect."
-msgstr ""
-
-#: prefs.js:144
-msgid ""
-"On Xorg, you can do that by Alt+F2 and then pressing 'r' and Enter. If this "
-"doesn't work (Wayland), you have to logout and re-login."
-msgstr ""
-
-#: prefs.js:277
+#: prefs.js:270
 msgid "Togglable Entities:"
 msgstr ""
 
-#: prefs.js:282
+#: prefs.js:275
 msgid "Choose Togglable Entities:"
 msgstr ""
 
-#: prefs.js:409
+#: prefs.js:402
 msgid "Sensors:"
 msgstr ""
 
-#: prefs.js:414
+#: prefs.js:407
 msgid "Choose Which Sensors Should Appear on the Panel:"
 msgstr ""
 
-#: prefs.js:576
+#: prefs.js:569
 msgid "Access Token"
 msgstr ""
 
-#: prefs.js:577
+#: prefs.js:570
 msgid ""
 "Long Live Access Token for Home Assistant (Go to Profile->Bottom-of-the-page-"
 ">Long-Live-Access-Tokens and create a new one)."
 msgstr ""
 
-#: prefs.js:612
+#: prefs.js:605
 #, javascript-format
 msgid "Do you want to have the '%s' icon in your panel?"
 msgstr ""
 
-#: prefs.js:614
+#: prefs.js:607
 #, javascript-format
 msgid "Do you want to show %s in the tray menu?"
 msgstr ""
 
-#: prefs.js:660
+#: prefs.js:653
 msgid "Apply"
 msgstr ""
 
@@ -150,8 +138,8 @@ msgstr ""
 
 #: schemas/org.gnome.shell.extensions.hass-data.gschema.xml:29
 msgid ""
-"(Currently Broken) The refresh rate for the weather statistics in seconds "
-"(works only if \"Refresh Temperature/Humidity Sensors\" is enabled)."
+"The refresh rate for the weather statistics in seconds (works only if "
+"\"Refresh Temperature/Humidity Sensors\" is enabled)."
 msgstr ""
 
 #: schemas/org.gnome.shell.extensions.hass-data.gschema.xml:34
@@ -160,8 +148,8 @@ msgstr ""
 
 #: schemas/org.gnome.shell.extensions.hass-data.gschema.xml:35
 msgid ""
-"(Currently Broken) Whether or not you want to refresh the temperature and/or "
-"humidity sensor values."
+"Whether or not you want to refresh the temperature and/or humidity sensor "
+"values."
 msgstr ""
 
 #: schemas/org.gnome.shell.extensions.hass-data.gschema.xml:40
@@ -240,7 +228,7 @@ msgstr ""
 
 #: schemas/org.gnome.shell.extensions.hass-data.gschema.xml:89
 msgid ""
-"Entity ids for home-assistant sensors. E.g. sensor.livingroom_temperature ."
+"Entity ids for home-assistant sensors. E.g. sensor.livingroom_temperature."
 msgstr ""
 
 #: schemas/org.gnome.shell.extensions.hass-data.gschema.xml:100
