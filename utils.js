@@ -273,6 +273,24 @@ function computeSensorState(sensor) {
 }
 
 /**
+ * Toggle an entity in Home-Assistant
+ * @param {String} entityId  The entity ID
+ */
+function toggleEntity(entityId) {
+    let data = { "entity_id": entityId };
+    let domain = entityId.split(".")[0];  // e.g. light.mylight => light
+    send_async_request(computeURL(`api/services/${domain}/toggle`), 'POST', data);
+}
+
+/**
+ * Trigger Home-Assistant event by name
+ * @param {String} eventName  The HA event name (start/stop/restart)
+ */
+function triggerHassEvent(eventName) {
+    send_async_request(computeURL(`api/events/homeassistant_${eventName}`), 'POST');
+}
+
+/**
  * Check equality of elements of two arrays
  * @param {Array} a Array 1
  * @param {Array} b Array 2

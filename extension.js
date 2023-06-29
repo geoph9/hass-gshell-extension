@@ -17,33 +17,61 @@ const Utils = Me.imports.utils;
 const MyUUID = Me.metadata.uuid;
 
 // Credits for organizing this class: https://github.com/vchlum/hue-lights/
-var HassExtension = GObject.registerClass ({
+var HassMenu = GObject.registerClass ({
     GTypeName: "HassMenu"
 }, class HassMenu extends PanelMenu.Button {
     _init() {
         super._init(0, Me.metadata.name, false);
         this._settings = ExtensionUtils.getSettings();
+        this.Settings = null;
+        this.shortcutId = "hass-shortcut";
+
+        this.box = null;
+
+        this.trayButton = null;
+        this.trayIcon = null;
+
+        this.togglablesMenuItems = [];
+
+        this.sensorsPanel = null;
+        this.sensorsPanelText = null;
+
+        this.tempHumPanel = null;
+        this.tempHumPanelText = null;
+        this.refreshTempHumTimeout = null;
     }
 
     enable() {
         log(`${MyUUID}: enabling...`);
-        Main.panel.addToStatusArea('hass-extension', this, 1);
-        this.enableShortcut();
 
-        this._settings.connect("changed", () => this.refresh());
+        // Import settings to have access to its constants
+        // Note: we can't do that globally.
+        this.Settings = Me.imports.settings;
 
-        // Add tray icon
-        let Settings = Me.imports.settings;
-        let icon_path = this._settings.get_string(Settings.PANEL_ICON_PATH);
-        // Make sure the path is valid
-        icon_path = icon_path.startsWith("/") ? icon_path : "/" + icon_path;
-        let icon = new St.Icon({
-            gicon : Gio.icon_new_for_string( Me.dir.get_path() + icon_path),
-            style_class : 'system-status-icon',
+        // Disable click event on the PopupMenu to handle it in the components it contains
+        this.connect('event', (actor, event) => {
+            if ((event.type() == Clutter.EventType.TOUCH_BEGIN ||
+                 event.type() == Clutter.EventType.BUTTON_PRESS))
+                return Clutter.EVENT_STOP;
+            return Clutter.EVENT_PROPAGATE;
         });
-        this.add_child(icon);
 
-        // Firstly, update entities cache
+        // Create the main BoxLayout which will contain all compoments of the extension
+        this.box = new St.BoxLayout({style: 'spacing: 2px'});
+
+        // Load settings and build all compoments
+        this._loadSettings();
+        this._buildTrayMenu();
+        this._buildTempHumSensorsPanel();
+        this._buildSensorsPanel();
+        this._buildTrayIcon();
+        this._enableShortcut();
+
+        // Add the main box as child of the PopupMenu
+        this.add_child(this.box);
+
+        // Now we could manage the content of the extension compoents. Firstly, update the entities
+        // cache
         Utils.getEntities(
             function (entities) {
                 this.refresh(true);
@@ -51,115 +79,203 @@ var HassExtension = GObject.registerClass ({
             function () {
                 log(`${MyUUID}: Fail to refresh entities cache, invalidate it`);
                 Utils.invalidateEntitiesCache();
-                // We still have to display the extension
-                this.refresh(true);
             }.bind(this),
-            true
+            true  // force refreshing the cache
         );
-    }
 
-    enableShortcut() {
-        // For the Shortcut
-        // Shell.ActionMode.NORMAL
-        // Shell.ActionMode.OVERVIEW
-        // Shell.ActionMode.LOCK_SCREEN
-        let mode = Shell.ActionMode.ALL;
+        // Connect the setting field that contain the HASS URL with the refresh() method with
+        // force_reload argument equal to true
+        this._connectSettings([this.Settings.HASS_URL], this.refresh, [true]);
 
-        // Meta.KeyBindingFlags.PER_WINDOW
-        // Meta.KeyBindingFlags.BUILTIN
-        // Meta.KeyBindingFlags.IGNORE_AUTOREPEAT
-        let flag = Meta.KeyBindingFlags.NONE;
-
-        let shortcut_settings = ExtensionUtils.getSettings('org.gnome.shell.extensions.hass-shortcut');
-
-        Main.wm.addKeybinding("hass-shortcut", shortcut_settings, flag, mode, () => {
-            this.menu.toggle();
-        });
+        // Connect the setting field that contain the HASS entities state cache with the refresh()
+        // method with force_reload argument equal to false (default)
+        this._connectSettings([this.Settings.HASS_ENTITIES_CACHE], this.refresh);
     }
 
     disable () {
         log(`${MyUUID}: disabling...`);
-        this._deleteTempStatsPanel();
         this._deleteSensorsPanel();
-        this.disableShortcut();
+        this._deleteTempHumSensorsPanel();
+        this._deleteTrayIcon();
+        this._disableShortcut();
         this._deleteMenuItems();
-        this.destroy();
+        if (this.box) this.box.destroy();
     }
 
-    disableShortcut() {
-        Main.wm.removeKeybinding("hass-shortcut");
-    }
-
-    refresh(force=false) {
-        if (this.needsRebuild() || force) {
-            this.rebuildTray();
-            this.buildTempSensorStats();
-            this.buildPanelSensorEntities();
+    refresh(force_reload=false) {
+        if (force_reload) {
+            Utils.getEntities(
+                function (entities) {
+                    this.refresh(false);
+                }.bind(this),
+                function () {
+                    log(`${MyUUID}: Fail to refresh entities cache, invalidate it.`);
+                    Utils.invalidateEntitiesCache();
+                }.bind(this),
+                true  // force refreshing cache
+            );
+        }
+        else {
+            this._refreshTogglable();
+            this._refreshTempHumSensorsPanel();
+            this._refreshSensorsPanel();
         }
     }
 
-    rebuildTray() {
-        log(`${MyUUID}: Rebuilding tray...`);
-        // Destroy the previous menu items
-        this._deleteMenuItems();
+    /*
+     **********************************************************************************************
+     * Shortcut
+     **********************************************************************************************
+     */
 
-        let completeTrayMenu = function() {
-            log(`${MyUUID}: Complete tray menu`);
-            // Now build the submenu containing the HASS events
-            let subItem = new PopupMenu.PopupSubMenuMenuItem(_('HASS Events'));
-            this.menu.addMenuItem(subItem);
-            let start_hass_item = new PopupMenu.PopupMenuItem(_('Start Home Assistant'));
-            let stop_hass_item = new PopupMenu.PopupMenuItem(_('Stop Home Assistant'));
-            let close_hass_item = new PopupMenu.PopupMenuItem(_('Close Home Assistant'));
-            subItem.menu.addMenuItem(start_hass_item, 0);
-            subItem.menu.addMenuItem(stop_hass_item, 1);
-            subItem.menu.addMenuItem(close_hass_item, 2);
-            start_hass_item.connect('activate', () => {
-                this._triggerHassEvent('start');
-            });
-            stop_hass_item.connect('activate', () => {
-                this._triggerHassEvent('stop');
-            });
-            close_hass_item.connect('activate', () => {
-                this._triggerHassEvent('close');
-            });
+    _enableShortcut() {
+        Main.wm.addKeybinding(
+            this.shortcutId,
+            ExtensionUtils.getSettings('org.gnome.shell.extensions.hass-shortcut'),
+            Meta.KeyBindingFlags.NONE,  // key binding flag
+            Shell.ActionMode.ALL,  // binding mode
+            () => this.menu.toggle()
+        );
+    }
+    _disableShortcut() {
+        Main.wm.removeKeybinding(this.shortcutId);
+    }
 
-            // Settings button (Preferences)
-            let refreshMenuItem = new PopupMenu.PopupImageMenuItem(
-                _("Refresh"),
-                'view-refresh',
+    /*
+     **********************************************************************************************
+     * Manage settings
+     **********************************************************************************************
+     */
+
+    _loadSettings() {
+        log(`${MyUUID}: load settings`);
+        this.showWeatherStats = this._settings.get_boolean(this.Settings.SHOW_WEATHER_STATS);
+        this.showHumidity = this._settings.get_boolean(this.Settings.SHOW_HUMIDITY);
+        this.tempEntityID = this._settings.get_string(this.Settings.TEMPERATURE_ID);
+        this.humidityEntityID = this._settings.get_string(this.Settings.HUMIDITY_ID);
+        this.panelSensorIds = this._settings.get_strv(this.Settings.HASS_ENABLED_SENSOR_IDS);
+        this.doRefresh = this._settings.get_boolean(this.Settings.DO_REFRESH);
+        this.refreshSeconds = Number(this._settings.get_string(this.Settings.REFRESH_RATE));
+    }
+
+    _connectSettings(settings, callback, args=[]) {
+        for (let setting of settings) {
+            this._settings.connect(
+                "changed::" + setting,
+                function() {
+                    this._loadSettings();
+                    callback.apply(this, args);
+                }.bind(this)
             );
-            refreshMenuItem.connect('activate', () => {
-                this.menu.toggle();
-                log(`${MyUUID}: invalidate entities cache and refreshing...`);
-                Utils.invalidateEntitiesCache();
-                this.refresh(true);
-            });
-            this.menu.addMenuItem(refreshMenuItem);
+        }
+    }
 
-            // Settings button (Preferences)
-            let popupImageMenuItem = new PopupMenu.PopupImageMenuItem(
-                _("Preferences"),
-                'security-high-symbolic',
-            );
-            popupImageMenuItem.connect('activate', () => {
-                log(`${MyUUID}: Opening Preferences...`);
-                ExtensionUtils.openPrefs();
-            });
-            this.menu.addMenuItem(popupImageMenuItem);
-            log(`${MyUUID}: tray rebuilded`);
-        }.bind(this);
+    /*
+     **********************************************************************************************
+     * Tray icon
+     **********************************************************************************************
+     */
 
-        // Get the togglable entities and continue in callback
+    _buildTrayIcon() {
+        this.trayButton = new St.Bin({
+            style_class : "panel-button",
+            reactive : true,
+            can_focus : true,
+            track_hover : true,
+            height : 30,
+        });
+
+        let icon_path = this._settings.get_string(this.Settings.PANEL_ICON_PATH);
+        // Make sure the path is valid
+        icon_path = icon_path.startsWith("/") ? icon_path : "/" + icon_path;
+        this.trayIcon = new St.Icon({
+            gicon : Gio.icon_new_for_string(Me.dir.get_path() + icon_path),
+            style_class : 'system-status-icon',
+        });
+
+        this.trayButton.set_child(this.trayIcon);
+        this.trayButton.connect("button-press-event", () => this.menu.toggle());
+
+        this.box.add_child(this.trayButton);
+    }
+
+    _deleteTrayIcon() {
+        if (this.trayIcon) {
+            this.trayIcon.destroy();
+            this.trayIcon = null;
+        }
+        if (this.trayButton) {
+            this.trayButton.destroy();
+            this.trayButton = null;
+        }
+    }
+
+    /*
+     **********************************************************************************************
+     * Tray menu
+     **********************************************************************************************
+     */
+
+    _buildTrayMenu() {
+        log(`${MyUUID}: build tray menu`);
+
+        // Build the submenu containing the HASS events
+        let subItem = new PopupMenu.PopupSubMenuMenuItem(_('HASS Events'));
+        this.menu.addMenuItem(subItem);
+
+        let start_hass_item = new PopupMenu.PopupMenuItem(_('Start Home Assistant'));
+        subItem.menu.addMenuItem(start_hass_item);
+        start_hass_item.connect('activate', () => Utils.triggerHassEvent('start'));
+
+        let stop_hass_item = new PopupMenu.PopupMenuItem(_('Stop Home Assistant'));
+        subItem.menu.addMenuItem(stop_hass_item);
+        stop_hass_item.connect('activate', () => Utils.triggerHassEvent('stop'));
+
+        let close_hass_item = new PopupMenu.PopupMenuItem(_('Close Home Assistant'));
+        subItem.menu.addMenuItem(close_hass_item, 2);
+        close_hass_item.connect('activate', () => Utils.triggerHassEvent('close'));
+
+        // Build the Refresh menu item
+        let refreshMenuItem = new PopupMenu.PopupImageMenuItem(_("Refresh"), 'view-refresh');
+        refreshMenuItem.connect('activate', () => {
+            // Firstly close the menu to avoid artifact when it will partially be rebuiled
+            this.menu.close();
+            log(`${MyUUID}: invalidate entities cache and refreshing...`);
+            Utils.invalidateEntitiesCache();
+            this.refresh(true);
+        });
+        this.menu.addMenuItem(refreshMenuItem);
+
+        // Build the Preferences menu item
+        let prefsMenuItem = new PopupMenu.PopupImageMenuItem(
+            _("Preferences"),
+            'security-high-symbolic',
+        );
+        prefsMenuItem.connect('activate', () => {
+            log(`${MyUUID}: Opening Preferences...`);
+            ExtensionUtils.openPrefs();
+        });
+        this.menu.addMenuItem(prefsMenuItem);
+
+        // Connect the setting field that contain enabled togglable entities with the
+        // _refreshTogglable() method
+        this._connectSettings([this.Settings.HASS_ENABLED_ENTITIES], this._refreshTogglable);
+
+        log(`${MyUUID}: tray menu builded`);
+    }
+
+    _refreshTogglable(force_reload=false) {
+        log(`${MyUUID}: refresh togglables in tray menu...`);
+
+        // Firstly delete previously created togglable menu items
+        this._deleteTogglablesMenuItems();
+
+        // Now get the togglable entities and continue in callback
         Utils.getTogglables(
             function(togglables) {
-                log(`${MyUUID}: get enabled togglables, continue rebuilding tray`);
-                // I am using an array of objects because I want to get a full copy of the
-                // pmItem and the entityId. If I don't do that then the pmItem will be connected
-                // only to the laste entry of 'togglable_ent_ids' which means that whichever entry
-                // of the menu you press, you will always toggle the same button
-                var pmItems = [];
-                for (let entity of togglables) {
+                log(`${MyUUID}: get enabled togglables, continue refreshing tray menu`);
+                this.togglablesMenuItems = [];
+                for (let [idx, entity] of togglables.entries()) {
                     if (entity.entity_id === "" || !entity.entity_id.includes("."))
                         continue
                     let pmItem = new PopupMenu.PopupMenuItem(_('Toggle:'));
@@ -168,306 +284,299 @@ var HassExtension = GObject.registerClass ({
                             text : entity.name
                         })
                     );
-                    this.menu.addMenuItem(pmItem);
-                    pmItems.push({item: pmItem, entity: entity.entity_id});
-                }
-                for (let item of pmItems) {
-                    item.item.connect('activate', () => {
-                        this._toggleEntity(item.entity)
+                    pmItem.connect('activate', () => {
+                        Utils.toggleEntity(entity.entity_id)
                     });
-                }
+                    this.togglablesMenuItems.push({item: pmItem, entity: entity, index: idx});
 
-                this.menu.addMenuItem(new PopupMenu.PopupSeparatorMenuItem());
-                completeTrayMenu.bind(this)();
+                    // We insert here the togglable menu items with their index as position to put
+                    // them at the top of the popup menu
+                    this.menu.addMenuItem(pmItem, idx);
+                }
+                // If we have at least one togglable item in menu, add the separator
+                if (this.togglablesMenuItems.length)
+                    this.menu.addMenuItem(
+                        new PopupMenu.PopupSeparatorMenuItem(),
+                        // use the togglables count as position of the separator in the menu
+                        this.togglablesMenuItems.length
+                    );
+                log(`${MyUUID}: togglables in tray menu refreshed`);
             }.bind(this),
-            function () {
-                log(`${MyUUID}: Fail to load enabled togglables`);
-                completeTrayMenu();
-            }.bind(this),
-            true
+            // On error callback
+            () => log(`${MyUUID}: Fail to load enabled togglables`),
+            true,  // we want only enabled togglables
+            force_reload
         );
     }
 
-    buildPanelSensorEntities() {
-        // Get enabled panel sensors and continue in callback
-        Utils.getSensors(
-            function(panelSensors) {
-                if (panelSensors.length === 0) {
-                    log(`${MyUUID}: No panel sensor enabled`);
-                    this._deleteSensorsPanel();
-                    return;
-                }
-
-                if (this.sensorsPanel === undefined) {
-                    log(`${MyUUID}: Add sensors to panel`);
-                    // Add the temperature in the panel
-                    this.sensorsPanel = new St.Bin({
-                        style_class : "panel-button",
-                        reactive : true,
-                        can_focus : true,
-                        track_hover : true,
-                        height : 30,
-                    });
-                    this.sensorsPanelText = new St.Label({
-                        text : "",
-                        y_align: Clutter.ActorAlign.CENTER,
-                    });
-                    this.sensorsPanel.set_child(this.sensorsPanelText);
-                    this.sensorsPanel.connect("button-press-event", () => {
-                        this._needsRebuildSensorPanel();
-                        this._refreshPanelSensors();
-                    });
-                    Main.panel._rightBox.insert_child_at_index(this.sensorsPanel, 1);
-                }
-
-                this._refreshPanelSensors(panelSensors);
-            }.bind(this),
-            function() {
-                log(`${MyUUID}: Fail to load enabled panel sensors`);
-                this._deleteSensorsPanel();
-            }.bind(this),
-            true
-        );
-    }
-
-    buildTempSensorStats() {
-        if (this.showWeatherStats === true && this.tempEntityID) {
-            Utils.getSensor(
-                this.tempEntityID,
-                function (temp_sensor) {
-                    if (this.weatherStatsPanel === undefined) {
-                        // Add the temperature in the panel
-                        this.weatherStatsPanel = new St.Bin({
-                            style_class : "panel-button",
-                            reactive : true,
-                            can_focus : true,
-                            track_hover : true,
-                            height : 30,
-                        });
-                        this.weatherStatsPanelText = new St.Label({
-                            text : "-°C",
-                            y_align: Clutter.ActorAlign.CENTER,
-                        });
-                        this.weatherStatsPanel.set_child(this.weatherStatsPanelText);
-                        this.weatherStatsPanel.connect("button-press-event", () => {
-                            this._needsRebuildTempPanel();
-                            this._refreshWeatherStats();
-                        });
-                        Main.panel._rightBox.insert_child_at_index(this.weatherStatsPanel, 1);
-                    }
-
-                    // Refresh is done in enable(), don't force reload in this case
-                    this._refreshWeatherStats(temp_sensor);
-
-                    if (this.doRefresh === true) {
-                        if (this.refreshTimeout) {
-                            log(`${MyUUID}: cancel previous temperature/humidity sensors refresh timer...`);
-                            Mainloop.source_remove(this.refreshTimeout);
-                        }
-                        // Update weather stats every X seconds
-                        log(
-                            `${MyUUID}: schedule refreshing temperature/humidity sensors state `
-                            + `every ${this.refreshSeconds} seconds`
-                        );
-                        this.refreshTimeout = Mainloop.timeout_add_seconds(this.refreshSeconds,  () => {
-                            log(`${MyUUID}: refreshing temperature/humidity sensors...`);
-                            this._needsRebuildTempPanel();
-                            this._refreshWeatherStats();
-                            // We have to return true to keep the timer alive
-                            return true;
-                        });
-                    }
-                }.bind(this),
-                function() {
-                    log(`${MyUUID}: fail to retreive temperature sensor`);
-                    this._deleteTempStatsPanel();
-                }.bind(this)
-            );
-        } else {
-            this._deleteTempStatsPanel();
-        }
-    }
-
-    needsRebuild() {
-        let trayNeedsRebuild = false;
-        let tmp;
-
-        // Check if the hass url changed.
-        tmp = this.base_url;
-        this.base_url = Utils.computeURL();
-        trayNeedsRebuild = trayNeedsRebuild || (tmp !== this.base_url);
-
-        // Check togglable ids
-        let Settings = Me.imports.settings;
-        tmp = this.togglable_ent_ids;
-        this.togglable_ent_ids = this._settings.get_strv(Settings.HASS_ENABLED_ENTITIES);
-        trayNeedsRebuild = trayNeedsRebuild || !Utils.arraysEqual(tmp, this.togglable_ent_ids);
-
-        // Do the same for all of the weather entities
-        trayNeedsRebuild = this._needsRebuildTempPanel() || trayNeedsRebuild;
-        // Do the same for all extra sensor entities
-        trayNeedsRebuild = this._needsRebuildSensorPanel() || trayNeedsRebuild;
-
-        return trayNeedsRebuild;
-    }
-
-    _toggleEntity(entityId) {
-        let data = { "entity_id": entityId };
-        let domain = entityId.split(".")[0];  // e.g. light.mylight => light
-        Utils.send_async_request(Utils.computeURL(`api/services/${domain}/toggle`), 'POST', data);
-    }
-
-    _triggerHassEvent(event) {
-        Utils.send_async_request(Utils.computeURL(`api/events/homeassistant_${event}`), 'POST');
-    }
-
-    _refreshWeatherStats(temp_sensor=null) {
-        let update = function(sensor) {
-            let out = Utils.computeSensorState(sensor);
-            if (this.showHumidity === true) {
-                log(`${MyUUID}: get humidity sensor (${this.humidityEntityID})`);
-                Utils.getSensor(
-                    this.humidityEntityID,
-                    function(sensor) {
-                        out += ` | ${Utils.computeSensorState(sensor)}`;
-                        log(`${MyUUID}: update weather in panel with temperature & humidity sensor`);
-                        this.weatherStatsPanelText.text = out;
-                    }.bind(this),
-                    function() {
-                        log(`${MyUUID}: fail to retreive humidity sensor, update weather in panel with only temperature`);
-                        this.weatherStatsPanelText.text = out;
-                    }.bind(this)
-                );
-            }
-            else {
-                log(`${MyUUID}: update weather in panel with temperature`);
-                this.weatherStatsPanelText.text = out;
-            }
-        }.bind(this);
-
-        if (temp_sensor) {
-            update(temp_sensor);
-            return;
-        }
-        log(`${MyUUID}: get temperature sensor (${this.tempEntityID})`);
-        Utils.getSensor(
-            this.tempEntityID,
-            update,
-            function() {
-                log(`${MyUUID}: fail to retreive temperature sensor`);
-            },
-            true
-        );
-    }
-
-    _refreshPanelSensors(sensorEntities=null) {
-        let update = function(sensorEntities) {
-            log(`${MyUUID}: refresh panel sensors`);
-            try {
-                let outText = [];
-                let tmp;
-                for (let sensor of sensorEntities) {
-                    outText.push(Utils.computeSensorState(sensor));
-                }
-                log(`${MyUUID}: WILL USE OUT TEXT:`);
-                log(`${MyUUID}: ${outText.join(' | ')}`);
-                this.sensorsPanelText.text = outText.join(' | ');
-            } catch (error) {
-                logError(error, `${MyUUID}: Could not refresh sensor stats...`);
-                // will execute this function only once and abort.
-                // Remove in order to make the Main loop continue working.
-                return false;
-            }
-        }.bind(this);
-
-        if (sensorEntities) {
-            update(sensorEntities);
-            return;
-        }
-
-        Utils.getSensors(update, null, true, true);
-    }
-
-    _needsRebuildTempPanel() {
-        let Settings = Me.imports.settings;
-        let needRebuild = false;
-        let tmp;
-
-        // Check show weather stats
-        tmp = this.showWeatherStats;
-        this.showWeatherStats = this._settings.get_boolean(Settings.SHOW_WEATHER_STATS);
-        needRebuild = needRebuild || (tmp !== this.showWeatherStats);
-
-        // Check show humidity
-        tmp = this.showHumidity;
-        this.showHumidity = this._settings.get_boolean(Settings.SHOW_HUMIDITY);
-        needRebuild = needRebuild || (tmp !== this.showHumidity);
-
-        // Check temperature id change
-        tmp = this.tempEntityID;
-        this.tempEntityID = this._settings.get_string(Settings.TEMPERATURE_ID);
-        needRebuild = needRebuild || (tmp !== this.tempEntityID);
-
-        // Check humidity id change
-        tmp = this.humidityEntityID;
-        this.humidityEntityID = this._settings.get_string(Settings.HUMIDITY_ID);
-        needRebuild = needRebuild || (tmp !== this.humidityEntityID);
-
-        // Check refresh seconds changed
-        tmp = this.refreshSeconds;
-        this.refreshSeconds = Number(this._settings.get_string(Settings.REFRESH_RATE));
-        needRebuild = needRebuild || (tmp !== this.refreshSeconds);
-
-        // Check doRefresh
-        tmp = this.doRefresh;
-        this.doRefresh = this._settings.get_boolean(Settings.DO_REFRESH);
-        needRebuild = needRebuild || (tmp !== this.doRefresh);
-
-        return needRebuild;
-    }
-
-    _needsRebuildSensorPanel(){
-        // Check togglable ids
-        let Settings = Me.imports.settings;
-        let tmp = this.panelSensorIds;
-        this.panelSensorIds = this._settings.get_strv(Settings.HASS_ENABLED_SENSOR_IDS);
-        return !Utils.arraysEqual(tmp, this.panelSensorIds);
+    _deleteTogglablesMenuItems() {
+        // Destroy the previously created togglable menu items
+        for (let ptItem of this.togglablesMenuItems)
+            ptItem.item.destroy();
+        this.togglablesMenuItems = [];
     }
 
     _deleteMenuItems() {
-        // Destroy the previous menu items
+        // Delete all the menu items
+        this._deleteTogglablesMenuItems();
         this.menu.removeAll();
     }
 
-    _deleteTempStatsPanel() {
+    /*
+     **********************************************************************************************
+     * Sensors panel
+     **********************************************************************************************
+     */
 
-        if (this.weatherStatsPanel !== undefined) {
-            Main.panel._rightBox.remove_child(this.weatherStatsPanel);
-            if (this.doRefresh === true) {
-                Mainloop.source_remove(this.refreshTimeout);
-            }
-        }
+    _buildSensorsPanel() {
+        log(`${MyUUID}: build sensors panel...`);
+        this.sensorsPanel = new St.Bin({
+            style_class : "panel-button",
+            reactive : true,
+            can_focus : true,
+            track_hover : true,
+            height : 30,
+            visible: false,
+        });
+        this.sensorsPanelText = new St.Label({
+            text : "",
+            y_align: Clutter.ActorAlign.CENTER,
+        });
+        this.sensorsPanel.set_child(this.sensorsPanelText);
+        this.sensorsPanel.connect("button-press-event", () => this._refreshSensorsPanel(true));
+        this.box.add_child(this.sensorsPanel);
+
+        // Connect the setting field that contain enabled sensors with the _refreshSensorsPanel()
+        // method
+        this._connectSettings([this.Settings.HASS_ENABLED_SENSOR_IDS], this._refreshSensorsPanel);
+
+        log(`${MyUUID}: panel sensor builded...`);
+    }
+
+    _refreshSensorsPanel(force_reload=false) {
+        // Get enabled panel sensors and continue in callback
+        Utils.getSensors(
+            function(panelSensors) {
+                log(`${MyUUID}: refresh sensors panel`);
+                if (panelSensors.length === 0) {
+                    log(`${MyUUID}: No sensor enabled for the panel, hide it`);
+                    this.sensorsPanel.visible = false;
+                    return;
+                }
+
+                try {
+                    let outText = [];
+                    for (let sensor of panelSensors)
+                        outText.push(Utils.computeSensorState(sensor));
+                    log(`${MyUUID}: refreshed panel sensors value = "${outText.join(' | ')}"`);
+                    this.sensorsPanelText.text = outText.join(' | ');
+                    this.sensorsPanel.visible = true;
+                } catch (error) {
+                    logError(error, `${MyUUID}: Fail to compute sensors panel text, hide it`);
+                    this.sensorsPanel.visible = false;
+                }
+            }.bind(this),
+            function() {
+                log(`${MyUUID}: Fail to load enabled panel sensors, hide it`);
+                this.sensorsPanel.visible = false;
+            }.bind(this),
+            true,  // we want only enabled sensors
+            force_reload
+        );
     }
 
     _deleteSensorsPanel() {
+        if (this.sensorsPanelText) {
+            this.sensorsPanelText.destroy();
+            this.sensorsPanelText = null;
+        }
         if (this.sensorsPanel) {
-            Main.panel._rightBox.remove_child(this.sensorsPanel);
+            this.sensorsPanel.destroy();
+            this.sensorsPanel = null;
         }
     }
+
+    /*
+     **********************************************************************************************
+     * Temperature/humidity sensors panel
+     **********************************************************************************************
+     */
+
+    _buildTempHumSensorsPanel() {
+        log(`${MyUUID}: build temperature/humidity panel sensors...`);
+        this.tempHumPanel = new St.Bin({
+            style_class: "panel-button",
+            reactive: true,
+            can_focus: true,
+            track_hover: true,
+            height: 30,
+            visible: false,
+        });
+        this.tempHumPanelText = new St.Label({
+            text : "-°C",
+            y_align: Clutter.ActorAlign.CENTER,
+        });
+        this.tempHumPanel.set_child(this.tempHumPanelText);
+        this.tempHumPanel.connect("button-press-event", () => {
+            this._refreshTempHumSensorsPanel(true);
+        });
+        this.box.add_child(this.tempHumPanel);
+
+        // Connect all setting fields that have impact on the temperature/humidity sensors panel
+        // with the _refreshTempHumSensorsPanel() method
+        this._connectSettings(
+            [
+                this.Settings.SHOW_WEATHER_STATS,
+                this.Settings.TEMPERATURE_ID,
+                this.Settings.SHOW_HUMIDITY,
+                this.Settings.HUMIDITY_ID,
+            ],
+            this._refreshTempHumSensorsPanel,
+            [true]  // Force reload sensors state on setting changes
+        );
+
+        // Configure the refreshing of temperature/humidity sensors panel
+        this._configTempHumSensorsPanelRefresh();
+
+        // Connect all setting fields that have impact on the refreshing of temperature/humidity
+        // sensors panel with the _configTempHumSensorsPanelRefresh() method
+        this._connectSettings(
+            [
+                this.Settings.SHOW_WEATHER_STATS,
+                this.Settings.TEMPERATURE_ID,
+                this.Settings.DO_REFRESH,
+                this.Settings.REFRESH_RATE,
+            ],
+            this._configTempHumSensorsPanelRefresh
+        );
+    }
+
+    _configTempHumSensorsPanelRefresh() {
+        // Firstly cancel previous configured timeout (if defined)
+        if (this.refreshTempHumTimeout) {
+            log(`${MyUUID}: cancel previous temperature/humidity sensors refresh timer...`);
+            Mainloop.source_remove(this.refreshTempHumTimeout);
+            this.refreshTempHumTimeout = null;
+        }
+
+        // Only continue if at least the temperature entity ID is defined, its configured as
+        // displayed and the refreshing is enabled with configured period
+        if (this.showWeatherStats !== true || !this.tempEntityID || this.doRefresh !== true
+            || !this.refreshSeconds)
+            return;
+
+        // Schedule temperature/humidity sensors panel refreshing every X seconds
+        log(
+            `${MyUUID}: schedule refreshing temperature/humidity sensors panel `
+            + `every ${this.refreshSeconds} seconds`
+        );
+        this.refreshTempHumTimeout = Mainloop.timeout_add_seconds(this.refreshSeconds, () => {
+            this._refreshTempHumSensorsPanel(true);
+            // We have to return true to keep the timer alive
+            return true;
+        });
+    }
+
+    _refreshTempHumSensorsPanel(force_reload=false) {
+        // Firstly check if at least the temperature entity ID is defined and its configured as
+        // displayed
+        if (this.showWeatherStats !== true || !this.tempEntityID) {
+            this.tempHumPanel.visible = false;
+            return;
+        }
+
+        log(`${MyUUID}: refresh temperature/humidity sensors panel`);
+
+        // Start by retreiving the temperature sensor
+        Utils.getSensor(
+            this.tempEntityID,
+            function (temp_sensor) {
+                let out = Utils.computeSensorState(temp_sensor);
+
+                // If humidity sensor is configured and displayed, retreive it
+                if (this.showHumidity === true && this.humidityEntityID) {
+                    log(`${MyUUID}: get humidity sensor (${this.humidityEntityID})`);
+                    Utils.getSensor(
+                        this.humidityEntityID,
+                        function(sensor) {
+                            log(
+                                `${MyUUID}: update temperature/humidity sensors panel with `
+                                + `temperature & humidity sensor`
+                            );
+                            out += ` | ${Utils.computeSensorState(sensor)}`;
+                            this.tempHumPanelText.text = out;
+                            this.tempHumPanel.visible = true;
+                        }.bind(this),
+                        function() {
+                            log(
+                                `${MyUUID}: fail to retreive humidity sensor, update temperature/`
+                                + `humidity sensors panel with only the temperature`
+                            );
+                            this.tempHumPanelText.text = out;
+                            this.tempHumPanel.visible = true;
+                        }.bind(this)
+                    );
+                }
+                // Otherwise, just show the temperature sensor state
+                else {
+                    log(
+                        `${MyUUID}: update temperature/humidity sensors panel with only the `
+                        + `temperature`
+                    );
+                    this.tempHumPanelText.text = out;
+                    this.tempHumPanel.visible = true;
+                }
+            }.bind(this),
+            function() {
+                log(`${MyUUID}: fail to retreive temperature sensor, hide the sensors panel`);
+                this.tempHumPanel.visible = false;
+            }.bind(this),
+            force_reload
+        );
+    }
+
+    _deleteTempHumSensorsPanel() {
+        if (this.refreshTempHumTimeout) {
+            Mainloop.source_remove(this.refreshTempHumTimeout);
+            this.refreshTempHumTimeout = null;
+        }
+        if (this.tempHumPanelText) {
+            this.tempHumPanelText.destroy();
+            this.tempHumPanelText = null;
+        }
+        if (this.tempHumPanel) {
+            this.tempHumPanel.destroy();
+            this.tempHumPanel = null;
+        }
+    }
+
 })
 
-let extension;
+class Extension {
+    constructor() {
+        this.popupMenu = null;
+    }
+
+    enable() {
+        console.debug(`${MyUUID}: enabling...`);
+
+        this.popupMenu = new HassMenu();
+        this.popupMenu.enable()
+
+        Main.panel.addToStatusArea('hass-extension', this.popupMenu);
+    }
+
+    disable() {
+        console.debug(`${MyUUID}: disabling...`);
+
+        this.popupMenu.disable();
+        this.popupMenu.destroy();
+        this.popupMenu = null;
+    }
+}
 
 function init() {
     log(`${MyUUID}: initializing...`);
     ExtensionUtils.initTranslations();
-}
-
-function enable() {
-    extension = new HassExtension();
-    extension.enable()
-}
-
-function disable() {
-    extension.disable();
+    return new Extension();
 }
