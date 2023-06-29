@@ -26,13 +26,13 @@
     <key type="s" name="weather-refresh-seconds">
       <default>"60"</default>
       <summary>Refresh Rate</summary>
-      <description>(Currently Broken) The refresh rate for the weather statistics in seconds (works only if "Refresh Temperature/Humidity Sensors" is enabled).</description>
+      <description>The refresh rate for the weather statistics in seconds (works only if "Refresh Temperature/Humidity Sensors" is enabled).</description>
     </key>
 
     <key type="b" name="refresh-weather">
         <default>false</default>
         <summary>Refresh Temperature/Humidity Sensors</summary>
-        <description>(Currently Broken) Whether or not you want to refresh the temperature and/or humidity sensor values.</description>
+        <description>Whether or not you want to refresh the temperature and/or humidity sensor values.</description>
     </key>
 
     <key type="b" name="show-notifications">
@@ -86,7 +86,7 @@
     <key type="as" name="hass-enabled-sensor-ids">
       <default>[]</default>
       <summary>Entity ids for home assistant sensors.</summary>
-      <description>Entity ids for home-assistant sensors. E.g. sensor.livingroom_temperature .</description>
+      <description>Entity ids for home-assistant sensors. E.g. sensor.livingroom_temperature.</description>
     </key>
 
   </schema>
