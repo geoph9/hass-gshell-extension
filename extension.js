@@ -176,6 +176,14 @@ var HassMenu = GObject.registerClass ({
      **********************************************************************************************
      */
 
+    _getTrayIconPath() {
+        let icon_path = this._settings.get_string(this.Settings.PANEL_ICON_PATH);
+        // Make sure the path is valid
+        if (!icon_path.startsWith("/"))
+            icon_path = "/" + icon_path;
+        return Me.dir.get_path() + icon_path;
+    }
+
     _buildTrayIcon() {
         this.trayButton = new St.Bin({
             style_class : "panel-button",
@@ -185,11 +193,9 @@ var HassMenu = GObject.registerClass ({
             height : 30,
         });
 
-        let icon_path = this._settings.get_string(this.Settings.PANEL_ICON_PATH);
-        // Make sure the path is valid
-        icon_path = icon_path.startsWith("/") ? icon_path : "/" + icon_path;
+
         this.trayIcon = new St.Icon({
-            gicon : Gio.icon_new_for_string(Me.dir.get_path() + icon_path),
+            gicon : Gio.icon_new_for_string(this._getTrayIconPath()),
             style_class : 'system-status-icon',
         });
 
@@ -197,6 +203,14 @@ var HassMenu = GObject.registerClass ({
         this.trayButton.connect("button-press-event", () => this.menu.toggle());
 
         this.box.add_child(this.trayButton);
+
+        // Connect the setting field that contain the selected icon with the _updateTrayIcon()
+        // method
+        this._connectSettings([this.Settings.PANEL_ICON_PATH], this._updateTrayIcon);
+    }
+
+    _updateTrayIcon() {
+        this.trayIcon.gicon = Gio.icon_new_for_string(this._getTrayIconPath());
     }
 
     _deleteTrayIcon() {

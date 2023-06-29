@@ -139,13 +139,6 @@ function _buildGeneralSettings() {
             rb: panelIconCheckBox
         });
     }
-    optionsList.push(_optionsItem(
-        _("You will need to restart your session in order for this change to take effect."),
-        _("On Xorg, you can do that by Alt+F2 and then pressing 'r' and Enter. If this doesn't work (Wayland), you have to logout and re-login."),
-        new Gtk.Label(),
-        null
-    ));
-
 
     // //////////////////////////////////////////////////////////
     // ////////////////// Building the boxes ////////////////////
