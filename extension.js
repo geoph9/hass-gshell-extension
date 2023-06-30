@@ -234,7 +234,8 @@ var HassMenu = GObject.registerClass ({
         log(`${MyUUID}: build tray menu`);
 
         // Build the submenu containing the HASS events
-        let subItem = new PopupMenu.PopupSubMenuMenuItem(_('HASS Events'));
+        let subItem = new PopupMenu.PopupSubMenuMenuItem(_('HASS Events'), true);
+        subItem.icon.gicon = Gio.icon_new_for_string(Me.dir.get_path() + '/icons/hass-symbolic.svg');
         this.menu.addMenuItem(subItem);
 
         let start_hass_item = new PopupMenu.PopupMenuItem(_('Start Home Assistant'));
