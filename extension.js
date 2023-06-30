@@ -292,11 +292,9 @@ var HassMenu = GObject.registerClass ({
                 for (let [idx, entity] of togglables.entries()) {
                     if (entity.entity_id === "" || !entity.entity_id.includes("."))
                         continue
-                    let pmItem = new PopupMenu.PopupMenuItem(_('Toggle:'));
-                    pmItem.add_child(
-                        new St.Label({
-                            text : entity.name
-                        })
+                    let pmItem = new PopupMenu.PopupImageMenuItem(
+                        _('Toggle:') + ' ' + entity.name,
+                        Utils.getTogglableEntityIcon(entity),
                     );
                     pmItem.connect('activate', () => {
                         Utils.toggleEntity(entity.entity_id)

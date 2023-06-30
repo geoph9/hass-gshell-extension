@@ -356,3 +356,14 @@ const getMethods = (obj) => {
   } while ((currentObj = Object.getPrototypeOf(currentObj)))
   return [...properties.keys()].filter(item => typeof obj[item] === 'function')
 }
+
+function getTogglableEntityIcon(entity) {
+    let icon_path = Me.dir.get_path();
+    if (entity.entity_id.startsWith('light.'))
+        icon_path += '/icons/ceiling-light.svg';
+    else if (entity.entity_id.startsWith('fan.'))
+        icon_path += '/icons/fan.svg';
+    else
+        icon_path += '/icons/toggle-switch-outline.svg';
+    return Gio.icon_new_for_string(icon_path);
+}
