@@ -4,8 +4,6 @@ const ExtensionUtils = imports.misc.extensionUtils;
 const Me = ExtensionUtils.getCurrentExtension();
 const Utils = Me.imports.utils;
 
-const MyUUID = Me.metadata.uuid;
-
 var PANEL_ICON_PATH = 'default-panel-icon';
 var VALID_PANEL_ICONS = 'valid-panel-icons';
 var HASS_URL = 'hass-url';
@@ -19,6 +17,7 @@ var TEMPERATURE_ID = 'temp-entity-id';
 var HUMIDITY_ID = 'humidity-entity-id';
 var DO_REFRESH = 'refresh-weather';
 var REFRESH_RATE = 'weather-refresh-seconds';
+var DEBUG_MODE = 'debug-mode';
 
 var MscOptions = class MscOptions {
     constructor() {
@@ -122,6 +121,14 @@ var MscOptions = class MscOptions {
     }
     set enabledSensors(entities) {
         this._gsettings.set_strv(HASS_ENABLED_SENSOR_IDS, entities);
+    }
+
+    // Debug mode
+    get debugMode() {
+        return this._gsettings.get_boolean(DEBUG_MODE);
+    }
+    set debugMode(bool_val) {
+        this._gsettings.set_boolean(DEBUG_MODE, bool_val);
     }
 
 }

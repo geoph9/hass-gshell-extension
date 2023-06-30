@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2023-06-30 01:36+0200\n"
+"POT-Creation-Date: 2023-06-30 03:58+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -17,31 +17,31 @@ msgstr ""
 "Content-Type: text/plain; charset=CHARSET\n"
 "Content-Transfer-Encoding: 8bit\n"
 
-#: extension.js:232
+#: extension.js:237
 msgid "HASS Events"
 msgstr ""
 
-#: extension.js:235
+#: extension.js:241
 msgid "Start Home Assistant"
 msgstr ""
 
-#: extension.js:239
+#: extension.js:245
 msgid "Stop Home Assistant"
 msgstr ""
 
-#: extension.js:243
+#: extension.js:249
 msgid "Close Home Assistant"
 msgstr ""
 
-#: extension.js:248
+#: extension.js:254
 msgid "Refresh"
 msgstr ""
 
-#: extension.js:260
+#: extension.js:266
 msgid "Preferences"
 msgstr ""
 
-#: extension.js:290
+#: extension.js:297
 msgid "Toggle:"
 msgstr ""
 
@@ -61,56 +61,56 @@ msgstr ""
 msgid "Global options:"
 msgstr ""
 
-#: prefs.js:89
+#: prefs.js:92
 msgid "Temperature/Humidity options:"
 msgstr ""
 
-#: prefs.js:118
+#: prefs.js:121
 msgid "Panel Icon Options:"
 msgstr ""
 
-#: prefs.js:135
+#: prefs.js:138
 #, javascript-format
 msgid "%s Icon"
 msgstr ""
 
-#: prefs.js:270
+#: prefs.js:277
 msgid "Togglable Entities:"
 msgstr ""
 
-#: prefs.js:275
+#: prefs.js:282
 msgid "Choose Togglable Entities:"
 msgstr ""
 
-#: prefs.js:402
+#: prefs.js:421
 msgid "Sensors:"
 msgstr ""
 
-#: prefs.js:407
+#: prefs.js:426
 msgid "Choose Which Sensors Should Appear on the Panel:"
 msgstr ""
 
-#: prefs.js:569
+#: prefs.js:600
 msgid "Access Token"
 msgstr ""
 
-#: prefs.js:570
+#: prefs.js:601
 msgid ""
 "Long Live Access Token for Home Assistant (Go to Profile->Bottom-of-the-page-"
 ">Long-Live-Access-Tokens and create a new one)."
 msgstr ""
 
-#: prefs.js:605
+#: prefs.js:636
 #, javascript-format
 msgid "Do you want to have the '%s' icon in your panel?"
 msgstr ""
 
-#: prefs.js:607
+#: prefs.js:638
 #, javascript-format
 msgid "Do you want to show %s in the tray menu?"
 msgstr ""
 
-#: prefs.js:653
+#: prefs.js:684
 msgid "Apply"
 msgstr ""
 
@@ -231,10 +231,19 @@ msgid ""
 "Entity ids for home-assistant sensors. E.g. sensor.livingroom_temperature."
 msgstr ""
 
-#: schemas/org.gnome.shell.extensions.hass-data.gschema.xml:100
+#: schemas/org.gnome.shell.extensions.hass-data.gschema.xml:94
+msgid "Enable debug mode"
+msgstr ""
+
+#: schemas/org.gnome.shell.extensions.hass-data.gschema.xml:95
+msgid ""
+"When this mode is enabled, more logged messages could be seen in the journal."
+msgstr ""
+
+#: schemas/org.gnome.shell.extensions.hass-data.gschema.xml:106
 msgid "Home Assistant Extension - Shortcut Key"
 msgstr ""
 
-#: schemas/org.gnome.shell.extensions.hass-data.gschema.xml:101
+#: schemas/org.gnome.shell.extensions.hass-data.gschema.xml:107
 msgid "Shortcut key on how to open the extension's menu from the tray."
 msgstr ""

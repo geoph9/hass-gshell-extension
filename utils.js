@@ -31,7 +31,7 @@ const VALID_TOGGLABLES = ['switch.', 'light.', 'fan.', 'input_boolean.'];
 function _constructMessage(type, url, data=null) {
     // Initialize message and set the required headers
     // let message = Soup.Message.new_from_encoded_form(
-    log(`${MyUUID}: Constructing Message for ${url}`);
+    _log("constructing Message for %s", [url]);
     let message = Soup.Message.new(type, url);
     message.request_headers.append(
       'Authorization',
@@ -70,24 +70,24 @@ function send_async_request(url, type, data, callback=null, on_error=null) {
         return
     }
     try {
-        log(`${MyUUID}: Sending ${type} request on ${url}...`);
+        _log("sending %s request on %s...", [type, url]);
         let result = session.send_and_read_async(
             message,
             GLib.PRIORITY_DEFAULT,
             null,
             (session, result) => {
-                log(`${MyUUID}: Handling result of ${type} request on ${url}...`);
+                _log("handling result of %s request on %s...", [type, url]);
                 if (message.get_status() == Soup.Status.OK) {
                     result = session.send_and_read_finish(result);
                     if (!callback) {
-                        log(`${MyUUID}: ${type} request on ${url}: success`);
+                        _log("%s request on %s: success", [type, url]);
                         return;
                     }
                     try {
-                        log(`${MyUUID}: Decoding result of ${type} request on ${url}..`);
+                        _log("decoding result of %s request on %s...", [type, url]);
                         let decoder = new TextDecoder('utf-8');
                         let response = decoder.decode(result.get_data());
-                        log(`${MyUUID}: run callback for ${type} request on ${url}`);
+                        _log("run callback for %s request on %s", [type, url]);
                         callback(JSON.parse(response));
                     } catch (error) {
                         logError(error, `${MyUUID}: fail to decode result of request on ${url}.`);
@@ -95,7 +95,10 @@ function send_async_request(url, type, data, callback=null, on_error=null) {
                     }
                 }
                 else {
-                    log(`${MyUUID}: invalid return of request on ${url} (status: ${message.get_status()}`);
+                    _log(
+                        "invalid return of request on %s (status: %s)",
+                        [url, message.get_status()], false
+                    );
                     if (on_error) on_error();
                 }
             }
@@ -129,7 +132,7 @@ function computeURL(path, hass_url=null) {
 function getEntities(callback, on_error=null, force_reload=false) {
     let entities = mscOptions.entitiesCache;
     if (entities.length == 0 || force_reload) {
-        log(`${MyUUID}: get entities from API`);
+        _log("get entities from API");
         send_async_request(
             this.computeURL('api/states'), 'GET', null,
             function (response) {
@@ -145,9 +148,9 @@ function getEntities(callback, on_error=null, force_reload=false) {
                           }
                         )
                     }
-                    log(`${MyUUID}: ${entities.length} entities retreived, sort it by name`);
+                    _log("%s entities retreived, sort it by name", [entities.length]);
                     entities = entities.sort((a,b) => (a.name > b.name) ? 1 : ((b.name > a.name) ? -1 : 0));
-                    log(`${MyUUID}: update entities cache`);
+                    _log("update entities cache");
                     mscOptions.entitiesCache = entities;
                     callback(entities);
                 }
@@ -159,7 +162,7 @@ function getEntities(callback, on_error=null, force_reload=false) {
         );
     }
     else {
-        log(`${MyUUID}: get entities from cache`);
+        _log("get entities from cache");
         callback(entities);
     }
 }
@@ -168,7 +171,7 @@ function getEntities(callback, on_error=null, force_reload=false) {
  * Invalidate entities cache
  */
 function invalidateEntitiesCache() {
-    log(`${MyUUID}: invalidate entities cache`);
+    _log("invalidate entities cache");
     mscOptions.entitiesCache = [];
 }
 
@@ -193,7 +196,7 @@ function getTogglables(callback, on_error=null, only_enabled=false, force_reload
                     continue;
                 togglables.push({'entity_id': ent.entity_id, 'name': ent.name});
             }
-            log(`${MyUUID}: ${togglables.length} ${only_enabled?'enabled ':''}togglable entities found`);
+            _log("%s %stogglable entities found", [togglables.length, only_enabled?'enabled ':'']);
             callback(togglables);
         },
         on_error,
@@ -229,7 +232,7 @@ function getSensors(callback, on_error=null, only_enabled=false, force_reload=fa
                   }
                 )
             }
-            log(`${MyUUID}: ${sensors.length} ${only_enabled?'enabled ':''}sensor entities found`);
+            _log("%s %ssensor entities found", [sensors.length, only_enabled?'enabled ':'']);
             callback(sensors);
         },
         on_error,
@@ -366,4 +369,18 @@ function getTogglableEntityIcon(entity) {
     else
         icon_path += '/icons/toggle-switch-outline.svg';
     return Gio.icon_new_for_string(icon_path);
+}
+
+/**
+ * Log a message
+ * @param       {String}  msg            The message
+ * @param       {[Mixed]} [args=null]    If array provided, it will be used to format the mesage
+ *                                       using it format() method (optional, default: null)
+ * @param       {Boolean} [debug=true]   If true, consider message as debugging one and logged it
+ *                                       only if the debug mode is enabled (optional, default: true)
+ */
+function _log(msg, args=null, debug=true) {
+    if (debug && !mscOptions.debugMode) return;
+    if (args) msg = msg.format.apply(msg, args);
+    log(`${MyUUID}: ${msg}`);
 }

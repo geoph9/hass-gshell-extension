@@ -89,6 +89,12 @@
       <description>Entity ids for home-assistant sensors. E.g. sensor.livingroom_temperature.</description>
     </key>
 
+    <key type="b" name="debug-mode">
+        <default>false</default>
+        <summary>Enable debug mode</summary>
+        <description>When this mode is enabled, more logged messages could be seen in the journal.</description>
+    </key>
+
   </schema>
 
   <schema id="org.gnome.shell.extensions.hass-shortcut"

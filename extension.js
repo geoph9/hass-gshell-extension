@@ -42,7 +42,7 @@ var HassMenu = GObject.registerClass ({
     }
 
     enable() {
-        log(`${MyUUID}: enabling...`);
+        Utils._log("enabling...");
 
         // Import settings to have access to its constants
         // Note: we can't do that globally.
@@ -77,7 +77,7 @@ var HassMenu = GObject.registerClass ({
                 this.refresh(true);
             }.bind(this),
             function () {
-                log(`${MyUUID}: Fail to refresh entities cache, invalidate it`);
+                Utils._log("fail to refresh entities cache, invalidate it", null, true);
                 Utils.invalidateEntitiesCache();
             }.bind(this),
             true  // force refreshing the cache
@@ -93,7 +93,7 @@ var HassMenu = GObject.registerClass ({
     }
 
     disable () {
-        log(`${MyUUID}: disabling...`);
+        Utils._log("disabling...");
         this._deleteSensorsPanel();
         this._deleteTempHumSensorsPanel();
         this._deleteTrayIcon();
@@ -109,7 +109,7 @@ var HassMenu = GObject.registerClass ({
                     this.refresh(false);
                 }.bind(this),
                 function () {
-                    log(`${MyUUID}: Fail to refresh entities cache, invalidate it.`);
+                    Utils._log("fail to refresh entities cache, invalidate it.", null, true);
                     Utils.invalidateEntitiesCache();
                 }.bind(this),
                 true  // force refreshing cache
@@ -148,7 +148,7 @@ var HassMenu = GObject.registerClass ({
      */
 
     _loadSettings() {
-        log(`${MyUUID}: load settings`);
+        Utils._log("load settings");
         this.showWeatherStats = this._settings.get_boolean(this.Settings.SHOW_WEATHER_STATS);
         this.showHumidity = this._settings.get_boolean(this.Settings.SHOW_HUMIDITY);
         this.tempEntityID = this._settings.get_string(this.Settings.TEMPERATURE_ID);
@@ -231,7 +231,7 @@ var HassMenu = GObject.registerClass ({
      */
 
     _buildTrayMenu() {
-        log(`${MyUUID}: build tray menu`);
+        Utils._log("build tray menu");
 
         // Build the submenu containing the HASS events
         let subItem = new PopupMenu.PopupSubMenuMenuItem(_('HASS Events'), true);
@@ -255,7 +255,7 @@ var HassMenu = GObject.registerClass ({
         refreshMenuItem.connect('activate', () => {
             // Firstly close the menu to avoid artifact when it will partially be rebuiled
             this.menu.close();
-            log(`${MyUUID}: invalidate entities cache and refreshing...`);
+            Utils._log("invalidate entities cache and refreshing...");
             Utils.invalidateEntitiesCache();
             this.refresh(true);
         });
@@ -267,7 +267,7 @@ var HassMenu = GObject.registerClass ({
             'security-high-symbolic',
         );
         prefsMenuItem.connect('activate', () => {
-            log(`${MyUUID}: Opening Preferences...`);
+            Utils._log("opening Preferences...");
             ExtensionUtils.openPrefs();
         });
         this.menu.addMenuItem(prefsMenuItem);
@@ -276,11 +276,11 @@ var HassMenu = GObject.registerClass ({
         // _refreshTogglable() method
         this._connectSettings([this.Settings.HASS_ENABLED_ENTITIES], this._refreshTogglable);
 
-        log(`${MyUUID}: tray menu builded`);
+        Utils._log("tray menu builded");
     }
 
     _refreshTogglable(force_reload=false) {
-        log(`${MyUUID}: refresh togglables in tray menu...`);
+        Utils._log("refresh togglables in tray menu...");
 
         // Firstly delete previously created togglable menu items
         this._deleteTogglablesMenuItems();
@@ -288,7 +288,7 @@ var HassMenu = GObject.registerClass ({
         // Now get the togglable entities and continue in callback
         Utils.getTogglables(
             function(togglables) {
-                log(`${MyUUID}: get enabled togglables, continue refreshing tray menu`);
+                Utils._log("get enabled togglables, continue refreshing tray menu");
                 this.togglablesMenuItems = [];
                 for (let [idx, entity] of togglables.entries()) {
                     if (entity.entity_id === "" || !entity.entity_id.includes("."))
@@ -313,10 +313,10 @@ var HassMenu = GObject.registerClass ({
                         // use the togglables count as position of the separator in the menu
                         this.togglablesMenuItems.length
                     );
-                log(`${MyUUID}: togglables in tray menu refreshed`);
+                Utils._log("togglables in tray menu refreshed");
             }.bind(this),
             // On error callback
-            () => log(`${MyUUID}: Fail to load enabled togglables`),
+            () => Utils._log("fail to load enabled togglables", null, true),
             true,  // we want only enabled togglables
             force_reload
         );
@@ -342,7 +342,7 @@ var HassMenu = GObject.registerClass ({
      */
 
     _buildSensorsPanel() {
-        log(`${MyUUID}: build sensors panel...`);
+        Utils._log("build sensors panel...");
         this.sensorsPanel = new St.Bin({
             style_class : "panel-button",
             reactive : true,
@@ -363,16 +363,16 @@ var HassMenu = GObject.registerClass ({
         // method
         this._connectSettings([this.Settings.HASS_ENABLED_SENSOR_IDS], this._refreshSensorsPanel);
 
-        log(`${MyUUID}: panel sensor builded...`);
+        Utils._log("panel sensor builded...");
     }
 
     _refreshSensorsPanel(force_reload=false) {
         // Get enabled panel sensors and continue in callback
         Utils.getSensors(
             function(panelSensors) {
-                log(`${MyUUID}: refresh sensors panel`);
+                Utils._log("refresh sensors panel");
                 if (panelSensors.length === 0) {
-                    log(`${MyUUID}: No sensor enabled for the panel, hide it`);
+                    Utils._log("no sensor enabled for the panel, hide it");
                     this.sensorsPanel.visible = false;
                     return;
                 }
@@ -381,7 +381,7 @@ var HassMenu = GObject.registerClass ({
                     let outText = [];
                     for (let sensor of panelSensors)
                         outText.push(Utils.computeSensorState(sensor));
-                    log(`${MyUUID}: refreshed panel sensors value = "${outText.join(' | ')}"`);
+                    Utils._log('refreshed panel sensors value = "%s"', [outText.join(' | ')]);
                     this.sensorsPanelText.text = outText.join(' | ');
                     this.sensorsPanel.visible = true;
                 } catch (error) {
@@ -390,7 +390,7 @@ var HassMenu = GObject.registerClass ({
                 }
             }.bind(this),
             function() {
-                log(`${MyUUID}: Fail to load enabled panel sensors, hide it`);
+                Utils._log("fail to load enabled panel sensors, hide it", null, true);
                 this.sensorsPanel.visible = false;
             }.bind(this),
             true,  // we want only enabled sensors
@@ -416,7 +416,7 @@ var HassMenu = GObject.registerClass ({
      */
 
     _buildTempHumSensorsPanel() {
-        log(`${MyUUID}: build temperature/humidity panel sensors...`);
+        Utils._log("build temperature/humidity panel sensors...");
         this.tempHumPanel = new St.Bin({
             style_class: "panel-button",
             reactive: true,
@@ -467,7 +467,7 @@ var HassMenu = GObject.registerClass ({
     _configTempHumSensorsPanelRefresh() {
         // Firstly cancel previous configured timeout (if defined)
         if (this.refreshTempHumTimeout) {
-            log(`${MyUUID}: cancel previous temperature/humidity sensors refresh timer...`);
+            Utils._log("cancel previous temperature/humidity sensors refresh timer...");
             Mainloop.source_remove(this.refreshTempHumTimeout);
             this.refreshTempHumTimeout = null;
         }
@@ -479,9 +479,9 @@ var HassMenu = GObject.registerClass ({
             return;
 
         // Schedule temperature/humidity sensors panel refreshing every X seconds
-        log(
-            `${MyUUID}: schedule refreshing temperature/humidity sensors panel `
-            + `every ${this.refreshSeconds} seconds`
+        Utils._log(
+            'schedule refreshing temperature/humidity sensors panel every %s seconds'
+            [this.refreshSeconds]
         );
         this.refreshTempHumTimeout = Mainloop.timeout_add_seconds(this.refreshSeconds, () => {
             this._refreshTempHumSensorsPanel(true);
@@ -498,7 +498,7 @@ var HassMenu = GObject.registerClass ({
             return;
         }
 
-        log(`${MyUUID}: refresh temperature/humidity sensors panel`);
+        Utils._log("refresh temperature/humidity sensors panel");
 
         // Start by retreiving the temperature sensor
         Utils.getSensor(
@@ -508,22 +508,22 @@ var HassMenu = GObject.registerClass ({
 
                 // If humidity sensor is configured and displayed, retreive it
                 if (this.showHumidity === true && this.humidityEntityID) {
-                    log(`${MyUUID}: get humidity sensor (${this.humidityEntityID})`);
+                    Utils._log("get humidity sensor (%s)", [this.humidityEntityID]);
                     Utils.getSensor(
                         this.humidityEntityID,
                         function(sensor) {
-                            log(
-                                `${MyUUID}: update temperature/humidity sensors panel with `
-                                + `temperature & humidity sensor`
+                            Utils._log(
+                                "update temperature/humidity sensors panel with temperature & "
+                                + "humidity sensor"
                             );
                             out += ` | ${Utils.computeSensorState(sensor)}`;
                             this.tempHumPanelText.text = out;
                             this.tempHumPanel.visible = true;
                         }.bind(this),
                         function() {
-                            log(
-                                `${MyUUID}: fail to retreive humidity sensor, update temperature/`
-                                + `humidity sensors panel with only the temperature`
+                            Utils._log(
+                                "fail to retreive humidity sensor, update temperature/humidity "
+                                + "sensors panel with only the temperature", null, true
                             );
                             this.tempHumPanelText.text = out;
                             this.tempHumPanel.visible = true;
@@ -532,16 +532,15 @@ var HassMenu = GObject.registerClass ({
                 }
                 // Otherwise, just show the temperature sensor state
                 else {
-                    log(
-                        `${MyUUID}: update temperature/humidity sensors panel with only the `
-                        + `temperature`
+                    Utils._log(
+                        "update temperature/humidity sensors panel with only the temperature"
                     );
                     this.tempHumPanelText.text = out;
                     this.tempHumPanel.visible = true;
                 }
             }.bind(this),
             function() {
-                log(`${MyUUID}: fail to retreive temperature sensor, hide the sensors panel`);
+                Utils._log("fail to retreive temperature sensor, hide the sensors panel", null, false);
                 this.tempHumPanel.visible = false;
             }.bind(this),
             force_reload
@@ -571,7 +570,7 @@ class Extension {
     }
 
     enable() {
-        console.debug(`${MyUUID}: enabling...`);
+        Utils._log("enabling...");
 
         this.popupMenu = new HassMenu();
         this.popupMenu.enable()
@@ -580,7 +579,7 @@ class Extension {
     }
 
     disable() {
-        console.debug(`${MyUUID}: disabling...`);
+        Utils._logs("disabling...");
 
         this.popupMenu.disable();
         this.popupMenu.destroy();
@@ -589,7 +588,7 @@ class Extension {
 }
 
 function init() {
-    log(`${MyUUID}: initializing...`);
+    Utils._log("initializing...");
     ExtensionUtils.initTranslations();
     return new Extension();
 }

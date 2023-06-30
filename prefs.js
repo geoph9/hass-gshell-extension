@@ -8,12 +8,10 @@ const Settings = Me.imports.settings;
 const Gettext = imports.gettext.domain(Me.metadata['gettext-domain']);
 const _ = Gettext.gettext;
 
-const MyUUID = Me.metadata.uuid;
-
 function init() {
     // schema = _settings.settings_schema;
     ExtensionUtils.initTranslations();
-    log(`${MyUUID}: initializing ${Me.metadata.name} Preferences`);
+    Utils._log("initializing %s Preferences", [Me.metadata.name]);
 }
 
 function buildPrefsWidget() {
@@ -80,6 +78,9 @@ function _buildGeneralSettings() {
     // Add the HASS Access Token option
     let [tokItem, tokenTextEntry, tokenAddButton] = _makeGtkAccessTokenEntryButton()
     optionsList.push(tokItem);
+    // Add the debug mode option
+    let [debugModeItem, debugModeSwitch] = _makeSwitch(Settings.DEBUG_MODE, schema)
+    optionsList.push(debugModeItem);
 
     // //////////////////////////////////////////////////////////
     // //////// Starting the Temperature/Humidity options ///////
@@ -184,6 +185,10 @@ function _buildGeneralSettings() {
     // //////////////////////////////////////////////////////////
     // //////////////// Handlers for Switches ///////////////////
     // //////////////////////////////////////////////////////////
+    debugModeSwitch.active = mscOptions.debugMode;
+    debugModeSwitch.connect('notify::active', () => {
+        mscOptions.debugMode = debugModeSwitch.active;
+    });
     tempHumiSwitch.active = mscOptions.tempHumi;
     tempHumiSwitch.connect('notify::active', () => {
         mscOptions.tempHumi = tempHumiSwitch.active;
@@ -347,14 +352,23 @@ function _buildTogglableSettings(scrollWindow, togglables) {
     for (let togCheckBox of togglableCheckBoxes) {
         togCheckBox.cb.set_active(togCheckBox.checked)
         togCheckBox.cb.connect('notify::active', () => {
-            log(`${MyUUID}: Toogle ${togCheckBox.entity.name} (${togCheckBox.entity.entity_id}) as togglable in menu`);
+            Utils._log(
+                "toogle %s (%s) as togglable in menu",
+                [togCheckBox.entity.name, togCheckBox.entity.entity_id]
+            );
             let currentEntities = mscOptions.enabledEntities;
             let index = currentEntities.indexOf(togCheckBox.entity.entity_id);
             if (index > -1) { // then it exists and so we pop
-                log(`${MyUUID}: Entity ${togCheckBox.entity.name} (${togCheckBox.entity.entity_id}) currently present, remove it`);
+                Utils._log(
+                    "entity %s (%s) currently present, remove it",
+                    [togCheckBox.entity.name, togCheckBox.entity.entity_id]
+                );
                 currentEntities.splice(index, 1)
             } else {
-                log(`${MyUUID}: Entity ${togCheckBox.entity.name} (${togCheckBox.entity.entity_id}) not currently present, add it`);
+                Utils._log(
+                    "entity %s (%s) not currently present, add it",
+                    [togCheckBox.entity.name, togCheckBox.entity.entity_id]
+                );
                 currentEntities.push(togCheckBox.entity.entity_id)
             }
             mscOptions.enabledEntities = togglables.map(
@@ -362,7 +376,10 @@ function _buildTogglableSettings(scrollWindow, togglables) {
             ).filter(
                 ent => currentEntities.includes(ent)
             );
-            log(`${MyUUID}: ${mscOptions.enabledEntities.length} togglable entities enabled: ${mscOptions.enabledEntities.join(', ')}`);
+            Utils._log(
+                "%s togglable entities enabled: %s",
+                [mscOptions.enabledEntities.length, mscOptions.enabledEntities.join(', ')]
+            );
         });
     }
 
@@ -481,14 +498,23 @@ function _buildSensorSettings(scrollWindow, allSensors) {
     for (let sensorCheckBox of sensorCheckBoxes) {
         sensorCheckBox.cb.set_active(sensorCheckBox.checked)
         sensorCheckBox.cb.connect('notify::active', () => {
-            log(`${MyUUID}: Toogle ${sensorCheckBox.entity.name} (${sensorCheckBox.entity.entity_id}) sensor presence in status bar`);
+            Utils._log(
+                "toogle %s (%s) sensor presence in status bar",
+                [sensorCheckBox.entity.name, sensorCheckBox.entity.entity_id]
+            );
             let currentSensors = mscOptions.enabledSensors;
             let index = currentSensors.indexOf(sensorCheckBox.entity.entity_id);
             if (index > -1) { // then it exists and so we pop
-                log(`${MyUUID}: Sensor ${sensorCheckBox.entity.name} (${sensorCheckBox.entity.entity_id}) currently present, remove it`);
+                Utils._log(
+                    "sensor %s (%s) currently present, remove it",
+                    [sensorCheckBox.entity.name, sensorCheckBox.entity.entity_id]
+                );
                 currentSensors.splice(index, 1)
             } else {
-                log(`${MyUUID}: Sensor ${sensorCheckBox.entity.name} (${sensorCheckBox.entity.entity_id}) not currently present, add it`);
+                Utils._log(
+                    "sensor %s (%s) not currently present, add it",
+                    [sensorCheckBox.entity.name, sensorCheckBox.entity.entity_id]
+                );
                 currentSensors.push(sensorCheckBox.entity.entity_id)
             }
             mscOptions.enabledSensors = allSensors.map(
@@ -496,7 +522,10 @@ function _buildSensorSettings(scrollWindow, allSensors) {
             ).filter(
                 ent => currentSensors.includes(ent)
             );
-            log(`${MyUUID}: ${mscOptions.enabledSensors.length} sensors enabled: ${mscOptions.enabledSensors.join(', ')}`);
+            Utils._log(
+                "%s sensors enabled: %s",
+                [mscOptions.enabledSensors.length, mscOptions.enabledSensors.join(', ')]
+            );
         });
     }
 
