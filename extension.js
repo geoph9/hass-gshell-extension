@@ -300,7 +300,7 @@ var HassMenu = GObject.registerClass ({
                         Utils.getTogglableEntityIcon(entity),
                     );
                     pmItem.connect('activate', () => {
-                        Utils.toggleEntity(entity.entity_id)
+                        Utils.toggleEntity(entity)
                     });
                     this.togglablesMenuItems.push({item: pmItem, entity: entity, index: idx});
 

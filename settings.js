@@ -131,4 +131,12 @@ var MscOptions = class MscOptions {
         this._gsettings.set_boolean(DEBUG_MODE, bool_val);
     }
 
+    // Show notifications
+    get showNotifications() {
+        return this._gsettings.get_boolean(SHOW_NOTIFICATIONS_KEY);
+    }
+    set showNotifications(bool_val) {
+        this._gsettings.set_boolean(SHOW_NOTIFICATIONS_KEY, bool_val);
+    }
+
 }

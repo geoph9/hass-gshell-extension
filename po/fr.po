@@ -7,9 +7,9 @@ msgid ""
 msgstr ""
 "Project-Id-Version: \n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2023-06-30 03:58+0200\n"
-"PO-Revision-Date: 2023-06-30 03:59+0200\n"
-"Last-Translator: Benjamin Renard <brenard@easter-eggs.com>\n"
+"POT-Creation-Date: 2023-07-05 01:43+0200\n"
+"PO-Revision-Date: 2023-07-05 01:43+0200\n"
+"Last-Translator: Benjamin Renard <brenard@zionetrix.net>\n"
 "Language-Team: \n"
 "Language: fr_FR\n"
 "MIME-Version: 1.0\n"
@@ -18,84 +18,84 @@ msgstr ""
 "Plural-Forms: nplurals=2; plural=(n > 1);\n"
 "X-Generator: Poedit 3.2.2\n"
 
-#: extension.js:237
+#: extension.js:240
 msgid "HASS Events"
 msgstr "Évènements HASS"
 
-#: extension.js:241
+#: extension.js:244
 msgid "Start Home Assistant"
 msgstr "Démarrer Home Assistant"
 
-#: extension.js:245
+#: extension.js:248
 msgid "Stop Home Assistant"
 msgstr "Arrêter Home Assistant"
 
-#: extension.js:249
+#: extension.js:252
 msgid "Close Home Assistant"
 msgstr "Fermer Home Assistant"
 
-#: extension.js:254
+#: extension.js:257
 msgid "Refresh"
 msgstr "Rafraîchir"
 
-#: extension.js:266
+#: extension.js:268
 msgid "Preferences"
 msgstr "Préférences"
 
-#: extension.js:297
+#: extension.js:299
 msgid "Toggle:"
 msgstr "Allumer/Éteindre :"
 
-#: prefs.js:28
+#: prefs.js:26
 msgid "General Settings"
 msgstr "Paramètres générals"
 
-#: prefs.js:31
+#: prefs.js:29
 msgid "Togglables"
 msgstr "Interrupteurs"
 
-#: prefs.js:38
+#: prefs.js:36
 msgid "Panel Sensors"
 msgstr "Capteurs de la barre des tâches"
 
-#: prefs.js:71
+#: prefs.js:69
 msgid "Global options:"
 msgstr "Options générales :"
 
-#: prefs.js:92
+#: prefs.js:93
 msgid "Temperature/Humidity options:"
 msgstr "Options de température/humidité :"
 
-#: prefs.js:121
+#: prefs.js:122
 msgid "Panel Icon Options:"
 msgstr "Options de l'icône de la barre des tâches :"
 
-#: prefs.js:138
+#: prefs.js:139
 #, javascript-format
 msgid "%s Icon"
 msgstr "Icône %s"
 
-#: prefs.js:277
+#: prefs.js:282
 msgid "Togglable Entities:"
 msgstr "Entités interrupteurs :"
 
-#: prefs.js:282
+#: prefs.js:287
 msgid "Choose Togglable Entities:"
 msgstr "Sélectionner les entités interrupteurs :"
 
-#: prefs.js:421
+#: prefs.js:426
 msgid "Sensors:"
 msgstr "Capteurs :"
 
-#: prefs.js:426
+#: prefs.js:431
 msgid "Choose Which Sensors Should Appear on the Panel:"
 msgstr "Sélectionner les capteurs qui apparaîtront dans la barre des tâches :"
 
-#: prefs.js:600
+#: prefs.js:605
 msgid "Access Token"
 msgstr "Jeton d'accès"
 
-#: prefs.js:601
+#: prefs.js:606
 msgid ""
 "Long Live Access Token for Home Assistant (Go to Profile->Bottom-of-the-page-"
 ">Long-Live-Access-Tokens and create a new one)."
@@ -103,19 +103,123 @@ msgstr ""
 "Jeton d'accès de longue durée pour Home Assistant (Allez dans Profil-> Bas "
 "de la page-> Jetons d'accès de longue durée et créez-en un nouveau)."
 
-#: prefs.js:636
+#: prefs.js:641
 #, javascript-format
 msgid "Do you want to have the '%s' icon in your panel?"
 msgstr "Avez-vous l'icône \"%s\" dans la barre des tâches ?"
 
-#: prefs.js:638
+#: prefs.js:643
 #, javascript-format
 msgid "Do you want to show %s in the tray menu?"
 msgstr "Voulez-vous afficher %s dans la zone de notification ?"
 
-#: prefs.js:684
+#: prefs.js:689
 msgid "Apply"
 msgstr "Appliquer"
+
+#: utils.js:296
+#, javascript-format
+msgid "%s toggled on"
+msgstr "%s allumé"
+
+#: utils.js:297
+#, javascript-format
+msgid "%s successfully toggled on."
+msgstr "%s a bien été allumé."
+
+#: utils.js:301
+#, javascript-format
+msgid "%s toggled off"
+msgstr "%s éteint"
+
+#: utils.js:302
+#, javascript-format
+msgid "%s successfully toggled off."
+msgstr "%s a bien été éteint."
+
+#: utils.js:306
+#, javascript-format
+msgid "%s toggled"
+msgstr "%s allumé/éteint"
+
+#: utils.js:307
+#, javascript-format
+msgid "%s successfully toggled."
+msgstr "%s a bien été allumé ou éteint."
+
+#: utils.js:312
+#, javascript-format
+msgid "Error toggling %s"
+msgstr "Erreur en allumant/éteignant %s"
+
+#: utils.js:313
+#, javascript-format
+msgid "Error occured trying to toggle %s."
+msgstr "Une erreur est survenue en allumant/éteignant %s."
+
+#: utils.js:331
+msgid "Home-Assistant start event triggered"
+msgstr "Démarrage d'Home-Assistant déclenché"
+
+#: utils.js:332
+msgid "Home-Assistant start event successfully triggered."
+msgstr "Le démarrage d'Home-Assistant a bien été déclenché."
+
+#: utils.js:336
+msgid "Home-Assistant stop event triggered"
+msgstr "Arrêt d'Home-Assistant déclenché"
+
+#: utils.js:337
+msgid "Home-Assistant stop event successfully triggered."
+msgstr "L'arrêt d'Home-Assistant a bien été déclenché."
+
+#: utils.js:341
+msgid "Home-Assistant close event triggered"
+msgstr "Fermeture d'Home-Assistant déclenché"
+
+#: utils.js:342
+msgid "Home-Assistant close event successfully triggered."
+msgstr "La fermeture d'Home-Assistant a bien été déclenchée."
+
+#: utils.js:346
+msgid "Home-Assistant event triggered"
+msgstr "Évènement Home-Assistant déclenché"
+
+#: utils.js:347
+msgid "Home-Assistant event successfully triggered."
+msgstr "L'évènement Home-Assistant a bien été déclenché."
+
+#: utils.js:353
+msgid "Error triggering Home-Assistant start event"
+msgstr "Erreur en déclenchant le démarrage d'Home-Assistant"
+
+#: utils.js:354
+msgid "Error occured triggering Home-Assistant start event."
+msgstr "Une erreur est survenue en déclenchant le démarrage d'Home-Assistant."
+
+#: utils.js:358
+msgid "Error triggering Home-Assistant stop event"
+msgstr "Erreur en déclenchant l'arrêt d'Home-Assistant"
+
+#: utils.js:359
+msgid "Error occured triggering Home-Assistant stop event."
+msgstr "Une erreur est survenue en déclenchant l'arrêt d'Home-Assistant."
+
+#: utils.js:363
+msgid "Error triggering Home-Assistant close event"
+msgstr "Erreur en déclenchant la fermeture d'Home-Assistant"
+
+#: utils.js:364
+msgid "Error occured triggering Home-Assistant close event."
+msgstr "Une erreur est survenue en déclenchant la fermeture d'Home-Assistant."
+
+#: utils.js:368
+msgid "Error triggering Home-Assistant event"
+msgstr "Erreur en déclenchant l'évènement Home-Assistant"
+
+#: utils.js:369
+msgid "Error occured triggering Home-Assistant event."
+msgstr "Une erreur est survenue en déclenchant l'évènement Home-Assistant."
 
 #: schemas/org.gnome.shell.extensions.hass-data.gschema.xml:16
 msgid "Panel Icon."
@@ -168,8 +272,10 @@ msgid "Show notifications"
 msgstr "Afficher les notifications"
 
 #: schemas/org.gnome.shell.extensions.hass-data.gschema.xml:41
-msgid "Show notifications when enabled/disabled."
-msgstr "Afficher les notifications lorsqu'elles sont activées/désactivées."
+msgid "Show notifications when enable/disable togglables or on HASS events."
+msgstr ""
+"Voir les notifications lorsqu'on allume/éteint les interrupteurs ou lors "
+"d'évènements HASS."
 
 #: schemas/org.gnome.shell.extensions.hass-data.gschema.xml:46
 msgid "Show Temperature/Humidity"
@@ -271,6 +377,9 @@ msgid "Shortcut key on how to open the extension's menu from the tray."
 msgstr ""
 "Raccourci clavier pour ouvrir le menu de l'extension à partir de la zone de "
 "notification."
+
+#~ msgid "Show notifications when enabled/disabled."
+#~ msgstr "Afficher les notifications lorsqu'elles sont activées/désactivées."
 
 #~ msgid ""
 #~ "You will need to restart your session in order for this change to take "

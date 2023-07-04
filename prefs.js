@@ -78,6 +78,9 @@ function _buildGeneralSettings() {
     // Add the HASS Access Token option
     let [tokItem, tokenTextEntry, tokenAddButton] = _makeGtkAccessTokenEntryButton()
     optionsList.push(tokItem);
+    // Add show notificaion option
+    let [showNotificationsItem, showNotificationsSwitch] = _makeSwitch(Settings.SHOW_NOTIFICATIONS_KEY, schema)
+    optionsList.push(showNotificationsItem);
     // Add the debug mode option
     let [debugModeItem, debugModeSwitch] = _makeSwitch(Settings.DEBUG_MODE, schema)
     optionsList.push(debugModeItem);
@@ -185,6 +188,10 @@ function _buildGeneralSettings() {
     // //////////////////////////////////////////////////////////
     // //////////////// Handlers for Switches ///////////////////
     // //////////////////////////////////////////////////////////
+    showNotificationsSwitch.active = mscOptions.showNotifications;
+    showNotificationsSwitch.connect('notify::active', () => {
+        mscOptions.showNotifications = showNotificationsSwitch.active;
+    });
     debugModeSwitch.active = mscOptions.debugMode;
     debugModeSwitch.connect('notify::active', () => {
         mscOptions.debugMode = debugModeSwitch.active;

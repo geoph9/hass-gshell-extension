@@ -2,6 +2,9 @@ const {Soup, Gio, GLib, Secret} = imports.gi;
 const Me = imports.misc.extensionUtils.getCurrentExtension();
 const MscOptions = Me.imports.settings.MscOptions;
 
+const Gettext = imports.gettext.domain(Me.metadata['gettext-domain']);
+const _ = Gettext.gettext;
+
 const mscOptions = new MscOptions();
 const MyUUID = Me.metadata.uuid;
 
@@ -280,18 +283,100 @@ function computeSensorState(sensor) {
  * Toggle an entity in Home-Assistant
  * @param {String} entityId  The entity ID
  */
-function toggleEntity(entityId) {
-    let data = { "entity_id": entityId };
-    let domain = entityId.split(".")[0];  // e.g. light.mylight => light
-    send_async_request(computeURL(`api/services/${domain}/toggle`), 'POST', data);
+function toggleEntity(entity) {
+    let data = { "entity_id": entity.entity_id };
+    let domain = entity.entity_id.split(".")[0];  // e.g. light.mylight => light
+    send_async_request(
+        computeURL(`api/services/${domain}/toggle`),
+        'POST',
+        data,
+        function(response) {
+            if (!response.length) {
+              notify(
+                  _('Error toggling %s').format(entity.name),
+                  _('Error occured trying to toggle %s: entity not found.').format(entity.name),
+              )
+            }
+            else if (response[0].state == 'on')
+              notify(
+                  _('%s toggled on').format(entity.name),
+                  _('%s successfully toggled on.').format(entity.name)
+              );
+            else if (response[0].state == 'off')
+              notify(
+                  _('%s toggled off').format(entity.name),
+                  _('%s successfully toggled off.').format(entity.name)
+              );
+            else
+              notify(
+                  _('%s toggled').format(entity.name),
+                  _('%s successfully toggled.').format(entity.name)
+              );
+        },
+        function() {
+            notify(
+                _('Error toggling %s').format(entity.name),
+                _('Error occured trying to toggle %s.').format(entity.name),
+            )
+        }
+    );
 }
 
 /**
  * Trigger Home-Assistant event by name
  * @param {String} eventName  The HA event name (start/stop/restart)
  */
-function triggerHassEvent(eventName) {
-    send_async_request(computeURL(`api/events/homeassistant_${eventName}`), 'POST');
+function triggerHassEvent(eventName, callback=null, on_error=null) {
+    send_async_request(
+        computeURL(`api/events/homeassistant_${eventName}`),
+        'POST',
+        null,
+        function() {
+            if (eventName == 'start')
+                notify(
+                    _('Home-Assistant start event triggered'),
+                    _('Home-Assistant start event successfully triggered.')
+                );
+            else if (eventName == 'stop')
+                notify(
+                    _('Home-Assistant stop event triggered'),
+                    _('Home-Assistant stop event successfully triggered.')
+                );
+            else if (eventName == 'close')
+                notify(
+                    _('Home-Assistant close event triggered'),
+                    _('Home-Assistant close event successfully triggered.')
+                );
+            else
+                notify(
+                    _('Home-Assistant event triggered'),
+                    _('Home-Assistant event successfully triggered.')
+                );
+        },
+        function() {
+            if (eventName == 'start')
+                notify(
+                    _('Error triggering Home-Assistant start event'),
+                    _('Error occured triggering Home-Assistant start event.'),
+                );
+            else if (eventName == 'stop')
+                notify(
+                    _('Error triggering Home-Assistant stop event'),
+                    _('Error occured triggering Home-Assistant stop event.'),
+                );
+            else if (eventName == 'close')
+                notify(
+                    _('Error triggering Home-Assistant close event'),
+                    _('Error occured triggering Home-Assistant close event.'),
+                );
+            else
+                notify(
+                    _('Error triggering Home-Assistant event'),
+                    _('Error occured triggering Home-Assistant event.'),
+                );
+
+        }
+    );
 }
 
 /**
@@ -384,4 +469,18 @@ function _log(msg, args=null, debug=true) {
     if (debug && !mscOptions.debugMode) return;
     if (args) msg = msg.format.apply(msg, args);
     log(`${MyUUID}: ${msg}`);
+}
+
+function notify(msg, details) {
+    if (!mscOptions.showNotifications) return;
+    let Main = imports.ui.main;
+    let MessageTray = imports.ui.messageTray;
+    let source = new MessageTray.Source(Me.metadata.name);
+    Main.messageTray.add(source);
+    let notification = new MessageTray.Notification(
+        source, msg, details,
+        {gicon: Gio.icon_new_for_string(Me.dir.get_path() + '/icons/hass-symbolic.svg')}
+    );
+    notification.setTransient(true);
+    source.showNotification(notification);
 }
