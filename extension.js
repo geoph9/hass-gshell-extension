@@ -579,7 +579,7 @@ class Extension {
     }
 
     disable() {
-        Utils._logs("disabling...");
+        Utils._log("disabling...");
 
         this.popupMenu.disable();
         this.popupMenu.destroy();
