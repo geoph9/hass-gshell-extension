@@ -32,6 +32,7 @@ var HassMenu = GObject.registerClass ({
         this.trayIcon = null;
 
         this.togglablesMenuItems = [];
+        this.togglablesMenuSeparatorItem = null;
 
         this.sensorsPanel = null;
         this.sensorsPanelText = null;
@@ -307,12 +308,14 @@ var HassMenu = GObject.registerClass ({
                     this.menu.addMenuItem(pmItem, idx);
                 }
                 // If we have at least one togglable item in menu, add the separator
-                if (this.togglablesMenuItems.length)
+                if (this.togglablesMenuItems.length) {
+                    this.togglablesMenuSeparatorItem = new PopupMenu.PopupSeparatorMenuItem();
                     this.menu.addMenuItem(
-                        new PopupMenu.PopupSeparatorMenuItem(),
+                        this.togglablesMenuSeparatorItem,
                         // use the togglables count as position of the separator in the menu
                         this.togglablesMenuItems.length
                     );
+                }
                 Utils._log("togglables in tray menu refreshed");
             }.bind(this),
             // On error callback
@@ -327,6 +330,10 @@ var HassMenu = GObject.registerClass ({
         for (let ptItem of this.togglablesMenuItems)
             ptItem.item.destroy();
         this.togglablesMenuItems = [];
+        if (this.togglablesMenuSeparatorItem) {
+            this.togglablesMenuSeparatorItem.destroy();
+            this.togglablesMenuSeparatorItem = null;
+        }
     }
 
     _deleteMenuItems() {
