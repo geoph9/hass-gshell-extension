@@ -22,6 +22,7 @@ var HassMenu = GObject.registerClass ({
 }, class HassMenu extends PanelMenu.Button {
     _init() {
         super._init(0, Me.metadata.name, false);
+        this.style_class = 'hass-menu';
         this._settings = ExtensionUtils.getSettings();
         this.Settings = null;
         this.shortcutId = "hass-shortcut";
