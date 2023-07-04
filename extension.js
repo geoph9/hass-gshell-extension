@@ -106,9 +106,10 @@ var HassMenu = GObject.registerClass ({
     refresh(force_reload=false) {
         if (force_reload) {
             Utils.getEntities(
-                function (entities) {
-                    this.refresh(false);
-                }.bind(this),
+                // We do not have to trigger a refresh() here, because on success, cache setting
+                // will be updated and a refresh will be automatically triggered. So no on-success
+                // callback here.
+                null,
                 function () {
                     Utils._log("fail to refresh entities cache, invalidate it.", null, true);
                     Utils.invalidateEntitiesCache();
@@ -256,8 +257,7 @@ var HassMenu = GObject.registerClass ({
         refreshMenuItem.connect('activate', () => {
             // Firstly close the menu to avoid artifact when it will partially be rebuiled
             this.menu.close();
-            Utils._log("invalidate entities cache and refreshing...");
-            Utils.invalidateEntitiesCache();
+            Utils._log("Refreshing...");
             this.refresh(true);
         });
         this.menu.addMenuItem(refreshMenuItem);

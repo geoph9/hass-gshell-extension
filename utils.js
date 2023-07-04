@@ -129,7 +129,7 @@ function computeURL(path, hass_url=null) {
  * @param {Boolean} force_reload Force reloading cache (optional, default: false)
  *
  */
-function getEntities(callback, on_error=null, force_reload=false) {
+function getEntities(callback=null, on_error=null, force_reload=false) {
     let entities = mscOptions.entitiesCache;
     if (entities.length == 0 || force_reload) {
         _log("get entities from API");
@@ -152,7 +152,8 @@ function getEntities(callback, on_error=null, force_reload=false) {
                     entities = entities.sort((a,b) => (a.name > b.name) ? 1 : ((b.name > a.name) ? -1 : 0));
                     _log("update entities cache");
                     mscOptions.entitiesCache = entities;
-                    callback(entities);
+                    if (callback)
+                        callback(entities);
                 }
                 else if (on_error) {
                     on_error();
@@ -163,7 +164,7 @@ function getEntities(callback, on_error=null, force_reload=false) {
     }
     else {
         _log("get entities from cache");
-        callback(entities);
+        if (callback) callback(entities);
     }
 }
 
