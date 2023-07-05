@@ -7,8 +7,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: \n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2023-07-05 01:43+0200\n"
-"PO-Revision-Date: 2023-07-05 01:43+0200\n"
+"POT-Creation-Date: 2023-07-05 05:40+0200\n"
+"PO-Revision-Date: 2023-07-05 05:40+0200\n"
 "Last-Translator: Benjamin Renard <brenard@zionetrix.net>\n"
 "Language-Team: \n"
 "Language: fr_FR\n"
@@ -18,206 +18,172 @@ msgstr ""
 "Plural-Forms: nplurals=2; plural=(n > 1);\n"
 "X-Generator: Poedit 3.2.2\n"
 
-#: extension.js:240
+#: extension.js:230
 msgid "HASS Events"
 msgstr "Évènements HASS"
 
-#: extension.js:244
+#: extension.js:234
 msgid "Start Home Assistant"
 msgstr "Démarrer Home Assistant"
 
-#: extension.js:248
+#: extension.js:238
 msgid "Stop Home Assistant"
 msgstr "Arrêter Home Assistant"
 
-#: extension.js:252
+#: extension.js:242
 msgid "Close Home Assistant"
 msgstr "Fermer Home Assistant"
 
-#: extension.js:257
+#: extension.js:247
 msgid "Refresh"
 msgstr "Rafraîchir"
 
-#: extension.js:268
+#: extension.js:258
 msgid "Preferences"
 msgstr "Préférences"
 
-#: extension.js:299
+#: extension.js:289
 msgid "Toggle:"
 msgstr "Allumer/Éteindre :"
 
-#: prefs.js:26
+#: prefs.js:29 prefs.js:33
 msgid "General Settings"
 msgstr "Paramètres générals"
 
-#: prefs.js:29
-msgid "Togglables"
-msgstr "Interrupteurs"
+#: prefs.js:41 schemas/org.gnome.shell.extensions.hass-data.gschema.xml:34
+msgid "Refresh sensors"
+msgstr "Rafraîchir les capteurs"
 
-#: prefs.js:36
-msgid "Panel Sensors"
-msgstr "Capteurs de la barre des tâches"
-
-#: prefs.js:69
-msgid "Global options:"
-msgstr "Options générales :"
-
-#: prefs.js:93
-msgid "Temperature/Humidity options:"
-msgstr "Options de température/humidité :"
-
-#: prefs.js:122
+#: prefs.js:47
 msgid "Panel Icon Options:"
 msgstr "Options de l'icône de la barre des tâches :"
 
-#: prefs.js:139
-#, javascript-format
-msgid "%s Icon"
-msgstr "Icône %s"
+#: prefs.js:72
+msgid "Togglables"
+msgstr "Interrupteurs"
 
-#: prefs.js:282
-msgid "Togglable Entities:"
-msgstr "Entités interrupteurs :"
-
-#: prefs.js:287
+#: prefs.js:76
 msgid "Choose Togglable Entities:"
 msgstr "Sélectionner les entités interrupteurs :"
 
-#: prefs.js:426
-msgid "Sensors:"
-msgstr "Capteurs :"
+#: prefs.js:134
+msgid "Sensors"
+msgstr "Capteurs"
 
-#: prefs.js:431
+#: prefs.js:138
 msgid "Choose Which Sensors Should Appear on the Panel:"
 msgstr "Sélectionner les capteurs qui apparaîtront dans la barre des tâches :"
 
-#: prefs.js:605
+#: prefs.js:231
 msgid "Access Token"
 msgstr "Jeton d'accès"
 
-#: prefs.js:606
-msgid ""
-"Long Live Access Token for Home Assistant (Go to Profile->Bottom-of-the-page-"
-">Long-Live-Access-Tokens and create a new one)."
-msgstr ""
-"Jeton d'accès de longue durée pour Home Assistant (Allez dans Profil-> Bas "
-"de la page-> Jetons d'accès de longue durée et créez-en un nouveau)."
-
-#: prefs.js:641
-#, javascript-format
-msgid "Do you want to have the '%s' icon in your panel?"
-msgstr "Avez-vous l'icône \"%s\" dans la barre des tâches ?"
-
-#: prefs.js:643
-#, javascript-format
-msgid "Do you want to show %s in the tray menu?"
-msgstr "Voulez-vous afficher %s dans la zone de notification ?"
-
-#: prefs.js:689
-msgid "Apply"
-msgstr "Appliquer"
-
-#: utils.js:296
-#, javascript-format
-msgid "%s toggled on"
-msgstr "%s allumé"
-
-#: utils.js:297
-#, javascript-format
-msgid "%s successfully toggled on."
-msgstr "%s a bien été allumé."
-
-#: utils.js:301
-#, javascript-format
-msgid "%s toggled off"
-msgstr "%s éteint"
-
-#: utils.js:302
-#, javascript-format
-msgid "%s successfully toggled off."
-msgstr "%s a bien été éteint."
-
-#: utils.js:306
-#, javascript-format
-msgid "%s toggled"
-msgstr "%s allumé/éteint"
-
-#: utils.js:307
-#, javascript-format
-msgid "%s successfully toggled."
-msgstr "%s a bien été allumé ou éteint."
-
-#: utils.js:312
+#: utils.js:296 utils.js:318
 #, javascript-format
 msgid "Error toggling %s"
 msgstr "Erreur en allumant/éteignant %s"
 
+#: utils.js:297
+#, javascript-format
+msgid "Error occured trying to toggle %s: entity not found."
+msgstr "Une erreur est survenue en allumant/éteignant %s : entité non-trouvée."
+
+#: utils.js:302
+#, javascript-format
+msgid "%s toggled on"
+msgstr "%s allumé"
+
+#: utils.js:303
+#, javascript-format
+msgid "%s successfully toggled on."
+msgstr "%s a bien été allumé."
+
+#: utils.js:307
+#, javascript-format
+msgid "%s toggled off"
+msgstr "%s éteint"
+
+#: utils.js:308
+#, javascript-format
+msgid "%s successfully toggled off."
+msgstr "%s a bien été éteint."
+
+#: utils.js:312
+#, javascript-format
+msgid "%s toggled"
+msgstr "%s allumé/éteint"
+
 #: utils.js:313
+#, javascript-format
+msgid "%s successfully toggled."
+msgstr "%s a bien été allumé ou éteint."
+
+#: utils.js:319
 #, javascript-format
 msgid "Error occured trying to toggle %s."
 msgstr "Une erreur est survenue en allumant/éteignant %s."
 
-#: utils.js:331
+#: utils.js:337
 msgid "Home-Assistant start event triggered"
 msgstr "Démarrage d'Home-Assistant déclenché"
 
-#: utils.js:332
+#: utils.js:338
 msgid "Home-Assistant start event successfully triggered."
 msgstr "Le démarrage d'Home-Assistant a bien été déclenché."
 
-#: utils.js:336
+#: utils.js:342
 msgid "Home-Assistant stop event triggered"
 msgstr "Arrêt d'Home-Assistant déclenché"
 
-#: utils.js:337
+#: utils.js:343
 msgid "Home-Assistant stop event successfully triggered."
 msgstr "L'arrêt d'Home-Assistant a bien été déclenché."
 
-#: utils.js:341
+#: utils.js:347
 msgid "Home-Assistant close event triggered"
 msgstr "Fermeture d'Home-Assistant déclenché"
 
-#: utils.js:342
+#: utils.js:348
 msgid "Home-Assistant close event successfully triggered."
 msgstr "La fermeture d'Home-Assistant a bien été déclenchée."
 
-#: utils.js:346
+#: utils.js:352
 msgid "Home-Assistant event triggered"
 msgstr "Évènement Home-Assistant déclenché"
 
-#: utils.js:347
+#: utils.js:353
 msgid "Home-Assistant event successfully triggered."
 msgstr "L'évènement Home-Assistant a bien été déclenché."
 
-#: utils.js:353
+#: utils.js:359
 msgid "Error triggering Home-Assistant start event"
 msgstr "Erreur en déclenchant le démarrage d'Home-Assistant"
 
-#: utils.js:354
+#: utils.js:360
 msgid "Error occured triggering Home-Assistant start event."
 msgstr "Une erreur est survenue en déclenchant le démarrage d'Home-Assistant."
 
-#: utils.js:358
+#: utils.js:364
 msgid "Error triggering Home-Assistant stop event"
 msgstr "Erreur en déclenchant l'arrêt d'Home-Assistant"
 
-#: utils.js:359
+#: utils.js:365
 msgid "Error occured triggering Home-Assistant stop event."
 msgstr "Une erreur est survenue en déclenchant l'arrêt d'Home-Assistant."
 
-#: utils.js:363
+#: utils.js:369
 msgid "Error triggering Home-Assistant close event"
 msgstr "Erreur en déclenchant la fermeture d'Home-Assistant"
 
-#: utils.js:364
+#: utils.js:370
 msgid "Error occured triggering Home-Assistant close event."
 msgstr "Une erreur est survenue en déclenchant la fermeture d'Home-Assistant."
 
-#: utils.js:368
+#: utils.js:374
 msgid "Error triggering Home-Assistant event"
 msgstr "Erreur en déclenchant l'évènement Home-Assistant"
 
-#: utils.js:369
+#: utils.js:375
 msgid "Error occured triggering Home-Assistant event."
 msgstr "Une erreur est survenue en déclenchant l'évènement Home-Assistant."
 
@@ -255,10 +221,6 @@ msgstr ""
 "uniquement si \"Rafraîchir les capteurs de température/humidité\" est "
 "activé)."
 
-#: schemas/org.gnome.shell.extensions.hass-data.gschema.xml:34
-msgid "Refresh Temperature/Humidity Sensors"
-msgstr "Rafraîchir les capteurs de température/humidité"
-
 #: schemas/org.gnome.shell.extensions.hass-data.gschema.xml:35
 msgid ""
 "Whether or not you want to refresh the temperature and/or humidity sensor "
@@ -278,55 +240,18 @@ msgstr ""
 "d'évènements HASS."
 
 #: schemas/org.gnome.shell.extensions.hass-data.gschema.xml:46
-msgid "Show Temperature/Humidity"
-msgstr "Afficher la température/l'humidité"
-
-#: schemas/org.gnome.shell.extensions.hass-data.gschema.xml:47
-msgid ""
-"Whether to show the temperature and/or humidity values (assuming you have "
-"provided the corresponding entity ids)."
-msgstr ""
-"Indique s'il faut afficher les valeurs de température et/ou d'humidité (en "
-"supposant que vous avez fourni les identifiants d'entité correspondants)."
-
-#: schemas/org.gnome.shell.extensions.hass-data.gschema.xml:52
-msgid "Show Humidity"
-msgstr "Afficher l'humidité"
-
-#: schemas/org.gnome.shell.extensions.hass-data.gschema.xml:53
-msgid "Whether to show humidity value or not."
-msgstr "Afficher ou non la valeur d'humidité."
-
-#: schemas/org.gnome.shell.extensions.hass-data.gschema.xml:58
-msgid "Temperature ID"
-msgstr "Identifiant température"
-
-#: schemas/org.gnome.shell.extensions.hass-data.gschema.xml:59
-msgid "Your Home Assistant EntityID for the temperature sensor."
-msgstr ""
-"Votre identifiant d'entité Home Assistant pour le capteur de température."
-
-#: schemas/org.gnome.shell.extensions.hass-data.gschema.xml:64
-msgid "Humidity ID"
-msgstr "Identifiant humidité"
-
-#: schemas/org.gnome.shell.extensions.hass-data.gschema.xml:65
-msgid "Your Home Assistant EntityID for the humidity sensor."
-msgstr "Votre identifiant d'entité Home Assistant pour le capteur d'humidité."
-
-#: schemas/org.gnome.shell.extensions.hass-data.gschema.xml:70
 msgid "URL"
 msgstr "URL"
 
-#: schemas/org.gnome.shell.extensions.hass-data.gschema.xml:71
+#: schemas/org.gnome.shell.extensions.hass-data.gschema.xml:47
 msgid "The url where your hass instance is hosted."
 msgstr "L'url où votre instance hass est hébergée."
 
-#: schemas/org.gnome.shell.extensions.hass-data.gschema.xml:76
+#: schemas/org.gnome.shell.extensions.hass-data.gschema.xml:52
 msgid "Home-Assistant entities's state cache."
 msgstr "Cache de l'état des entités d'Home-Assistant."
 
-#: schemas/org.gnome.shell.extensions.hass-data.gschema.xml:77
+#: schemas/org.gnome.shell.extensions.hass-data.gschema.xml:53
 msgid ""
 "Home-Assistant entities's state cache. It is meant to be filled "
 "automatically on start-up or after pressing the 'Refresh' button in the "
@@ -336,47 +261,121 @@ msgstr ""
 "automatiquement au démarrage ou après avoir appuyé sur le bouton "
 "'Rafraîchir' dans le menu Préférences."
 
-#: schemas/org.gnome.shell.extensions.hass-data.gschema.xml:82
+#: schemas/org.gnome.shell.extensions.hass-data.gschema.xml:58
 msgid "Entity ids for home-assistant switches."
 msgstr "ID d'entité des interrupteurs d'Home Assistant."
 
-#: schemas/org.gnome.shell.extensions.hass-data.gschema.xml:83
+#: schemas/org.gnome.shell.extensions.hass-data.gschema.xml:59
 msgid ""
 "Entity ids for home-assistant switches. E.g. switch.livingroom_lights_relay."
 msgstr ""
 "ID d'entité des interrupteurs d'Home Assistant. Ex : switch."
 "livingroom_lights_relay."
 
-#: schemas/org.gnome.shell.extensions.hass-data.gschema.xml:88
+#: schemas/org.gnome.shell.extensions.hass-data.gschema.xml:64
 msgid "Entity ids for home assistant sensors."
 msgstr "ID d'entité des capteurs d'Home Assistant."
 
-#: schemas/org.gnome.shell.extensions.hass-data.gschema.xml:89
+#: schemas/org.gnome.shell.extensions.hass-data.gschema.xml:65
 msgid ""
 "Entity ids for home-assistant sensors. E.g. sensor.livingroom_temperature."
 msgstr ""
 "ID d'entité des capteurs d'Home Assistant.. Ex : sensor."
 "livingroom_temperature."
 
-#: schemas/org.gnome.shell.extensions.hass-data.gschema.xml:94
+#: schemas/org.gnome.shell.extensions.hass-data.gschema.xml:70
 msgid "Enable debug mode"
 msgstr "Activer le mode debug"
 
-#: schemas/org.gnome.shell.extensions.hass-data.gschema.xml:95
+#: schemas/org.gnome.shell.extensions.hass-data.gschema.xml:71
 msgid ""
 "When this mode is enabled, more logged messages could be seen in the journal."
 msgstr ""
 "Lorsque ce mode est activé, plus de messages sont visibles dans le journal."
 
-#: schemas/org.gnome.shell.extensions.hass-data.gschema.xml:106
+#: schemas/org.gnome.shell.extensions.hass-data.gschema.xml:82
 msgid "Home Assistant Extension - Shortcut Key"
 msgstr "Extension Home Assistant - Raccourci clavier"
 
-#: schemas/org.gnome.shell.extensions.hass-data.gschema.xml:107
+#: schemas/org.gnome.shell.extensions.hass-data.gschema.xml:83
 msgid "Shortcut key on how to open the extension's menu from the tray."
 msgstr ""
 "Raccourci clavier pour ouvrir le menu de l'extension à partir de la zone de "
 "notification."
+
+#~ msgid "Refreshing sensors"
+#~ msgstr "Rafraîchir les capteurs"
+
+#~ msgid "Panel Sensors"
+#~ msgstr "Capteurs de la barre des tâches"
+
+#~ msgid "Global options:"
+#~ msgstr "Options générales :"
+
+#~ msgid "Temperature/Humidity options:"
+#~ msgstr "Options de température/humidité :"
+
+#, javascript-format
+#~ msgid "%s Icon"
+#~ msgstr "Icône %s"
+
+#~ msgid "Togglable Entities:"
+#~ msgstr "Entités interrupteurs :"
+
+#~ msgid "Sensors:"
+#~ msgstr "Capteurs :"
+
+#~ msgid ""
+#~ "Long Live Access Token for Home Assistant (Go to Profile->Bottom-of-the-"
+#~ "page->Long-Live-Access-Tokens and create a new one)."
+#~ msgstr ""
+#~ "Jeton d'accès de longue durée pour Home Assistant (Allez dans Profil-> "
+#~ "Bas de la page-> Jetons d'accès de longue durée et créez-en un nouveau)."
+
+#, javascript-format
+#~ msgid "Do you want to have the '%s' icon in your panel?"
+#~ msgstr "Avez-vous l'icône \"%s\" dans la barre des tâches ?"
+
+#, javascript-format
+#~ msgid "Do you want to show %s in the tray menu?"
+#~ msgstr "Voulez-vous afficher %s dans la zone de notification ?"
+
+#~ msgid "Apply"
+#~ msgstr "Appliquer"
+
+#~ msgid "Refresh Temperature/Humidity Sensors"
+#~ msgstr "Rafraîchir les capteurs de température/humidité"
+
+#~ msgid "Show Temperature/Humidity"
+#~ msgstr "Afficher la température/l'humidité"
+
+#~ msgid ""
+#~ "Whether to show the temperature and/or humidity values (assuming you have "
+#~ "provided the corresponding entity ids)."
+#~ msgstr ""
+#~ "Indique s'il faut afficher les valeurs de température et/ou d'humidité "
+#~ "(en supposant que vous avez fourni les identifiants d'entité "
+#~ "correspondants)."
+
+#~ msgid "Show Humidity"
+#~ msgstr "Afficher l'humidité"
+
+#~ msgid "Whether to show humidity value or not."
+#~ msgstr "Afficher ou non la valeur d'humidité."
+
+#~ msgid "Temperature ID"
+#~ msgstr "Identifiant température"
+
+#~ msgid "Your Home Assistant EntityID for the temperature sensor."
+#~ msgstr ""
+#~ "Votre identifiant d'entité Home Assistant pour le capteur de température."
+
+#~ msgid "Humidity ID"
+#~ msgstr "Identifiant humidité"
+
+#~ msgid "Your Home Assistant EntityID for the humidity sensor."
+#~ msgstr ""
+#~ "Votre identifiant d'entité Home Assistant pour le capteur d'humidité."
 
 #~ msgid "Show notifications when enabled/disabled."
 #~ msgstr "Afficher les notifications lorsqu'elles sont activées/désactivées."

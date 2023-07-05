@@ -11,12 +11,8 @@ var HASS_ENTITIES_CACHE = 'hass-entities-cache';
 var HASS_ENABLED_ENTITIES = 'hass-enabled-entities';
 var HASS_ENABLED_SENSOR_IDS = 'hass-enabled-sensor-ids';
 var SHOW_NOTIFICATIONS_KEY = 'show-notifications';
-var SHOW_WEATHER_STATS = 'show-weather-stats';
-var SHOW_HUMIDITY = 'show-humidity';
-var TEMPERATURE_ID = 'temp-entity-id';
-var HUMIDITY_ID = 'humidity-entity-id';
-var DO_REFRESH = 'refresh-weather';
-var REFRESH_RATE = 'weather-refresh-seconds';
+var DO_REFRESH = 'sensors-refresh';
+var REFRESH_RATE = 'sensors-refresh-seconds';
 var DEBUG_MODE = 'debug-mode';
 
 var MscOptions = class MscOptions {
@@ -55,34 +51,6 @@ var MscOptions = class MscOptions {
     }
     set hassUrl(bool_val) {
         this._gsettings.set_string(HASS_URL, bool_val);
-    }
-
-    get tempHumi() {
-        return this._gsettings.get_boolean(SHOW_WEATHER_STATS);
-    }
-    set tempHumi(bool_val) {
-        this._gsettings.set_boolean(SHOW_WEATHER_STATS, bool_val);
-    }
-
-    get showHumidity() {
-        return this._gsettings.get_boolean(SHOW_HUMIDITY);
-    }
-    set showHumidity(bool_val) {
-        this._gsettings.set_boolean(SHOW_HUMIDITY, bool_val);
-    }
-
-    get temperatureId() {
-        return this._gsettings.get_string(TEMPERATURE_ID);
-    }
-    set temperatureId(tempId) {
-        this._gsettings.set_string(TEMPERATURE_ID, tempId);
-    }
-
-    get humidityId() {
-        return this._gsettings.get_string(HUMIDITY_ID);
-    }
-    set humidityId(humiId) {
-        this._gsettings.set_string(HUMIDITY_ID, humiId);
     }
 
     get doRefresh() {

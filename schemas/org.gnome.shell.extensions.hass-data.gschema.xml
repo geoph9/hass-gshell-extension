@@ -23,15 +23,15 @@
       <description>The paths have to be relative to the directory where the 'extension.js' file is located.</description>
     </key>
 
-    <key type="s" name="weather-refresh-seconds">
+    <key type="s" name="sensors-refresh-seconds">
       <default>"60"</default>
       <summary>Refresh Rate</summary>
       <description>The refresh rate for the weather statistics in seconds (works only if "Refresh Temperature/Humidity Sensors" is enabled).</description>
     </key>
 
-    <key type="b" name="refresh-weather">
+    <key type="b" name="sensors-refresh">
         <default>false</default>
-        <summary>Refresh Temperature/Humidity Sensors</summary>
+        <summary>Refresh sensors</summary>
         <description>Whether or not you want to refresh the temperature and/or humidity sensor values.</description>
     </key>
 
@@ -39,30 +39,6 @@
         <default>true</default>
         <summary>Show notifications</summary>
         <description>Show notifications when enable/disable togglables or on HASS events.</description>
-    </key>
-
-    <key type="b" name="show-weather-stats">
-        <default>false</default>
-        <summary>Show Temperature/Humidity</summary>
-        <description>Whether to show the temperature and/or humidity values (assuming you have provided the corresponding entity ids).</description>
-    </key>
-
-    <key type="b" name="show-humidity">
-        <default>false</default>
-        <summary>Show Humidity</summary>
-        <description>Whether to show humidity value or not.</description>
-    </key>
-
-    <key type="s" name="temp-entity-id">
-      <default>"sensor.livingroom_temperature"</default>
-      <summary>Temperature ID</summary>
-      <description>Your Home Assistant EntityID for the temperature sensor.</description>
-    </key>
-
-    <key type="s" name="humidity-entity-id">
-      <default>"sensor.livingroom_humidity"</default>
-      <summary>Humidity ID</summary>
-      <description>Your Home Assistant EntityID for the humidity sensor.</description>
     </key>
 
     <key type="s" name="hass-url">

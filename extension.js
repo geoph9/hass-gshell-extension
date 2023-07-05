@@ -37,10 +37,7 @@ var HassMenu = GObject.registerClass ({
 
         this.sensorsPanel = null;
         this.sensorsPanelText = null;
-
-        this.tempHumPanel = null;
-        this.tempHumPanelText = null;
-        this.refreshTempHumTimeout = null;
+        this.refreshSensorsTimeout = null;
     }
 
     enable() {
@@ -64,7 +61,6 @@ var HassMenu = GObject.registerClass ({
         // Load settings and build all compoments
         this._loadSettings();
         this._buildTrayMenu();
-        this._buildTempHumSensorsPanel();
         this._buildSensorsPanel();
         this._buildTrayIcon();
         this._enableShortcut();
@@ -97,7 +93,6 @@ var HassMenu = GObject.registerClass ({
     disable () {
         Utils._log("disabling...");
         this._deleteSensorsPanel();
-        this._deleteTempHumSensorsPanel();
         this._deleteTrayIcon();
         this._disableShortcut();
         this._deleteMenuItems();
@@ -120,7 +115,6 @@ var HassMenu = GObject.registerClass ({
         }
         else {
             this._refreshTogglable();
-            this._refreshTempHumSensorsPanel();
             this._refreshSensorsPanel();
         }
     }
@@ -152,10 +146,6 @@ var HassMenu = GObject.registerClass ({
 
     _loadSettings() {
         Utils._log("load settings");
-        this.showWeatherStats = this._settings.get_boolean(this.Settings.SHOW_WEATHER_STATS);
-        this.showHumidity = this._settings.get_boolean(this.Settings.SHOW_HUMIDITY);
-        this.tempEntityID = this._settings.get_string(this.Settings.TEMPERATURE_ID);
-        this.humidityEntityID = this._settings.get_string(this.Settings.HUMIDITY_ID);
         this.panelSensorIds = this._settings.get_strv(this.Settings.HASS_ENABLED_SENSOR_IDS);
         this.doRefresh = this._settings.get_boolean(this.Settings.DO_REFRESH);
         this.refreshSeconds = Number(this._settings.get_string(this.Settings.REFRESH_RATE));
@@ -371,7 +361,46 @@ var HassMenu = GObject.registerClass ({
         // method
         this._connectSettings([this.Settings.HASS_ENABLED_SENSOR_IDS], this._refreshSensorsPanel);
 
+        // Configure the refreshing of sensors panel
+        this._configSensorsPanelRefresh();
+
+        // Connect all setting fields that have impact on the refreshing of sensors panel with
+        // the _configSensorsPanelRefresh() method
+        this._connectSettings(
+            [
+                this.Settings.HASS_ENABLED_SENSOR_IDS,
+                this.Settings.DO_REFRESH,
+                this.Settings.REFRESH_RATE,
+            ],
+            this._configSensorsPanelRefresh
+        );
+
         Utils._log("panel sensor builded...");
+    }
+
+    _configSensorsPanelRefresh() {
+        // Firstly cancel previous configured timeout (if defined)
+        if (this.refreshSensorsTimeout) {
+            Utils._log("cancel previous sensors refresh timer...");
+            Mainloop.source_remove(this.refreshSensorsTimeout);
+            this.refreshSensorsTimeout = null;
+        }
+
+        // Only continue if refreshing is enabled, refreshing rate is configured and we have at
+        // least one panel sensors configured
+        if (!this.doRefresh || !this.refreshSeconds || !this.panelSensorIds.length)
+            return;
+
+        // Schedule sensors panel refreshing every X seconds
+        Utils._log(
+            'schedule refreshing sensors panel every %s seconds',
+            [this.refreshSeconds]
+        );
+        this.refreshSensorsTimeout = Mainloop.timeout_add_seconds(this.refreshSeconds, () => {
+            this._refreshSensorsPanel(true);
+            // We have to return true to keep the timer alive
+            return true;
+        });
     }
 
     _refreshSensorsPanel(force_reload=false) {
@@ -414,159 +443,6 @@ var HassMenu = GObject.registerClass ({
         if (this.sensorsPanel) {
             this.sensorsPanel.destroy();
             this.sensorsPanel = null;
-        }
-    }
-
-    /*
-     **********************************************************************************************
-     * Temperature/humidity sensors panel
-     **********************************************************************************************
-     */
-
-    _buildTempHumSensorsPanel() {
-        Utils._log("build temperature/humidity panel sensors...");
-        this.tempHumPanel = new St.Bin({
-            style_class: "panel-button",
-            reactive: true,
-            can_focus: true,
-            track_hover: true,
-            height: 30,
-            visible: false,
-        });
-        this.tempHumPanelText = new St.Label({
-            text : "-°C",
-            y_align: Clutter.ActorAlign.CENTER,
-        });
-        this.tempHumPanel.set_child(this.tempHumPanelText);
-        this.tempHumPanel.connect("button-press-event", () => {
-            this._refreshTempHumSensorsPanel(true);
-        });
-        this.box.add_child(this.tempHumPanel);
-
-        // Connect all setting fields that have impact on the temperature/humidity sensors panel
-        // with the _refreshTempHumSensorsPanel() method
-        this._connectSettings(
-            [
-                this.Settings.SHOW_WEATHER_STATS,
-                this.Settings.TEMPERATURE_ID,
-                this.Settings.SHOW_HUMIDITY,
-                this.Settings.HUMIDITY_ID,
-            ],
-            this._refreshTempHumSensorsPanel,
-            [true]  // Force reload sensors state on setting changes
-        );
-
-        // Configure the refreshing of temperature/humidity sensors panel
-        this._configTempHumSensorsPanelRefresh();
-
-        // Connect all setting fields that have impact on the refreshing of temperature/humidity
-        // sensors panel with the _configTempHumSensorsPanelRefresh() method
-        this._connectSettings(
-            [
-                this.Settings.SHOW_WEATHER_STATS,
-                this.Settings.TEMPERATURE_ID,
-                this.Settings.DO_REFRESH,
-                this.Settings.REFRESH_RATE,
-            ],
-            this._configTempHumSensorsPanelRefresh
-        );
-    }
-
-    _configTempHumSensorsPanelRefresh() {
-        // Firstly cancel previous configured timeout (if defined)
-        if (this.refreshTempHumTimeout) {
-            Utils._log("cancel previous temperature/humidity sensors refresh timer...");
-            Mainloop.source_remove(this.refreshTempHumTimeout);
-            this.refreshTempHumTimeout = null;
-        }
-
-        // Only continue if at least the temperature entity ID is defined, its configured as
-        // displayed and the refreshing is enabled with configured period
-        if (this.showWeatherStats !== true || !this.tempEntityID || this.doRefresh !== true
-            || !this.refreshSeconds)
-            return;
-
-        // Schedule temperature/humidity sensors panel refreshing every X seconds
-        Utils._log(
-            'schedule refreshing temperature/humidity sensors panel every %s seconds'
-            [this.refreshSeconds]
-        );
-        this.refreshTempHumTimeout = Mainloop.timeout_add_seconds(this.refreshSeconds, () => {
-            this._refreshTempHumSensorsPanel(true);
-            // We have to return true to keep the timer alive
-            return true;
-        });
-    }
-
-    _refreshTempHumSensorsPanel(force_reload=false) {
-        // Firstly check if at least the temperature entity ID is defined and its configured as
-        // displayed
-        if (this.showWeatherStats !== true || !this.tempEntityID) {
-            this.tempHumPanel.visible = false;
-            return;
-        }
-
-        Utils._log("refresh temperature/humidity sensors panel");
-
-        // Start by retreiving the temperature sensor
-        Utils.getSensor(
-            this.tempEntityID,
-            function (temp_sensor) {
-                let out = Utils.computeSensorState(temp_sensor);
-
-                // If humidity sensor is configured and displayed, retreive it
-                if (this.showHumidity === true && this.humidityEntityID) {
-                    Utils._log("get humidity sensor (%s)", [this.humidityEntityID]);
-                    Utils.getSensor(
-                        this.humidityEntityID,
-                        function(sensor) {
-                            Utils._log(
-                                "update temperature/humidity sensors panel with temperature & "
-                                + "humidity sensor"
-                            );
-                            out += ` | ${Utils.computeSensorState(sensor)}`;
-                            this.tempHumPanelText.text = out;
-                            this.tempHumPanel.visible = true;
-                        }.bind(this),
-                        function() {
-                            Utils._log(
-                                "fail to retreive humidity sensor, update temperature/humidity "
-                                + "sensors panel with only the temperature", null, true
-                            );
-                            this.tempHumPanelText.text = out;
-                            this.tempHumPanel.visible = true;
-                        }.bind(this)
-                    );
-                }
-                // Otherwise, just show the temperature sensor state
-                else {
-                    Utils._log(
-                        "update temperature/humidity sensors panel with only the temperature"
-                    );
-                    this.tempHumPanelText.text = out;
-                    this.tempHumPanel.visible = true;
-                }
-            }.bind(this),
-            function() {
-                Utils._log("fail to retreive temperature sensor, hide the sensors panel", null, false);
-                this.tempHumPanel.visible = false;
-            }.bind(this),
-            force_reload
-        );
-    }
-
-    _deleteTempHumSensorsPanel() {
-        if (this.refreshTempHumTimeout) {
-            Mainloop.source_remove(this.refreshTempHumTimeout);
-            this.refreshTempHumTimeout = null;
-        }
-        if (this.tempHumPanelText) {
-            this.tempHumPanelText.destroy();
-            this.tempHumPanelText = null;
-        }
-        if (this.tempHumPanel) {
-            this.tempHumPanel.destroy();
-            this.tempHumPanel = null;
         }
     }
 
