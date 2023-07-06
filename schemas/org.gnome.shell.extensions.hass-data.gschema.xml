@@ -36,7 +36,7 @@
     </key>
 
     <key type="b" name="show-notifications">
-        <default>true</default>
+        <default>false</default>
         <summary>Show notifications</summary>
         <description>Show notifications when enable/disable togglables or on HASS events.</description>
     </key>
