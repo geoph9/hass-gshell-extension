@@ -298,18 +298,26 @@ function toggleEntity(entity) {
         'POST',
         data,
         function(response) {
-            if (!response.length) {
-              notify(
-                  _('Error toggling %s').format(entity.name),
-                  _('Error occured trying to toggle %s: entity not found.').format(entity.name),
-              )
+            _log(
+                'HA result toggling %s (%s): %s',
+                [entity.name, entity.entity_id, JSON.stringify(response)]
+            );
+
+            // HA do not return new entity state in each case and not only the one we requested
+            let state = null;
+            for (let ent of response) {
+                if (ent.entity_id == entity.entity_id) {
+                    state = ent.state;
+                    break;
+                }
             }
-            else if (response[0].state == 'on')
+
+            if (state == 'on')
               notify(
                   _('%s toggled on').format(entity.name),
                   _('%s successfully toggled on.').format(entity.name)
               );
-            else if (response[0].state == 'off')
+            else if (state == 'off')
               notify(
                   _('%s toggled off').format(entity.name),
                   _('%s successfully toggled off.').format(entity.name)
