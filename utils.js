@@ -36,10 +36,12 @@ function _constructMessage(type, url, data=null) {
     // let message = Soup.Message.new_from_encoded_form(
     _log("constructing Message for %s", [url]);
     let message = Soup.Message.new(type, url);
-    message.request_headers.append(
-      'Authorization',
-      `Bearer ${Secret.password_lookup_sync(getTokenSchema(), {"token_string": "user_token"}, null)}`
-    )
+    let token = Secret.password_lookup_sync(getTokenSchema(), {"token_string": "user_token"}, null);
+    if (!token) {
+      _log("Fail to retreive token from configuration, can't construct API message", null, false);
+      return false;
+    }
+    message.request_headers.append('Authorization', `Bearer ${token}`);
     if (data !== null){
         // Set body data: Should be in json format, e.g. '{"entity_id": "switch.some_relay"}'
         // TODO: Maybe perform a check here
@@ -70,7 +72,12 @@ function send_async_request(url, type, data, callback=null, on_error=null) {
     } catch (error) {
         logError(error, `${MyUUID}: Could not construct ${type} message for ${url}`);
         if (on_error) on_error();
-        return
+        return;
+    }
+    if (!message) {
+      _log("Fail to build message for %s request on %s", [type, url]);
+      if (on_error) on_error();
+      return;
     }
     try {
         _log("sending %s request on %s...", [type, url]);
