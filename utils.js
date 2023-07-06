@@ -491,3 +491,18 @@ function notify(msg, details) {
     notification.setTransient(true);
     source.showNotification(notification);
 }
+
+/**
+ * Connect specified settings changes to provided callback
+ * @param {Array}   settings   List of settings
+ * @param {Function} callback   The callback to run on change
+ * @param {Array}    [args=[]]  Optional arguments to pass to callback
+ */
+function connectSettings(settings, callback, args=[]) {
+    for (let setting of settings) {
+        mscOptions.connect(
+            "changed::" + setting,
+            () => callback.apply(this, args)
+        );
+    }
+}

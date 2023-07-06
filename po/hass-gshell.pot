@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2023-07-05 05:40+0200\n"
+"POT-Creation-Date: 2023-07-06 14:35+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -45,144 +45,153 @@ msgstr ""
 msgid "Toggle:"
 msgstr ""
 
-#: prefs.js:29 prefs.js:33
+#: prefs.js:37 prefs.js:41
 msgid "General Settings"
 msgstr ""
 
-#: prefs.js:41 schemas/org.gnome.shell.extensions.hass-data.gschema.xml:34
+#: prefs.js:49 schemas/org.gnome.shell.extensions.hass-data.gschema.xml:34
 msgid "Refresh sensors"
 msgstr ""
 
-#: prefs.js:47
+#: prefs.js:55
 msgid "Panel Icon Options:"
 msgstr ""
 
-#: prefs.js:72
+#: prefs.js:79
 msgid "Togglables"
 msgstr ""
 
-#: prefs.js:76
-msgid "Choose Togglable Entities:"
+#: prefs.js:83
+msgid "Choose which togglables should appear in the menu:"
 msgstr ""
 
-#: prefs.js:134
+#: prefs.js:102
+msgid ""
+"No togglable found. Please check your Home-Assistant connection settings."
+msgstr ""
+
+#: prefs.js:167
 msgid "Sensors"
 msgstr ""
 
-#: prefs.js:138
-msgid "Choose Which Sensors Should Appear on the Panel:"
+#: prefs.js:171
+msgid "Choose which sensors should appear on the panel:"
 msgstr ""
 
-#: prefs.js:231
+#: prefs.js:190
+msgid "No sensor found. Please check your Home-Assistant connection settings."
+msgstr ""
+
+#: prefs.js:290
 msgid "Access Token"
 msgstr ""
 
-#: utils.js:296 utils.js:318
+#: utils.js:303 utils.js:325
 #, javascript-format
 msgid "Error toggling %s"
 msgstr ""
 
-#: utils.js:297
+#: utils.js:304
 #, javascript-format
 msgid "Error occured trying to toggle %s: entity not found."
 msgstr ""
 
-#: utils.js:302
+#: utils.js:309
 #, javascript-format
 msgid "%s toggled on"
 msgstr ""
 
-#: utils.js:303
+#: utils.js:310
 #, javascript-format
 msgid "%s successfully toggled on."
 msgstr ""
 
-#: utils.js:307
+#: utils.js:314
 #, javascript-format
 msgid "%s toggled off"
 msgstr ""
 
-#: utils.js:308
+#: utils.js:315
 #, javascript-format
 msgid "%s successfully toggled off."
 msgstr ""
 
-#: utils.js:312
+#: utils.js:319
 #, javascript-format
 msgid "%s toggled"
 msgstr ""
 
-#: utils.js:313
+#: utils.js:320
 #, javascript-format
 msgid "%s successfully toggled."
 msgstr ""
 
-#: utils.js:319
+#: utils.js:326
 #, javascript-format
 msgid "Error occured trying to toggle %s."
 msgstr ""
 
-#: utils.js:337
+#: utils.js:344
 msgid "Home-Assistant start event triggered"
 msgstr ""
 
-#: utils.js:338
+#: utils.js:345
 msgid "Home-Assistant start event successfully triggered."
 msgstr ""
 
-#: utils.js:342
+#: utils.js:349
 msgid "Home-Assistant stop event triggered"
 msgstr ""
 
-#: utils.js:343
+#: utils.js:350
 msgid "Home-Assistant stop event successfully triggered."
 msgstr ""
 
-#: utils.js:347
+#: utils.js:354
 msgid "Home-Assistant close event triggered"
 msgstr ""
 
-#: utils.js:348
+#: utils.js:355
 msgid "Home-Assistant close event successfully triggered."
 msgstr ""
 
-#: utils.js:352
+#: utils.js:359
 msgid "Home-Assistant event triggered"
 msgstr ""
 
-#: utils.js:353
+#: utils.js:360
 msgid "Home-Assistant event successfully triggered."
 msgstr ""
 
-#: utils.js:359
+#: utils.js:366
 msgid "Error triggering Home-Assistant start event"
 msgstr ""
 
-#: utils.js:360
+#: utils.js:367
 msgid "Error occured triggering Home-Assistant start event."
 msgstr ""
 
-#: utils.js:364
+#: utils.js:371
 msgid "Error triggering Home-Assistant stop event"
 msgstr ""
 
-#: utils.js:365
+#: utils.js:372
 msgid "Error occured triggering Home-Assistant stop event."
 msgstr ""
 
-#: utils.js:369
+#: utils.js:376
 msgid "Error triggering Home-Assistant close event"
 msgstr ""
 
-#: utils.js:370
+#: utils.js:377
 msgid "Error occured triggering Home-Assistant close event."
 msgstr ""
 
-#: utils.js:374
+#: utils.js:381
 msgid "Error triggering Home-Assistant event"
 msgstr ""
 
-#: utils.js:375
+#: utils.js:382
 msgid "Error occured triggering Home-Assistant event."
 msgstr ""
 

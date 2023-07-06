@@ -152,15 +152,13 @@ var HassMenu = GObject.registerClass ({
     }
 
     _connectSettings(settings, callback, args=[]) {
-        for (let setting of settings) {
-            this._settings.connect(
-                "changed::" + setting,
-                function() {
-                    this._loadSettings();
-                    callback.apply(this, args);
-                }.bind(this)
-            );
-        }
+        Utils.connectSettings(
+            settings,
+            function() {
+                this._loadSettings();
+                callback.apply(this, args);
+            }.bind(this)
+        );
     }
 
     /*

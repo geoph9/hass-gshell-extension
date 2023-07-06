@@ -7,9 +7,9 @@ msgid ""
 msgstr ""
 "Project-Id-Version: \n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2023-07-05 05:40+0200\n"
-"PO-Revision-Date: 2023-07-05 05:40+0200\n"
-"Last-Translator: Benjamin Renard <brenard@zionetrix.net>\n"
+"POT-Creation-Date: 2023-07-06 14:35+0200\n"
+"PO-Revision-Date: 2023-07-06 14:36+0200\n"
+"Last-Translator: Benjamin Renard <brenard@easter-eggs.com>\n"
 "Language-Team: \n"
 "Language: fr_FR\n"
 "MIME-Version: 1.0\n"
@@ -46,144 +46,157 @@ msgstr "Préférences"
 msgid "Toggle:"
 msgstr "Allumer/Éteindre :"
 
-#: prefs.js:29 prefs.js:33
+#: prefs.js:37 prefs.js:41
 msgid "General Settings"
 msgstr "Paramètres générals"
 
-#: prefs.js:41 schemas/org.gnome.shell.extensions.hass-data.gschema.xml:34
+#: prefs.js:49 schemas/org.gnome.shell.extensions.hass-data.gschema.xml:34
 msgid "Refresh sensors"
 msgstr "Rafraîchir les capteurs"
 
-#: prefs.js:47
+#: prefs.js:55
 msgid "Panel Icon Options:"
 msgstr "Options de l'icône de la barre des tâches :"
 
-#: prefs.js:72
+#: prefs.js:79
 msgid "Togglables"
 msgstr "Interrupteurs"
 
-#: prefs.js:76
-msgid "Choose Togglable Entities:"
-msgstr "Sélectionner les entités interrupteurs :"
+#: prefs.js:83
+msgid "Choose which togglables should appear in the menu:"
+msgstr "Sélectionner les interrupteurs qui apparaîtront dans le menu :"
 
-#: prefs.js:134
+#: prefs.js:102
+msgid ""
+"No togglable found. Please check your Home-Assistant connection settings."
+msgstr ""
+"Aucun interrupteur trouvé. Merci de vérifier vos paramètres de connexion à "
+"Home-Assistant."
+
+#: prefs.js:167
 msgid "Sensors"
 msgstr "Capteurs"
 
-#: prefs.js:138
-msgid "Choose Which Sensors Should Appear on the Panel:"
+#: prefs.js:171
+msgid "Choose which sensors should appear on the panel:"
 msgstr "Sélectionner les capteurs qui apparaîtront dans la barre des tâches :"
 
-#: prefs.js:231
+#: prefs.js:190
+msgid "No sensor found. Please check your Home-Assistant connection settings."
+msgstr ""
+"Aucun capteur trouvé. Merci de vérifier vos paramètres de connexion à Home-"
+"Assistant."
+
+#: prefs.js:290
 msgid "Access Token"
 msgstr "Jeton d'accès"
 
-#: utils.js:296 utils.js:318
+#: utils.js:303 utils.js:325
 #, javascript-format
 msgid "Error toggling %s"
 msgstr "Erreur en allumant/éteignant %s"
 
-#: utils.js:297
+#: utils.js:304
 #, javascript-format
 msgid "Error occured trying to toggle %s: entity not found."
 msgstr "Une erreur est survenue en allumant/éteignant %s : entité non-trouvée."
 
-#: utils.js:302
+#: utils.js:309
 #, javascript-format
 msgid "%s toggled on"
 msgstr "%s allumé"
 
-#: utils.js:303
+#: utils.js:310
 #, javascript-format
 msgid "%s successfully toggled on."
 msgstr "%s a bien été allumé."
 
-#: utils.js:307
+#: utils.js:314
 #, javascript-format
 msgid "%s toggled off"
 msgstr "%s éteint"
 
-#: utils.js:308
+#: utils.js:315
 #, javascript-format
 msgid "%s successfully toggled off."
 msgstr "%s a bien été éteint."
 
-#: utils.js:312
+#: utils.js:319
 #, javascript-format
 msgid "%s toggled"
 msgstr "%s allumé/éteint"
 
-#: utils.js:313
+#: utils.js:320
 #, javascript-format
 msgid "%s successfully toggled."
 msgstr "%s a bien été allumé ou éteint."
 
-#: utils.js:319
+#: utils.js:326
 #, javascript-format
 msgid "Error occured trying to toggle %s."
 msgstr "Une erreur est survenue en allumant/éteignant %s."
 
-#: utils.js:337
+#: utils.js:344
 msgid "Home-Assistant start event triggered"
 msgstr "Démarrage d'Home-Assistant déclenché"
 
-#: utils.js:338
+#: utils.js:345
 msgid "Home-Assistant start event successfully triggered."
 msgstr "Le démarrage d'Home-Assistant a bien été déclenché."
 
-#: utils.js:342
+#: utils.js:349
 msgid "Home-Assistant stop event triggered"
 msgstr "Arrêt d'Home-Assistant déclenché"
 
-#: utils.js:343
+#: utils.js:350
 msgid "Home-Assistant stop event successfully triggered."
 msgstr "L'arrêt d'Home-Assistant a bien été déclenché."
 
-#: utils.js:347
+#: utils.js:354
 msgid "Home-Assistant close event triggered"
 msgstr "Fermeture d'Home-Assistant déclenché"
 
-#: utils.js:348
+#: utils.js:355
 msgid "Home-Assistant close event successfully triggered."
 msgstr "La fermeture d'Home-Assistant a bien été déclenchée."
 
-#: utils.js:352
+#: utils.js:359
 msgid "Home-Assistant event triggered"
 msgstr "Évènement Home-Assistant déclenché"
 
-#: utils.js:353
+#: utils.js:360
 msgid "Home-Assistant event successfully triggered."
 msgstr "L'évènement Home-Assistant a bien été déclenché."
 
-#: utils.js:359
+#: utils.js:366
 msgid "Error triggering Home-Assistant start event"
 msgstr "Erreur en déclenchant le démarrage d'Home-Assistant"
 
-#: utils.js:360
+#: utils.js:367
 msgid "Error occured triggering Home-Assistant start event."
 msgstr "Une erreur est survenue en déclenchant le démarrage d'Home-Assistant."
 
-#: utils.js:364
+#: utils.js:371
 msgid "Error triggering Home-Assistant stop event"
 msgstr "Erreur en déclenchant l'arrêt d'Home-Assistant"
 
-#: utils.js:365
+#: utils.js:372
 msgid "Error occured triggering Home-Assistant stop event."
 msgstr "Une erreur est survenue en déclenchant l'arrêt d'Home-Assistant."
 
-#: utils.js:369
+#: utils.js:376
 msgid "Error triggering Home-Assistant close event"
 msgstr "Erreur en déclenchant la fermeture d'Home-Assistant"
 
-#: utils.js:370
+#: utils.js:377
 msgid "Error occured triggering Home-Assistant close event."
 msgstr "Une erreur est survenue en déclenchant la fermeture d'Home-Assistant."
 
-#: utils.js:374
+#: utils.js:381
 msgid "Error triggering Home-Assistant event"
 msgstr "Erreur en déclenchant l'évènement Home-Assistant"
 
-#: utils.js:375
+#: utils.js:382
 msgid "Error occured triggering Home-Assistant event."
 msgstr "Une erreur est survenue en déclenchant l'évènement Home-Assistant."
 
@@ -302,6 +315,9 @@ msgid "Shortcut key on how to open the extension's menu from the tray."
 msgstr ""
 "Raccourci clavier pour ouvrir le menu de l'extension à partir de la zone de "
 "notification."
+
+#~ msgid "Choose Togglable Entities:"
+#~ msgstr "Sélectionner les entités interrupteurs :"
 
 #~ msgid "Refreshing sensors"
 #~ msgstr "Rafraîchir les capteurs"
