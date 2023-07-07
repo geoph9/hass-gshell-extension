@@ -82,13 +82,16 @@ function send_async_request(url, type, data, callback=null, on_error=null) {
       return;
     }
     try {
-        _log("sending %s request on %s...", [type, url]);
+        _log("Sending %s request on %s...", [type, url]);
         let result = session.send_and_read_async(
             message,
             GLib.PRIORITY_DEFAULT,
             null,
             (session, result) => {
-                _log("handling result of %s request on %s...", [type, url]);
+                _log(
+                    "Handling result of %s request on %s (status: %s)...",
+                    [type, url, Soup.Status.get_phrase(message.get_status())]
+                );
                 if (message.get_status() == Soup.Status.OK) {
                     result = session.send_and_read_finish(result);
                     if (!callback) {
@@ -96,10 +99,10 @@ function send_async_request(url, type, data, callback=null, on_error=null) {
                         return;
                     }
                     try {
-                        _log("decoding result of %s request on %s...", [type, url]);
+                        _log("Decoding result of %s request on %s...", [type, url]);
                         let decoder = new TextDecoder('utf-8');
                         let response = decoder.decode(result.get_data());
-                        _log("run callback for %s request on %s", [type, url]);
+                        _log("Run callback for %s request on %s", [type, url]);
                         callback(JSON.parse(response));
                     } catch (error) {
                         logError(error, `${MyUUID}: fail to decode result of request on ${url}.`);
@@ -108,8 +111,8 @@ function send_async_request(url, type, data, callback=null, on_error=null) {
                 }
                 else {
                     _log(
-                        "invalid return of request on %s (status: %s)",
-                        [url, message.get_status()], false
+                        "Invalid return of request on %s (status: %s)",
+                        [url, Soup.Status.get_phrase(message.get_status())], false
                     );
                     if (on_error) on_error();
                 }
