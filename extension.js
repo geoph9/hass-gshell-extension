@@ -42,10 +42,39 @@ var HassPanelSensor = GObject.registerClass ({
         if (force_reload)
             this.refresh(true);
 
+        this.build_tooltip();
+
         // Import settings to have access to its constants
         // Note: we can't do that globally.
         this.Settings = Me.imports.settings;
         this.connectedSettingIds = Utils.connectSettings([this.Settings.HASS_ENTITIES_CACHE], this.refresh.bind(this));
+    }
+
+    build_tooltip() {
+        this.tooltip = new St.Label({
+            text: this.computeTooltipText(),
+            visible: false,
+            style_class: "hass-sensor-tooltip",
+        });
+        Main.layoutManager.uiGroup.add_child(this.tooltip);
+        Main.layoutManager.uiGroup.set_child_above_sibling(this.tooltip, null);
+
+        this.set_track_hover(true);
+        this.connect('style-changed', (self) => {
+            if(self.hover) {
+                let [x, y] = this.get_transformed_position();
+                let w = this.tooltip.get_width();
+                let h = this.tooltip.get_height();
+                this.tooltip.set_position(
+                    x + Math.round(this.get_width() / 2) - Math.round(w / 2),
+                    y + Math.round(1.3 * h)
+                );
+                this.tooltip.visible = true;
+            }
+            else {
+                this.tooltip.visible = false;
+            }
+        });
     }
 
     refresh(force_reload=false, entity=null) {
@@ -63,6 +92,7 @@ var HassPanelSensor = GObject.registerClass ({
                     [this.entity.name, this.entity.entity_id]
                 );
                 this.label.text = this.computePlaceholderText();
+                this.tooltip.text = this.computeTooltipText()
             },
             force_reload
         );
@@ -76,9 +106,14 @@ var HassPanelSensor = GObject.registerClass ({
         return `- ${this.entity.unit}`;
     }
 
+    computeTooltipText() {
+        return `${this.entity.name} (${this.entity.entity_id})`;
+    }
+
     destroy() {
         Utils.disconnectSettings(this.connectedSettingIds);
         this.label.destroy();
+        this.tooltip.destroy();
         super.destroy();
     }
 
