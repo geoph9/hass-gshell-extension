@@ -276,9 +276,10 @@ class HassPrefs {
         let row = new Adw.EntryRow({
             title: _(key.get_summary()),
             text: this._settings.get_string(name),
+            show_apply_button: true,
         });
 
-        row.connect('entry-activated', () => {
+        row.connect('apply', () => {
             this._settings.set_string(name, row.get_text())
         });
 
@@ -288,9 +289,10 @@ class HassPrefs {
     createAccessTokenSettingRow() {
         let row = new Adw.PasswordEntryRow({
             title: _("Access Token"),
+            show_apply_button: true,
         });
 
-        row.connect('entry-activated', () => {
+        row.connect('apply', () => {
           Utils._log('Access token changed: "%s"', [row.get_text()]);
           let new_value = row.get_text();
           if (!new_value) return;
@@ -302,7 +304,6 @@ class HassPrefs {
               row.get_text(),
               null
           );
-          row.set_text('');
           // Always force reload entities cache in case of HASS Token change and invalidate it in case
           // of error
           Utils.getEntities(null, () => Utils.invalidateEntitiesCache(), true);
