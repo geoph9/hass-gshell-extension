@@ -132,6 +132,21 @@ function computeURL(path, hass_url=null) {
 }
 
 /**
+ * Map an entity object
+ *
+ * @param {Object} entity The raw entity state object, as return by HASS API
+ * @returns {Object}
+ */
+function mapEntity(ent) {
+    return {
+      'entity_id': ent.entity_id,
+      'name': ent.attributes.friendly_name,
+      'attributes': ent.attributes,
+      'state': ent.state,
+    }
+}
+
+/**
  * Get entities
  *
  * @param {Function} callback The callback to run with the result
@@ -147,17 +162,7 @@ function getEntities(callback=null, on_error=null, force_reload=false) {
             this.computeURL('api/states'), 'GET', null,
             function (response) {
                 if (Array.isArray(response)) {
-                    let entities = [];
-                    for (let ent of response) {
-                        entities.push(
-                          {
-                            'entity_id': ent.entity_id,
-                            'name': ent.attributes.friendly_name,
-                            'attributes': ent.attributes,
-                            'state': ent.state,
-                          }
-                        )
-                    }
+                    let entities = response.map(this.mapEntity);
                     _log("%s entities retreived, sort it by name", [entities.length]);
                     entities = entities.sort((a,b) => (a.name > b.name) ? 1 : ((b.name > a.name) ? -1 : 0));
                     _log("update entities cache");
@@ -175,6 +180,39 @@ function getEntities(callback=null, on_error=null, force_reload=false) {
     else {
         _log("get entities from cache");
         if (callback) callback(entities);
+    }
+}
+
+/**
+ * Get one entity
+ *
+ * @param {String} entity_id The requested entity ID
+ * @param {Function} callback The callback to run with the result
+ * @param {Function} on_error The callback to run on error
+ * @param {Boolean} force_reload Force reloading cache (optional, default: false)
+ *
+ */
+function getEntity(entity_id, callback=null, on_error=null, force_reload=false) {
+    let entity = mscOptions.entitiesCache.filter(ent => ent.entity_id == entity_id);
+    if (entity.length == 0 || force_reload) {
+        _log("get entity %s from API", [entity_id]);
+        send_async_request(
+            this.computeURL(`api/states/${entity_id}`), 'GET', null,
+            function (response) {
+                if (typeof response === "object") {
+                    if (callback)
+                        callback(mapEntity(response));
+                }
+                else if (on_error) {
+                    on_error();
+                }
+            }.bind(this),
+            on_error
+        );
+    }
+    else {
+        _log("get entity %s from cache", [entity_id]);
+        if (callback) callback(entity[0]);
     }
 }
 
@@ -216,6 +254,37 @@ function getTogglables(callback, on_error=null, only_enabled=false, force_reload
 }
 
 /**
+ * Map a sensor entity object
+ *
+ * @param {Object} entity The raw entity object, as returned by getEntity()/getEntities()
+ * @return {Object}
+ */
+function mapSensor(entity) {
+    return {
+      'entity_id': entity.entity_id,
+      'name': entity.name,
+      'unit': entity.attributes.unit_of_measurement,
+      'state': entity.state,
+    }
+}
+
+/**
+ * Check it's a sensor
+ *
+ * @param {Object} entity The entity object
+ * @return {Boolean}
+ */
+function isSensor(entity) {
+    return (
+        entity.entity_id.startsWith('sensor.')
+        && entity.state
+        && entity.attributes.unit_of_measurement
+        && entity.state !== "unknown"
+        && entity.state !== "unavailable"
+    );
+}
+
+/**
  * Get sensors
  *
  * @param {Function} callback The callback to run with the result
@@ -231,17 +300,8 @@ function getSensors(callback, on_error=null, only_enabled=false, force_reload=fa
             for (let ent of entities) {
                 if (only_enabled && !mscOptions.enabledSensors.includes(ent.entity_id))
                     continue;
-                if (!ent.entity_id.startsWith('sensor.')) continue;
-                if (!ent.state || !ent.attributes.unit_of_measurement) continue;
-                if (ent.state === "unknown" || ent.state === "unavailable") continue;
-                sensors.push(
-                  {
-                    'entity_id': ent.entity_id,
-                    'name': ent.name,
-                    'unit': ent.attributes.unit_of_measurement,
-                    'state': ent.state,
-                  }
-                )
+                if (!isSensor(ent)) continue;
+                sensors.push(mapSensor(ent));
             }
             _log("%s %ssensor entities found", [sensors.length, only_enabled?'enabled ':'']);
             callback(sensors);
@@ -261,29 +321,19 @@ function getSensors(callback, on_error=null, only_enabled=false, force_reload=fa
  *
  */
 function getSensor(sensor_id, callback, on_not_found=null, force_reload=false) {
-    getSensors(
-        function(sensors) {
-            for (let sensor of sensors) {
-                if (sensor.entity_id == sensor_id) {
-                    callback(sensor);
-                    return;
-                }
+    getEntity(
+        sensor_id,
+        function(entity) {
+            if (isSensor(entity)) {
+                callback(mapSensor(entity));
+                return;
             }
+            _log('getSensor(%s): is not a sensor (%s)', [sensor_id, JSON.stringify(entity)]);
             if (on_not_found) on_not_found();
         },
         on_not_found,
-        false,
         force_reload
     );
-}
-
-/**
- * Compute sensor state as display by the extension
- * @param {String} sensor  The sensor object
- * @return {String} The computed sensor state
- */
-function computeSensorState(sensor) {
-    return `${sensor.state} ${sensor.unit}`;
 }
 
 /**

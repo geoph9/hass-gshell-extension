@@ -16,6 +16,68 @@ const Utils = Me.imports.utils;
 
 const MyUUID = Me.metadata.uuid;
 
+var HassPanelSensor = GObject.registerClass ({
+    GTypeName: "HassPanelSensor"
+}, class HassPanelSensor extends St.Bin {
+
+    _init(entity, force_reload=false) {
+        super._init({
+            style_class : "panel-button",
+            reactive : true,
+            can_focus : true,
+            track_hover : true,
+            height : 30,
+            visible: true,
+        });
+        this.entity = entity;
+
+        this.label = new St.Label({
+            text : force_reload ? this.computePlaceholderText() : this.computeLabelText(),
+            y_align: Clutter.ActorAlign.CENTER,
+            style: "spacing: 2px",
+        });
+        this.set_child(this.label);
+        this.connect("button-press-event", () => this.refresh(true));
+
+        if (force_reload)
+            this.refresh(true);
+
+        // Import settings to have access to its constants
+        // Note: we can't do that globally.
+        this.Settings = Me.imports.settings;
+        Utils.connectSettings([this.Settings.HASS_ENTITIES_CACHE], this.refresh.bind(this));
+    }
+
+    refresh(force_reload=false, entity=null) {
+        if (entity) {
+            this.entity = entity;
+            this.label.text = this.computeLabelText();
+            return;
+        }
+        Utils.getSensor(
+            this.entity.entity_id,
+            (entity) => this.refresh(false, entity),
+            () => {
+                Utils._log(
+                    'Fail to load %s (%s) sensor state',
+                    [this.entity.name, this.entity.entity_id]
+                );
+                this.label.text = this.computePlaceholderText();
+            },
+            force_reload
+        );
+    }
+
+    computeLabelText() {
+        return `${this.entity.state} ${this.entity.unit}`;
+    }
+
+    computePlaceholderText() {
+        return `- ${this.entity.unit}`;
+    }
+
+});
+
 // Credits for organizing this class: https://github.com/vchlum/hue-lights/
 var HassMenu = GObject.registerClass ({
     GTypeName: "HassMenu"
@@ -35,8 +97,8 @@ var HassMenu = GObject.registerClass ({
         this.togglablesMenuItems = [];
         this.togglablesMenuSeparatorItem = null;
 
-        this.sensorsPanel = null;
-        this.sensorsPanelText = null;
+        this.panelSensorBox = null;
+        this.panelSensors = [];
         this.refreshSensorsTimeout = null;
     }
 
@@ -61,25 +123,12 @@ var HassMenu = GObject.registerClass ({
         // Load settings and build all compoments
         this._loadSettings();
         this._buildTrayMenu();
-        this._buildSensorsPanel();
+        this._buildPanelSensors();
         this._buildTrayIcon();
         this._enableShortcut();
 
         // Add the main box as child of the PopupMenu
         this.add_child(this.box);
-
-        // Now we could manage the content of the extension compoents. Firstly, update the entities
-        // cache
-        Utils.getEntities(
-            function (entities) {
-                this.refresh(true);
-            }.bind(this),
-            function () {
-                Utils._log("fail to refresh entities cache, invalidate it", null, true);
-                Utils.invalidateEntitiesCache();
-            }.bind(this),
-            true  // force refreshing the cache
-        );
 
         // Connect the setting field that contain the HASS URL with the refresh() method with
         // force_reload argument equal to true
@@ -92,10 +141,11 @@ var HassMenu = GObject.registerClass ({
 
     disable () {
         Utils._log("disabling...");
-        this._deleteSensorsPanel();
+        this._deletePanelSensors();
         this._deleteTrayIcon();
         this._disableShortcut();
         this._deleteMenuItems();
+        if (this.panelSensorBox) this.panelSensorBox.destroy();
         if (this.box) this.box.destroy();
     }
 
@@ -115,7 +165,7 @@ var HassMenu = GObject.registerClass ({
         }
         else {
             this._refreshTogglable();
-            this._refreshSensorsPanel();
+            this._refreshPanelSensors();
         }
     }
 
@@ -266,6 +316,9 @@ var HassMenu = GObject.registerClass ({
         // _refreshTogglable() method
         this._connectSettings([this.Settings.HASS_ENABLED_ENTITIES], this._refreshTogglable);
 
+        // Refresh togglable items a first time
+        this._refreshTogglable();
+
         Utils._log("tray menu builded");
     }
 
@@ -333,50 +386,81 @@ var HassMenu = GObject.registerClass ({
 
     /*
      **********************************************************************************************
-     * Sensors panel
+     * Panel sensors
      **********************************************************************************************
      */
 
-    _buildSensorsPanel() {
+    _buildPanelSensors() {
         Utils._log("build sensors panel...");
-        this.sensorsPanel = new St.Bin({
-            style_class : "panel-button",
-            reactive : true,
-            can_focus : true,
-            track_hover : true,
-            height : 30,
-            visible: false,
-        });
-        this.sensorsPanelText = new St.Label({
-            text : "",
-            y_align: Clutter.ActorAlign.CENTER,
-        });
-        this.sensorsPanel.set_child(this.sensorsPanelText);
-        this.sensorsPanel.connect("button-press-event", () => this._refreshSensorsPanel(true));
-        this.box.add_child(this.sensorsPanel);
 
-        // Connect the setting field that contain enabled sensors with the _refreshSensorsPanel()
+        // Create a box for panel sensors and add it to main box
+        this.panelSensorBox = new St.BoxLayout();
+        this.box.add_child(this.panelSensorBox);
+
+        // Rebuild panel sensors item a first time (with force reload enabled)
+        this._rebuildPanelSensors(true);
+
+        // Connect the setting field that contain enabled sensors with the _rebuildPanelSensors()
         // method
-        this._connectSettings([this.Settings.HASS_ENABLED_SENSOR_IDS], this._refreshSensorsPanel);
+        this._connectSettings([this.Settings.HASS_ENABLED_SENSOR_IDS], this._rebuildPanelSensors);
 
         // Configure the refreshing of sensors panel
-        this._configSensorsPanelRefresh();
+        this._configPanelSensorsRefresh();
 
         // Connect all setting fields that have impact on the refreshing of sensors panel with
-        // the _configSensorsPanelRefresh() method
+        // the _configPanelSensorsRefresh() method
         this._connectSettings(
             [
                 this.Settings.HASS_ENABLED_SENSOR_IDS,
                 this.Settings.DO_REFRESH,
                 this.Settings.REFRESH_RATE,
             ],
-            this._configSensorsPanelRefresh
+            this._configPanelSensorsRefresh
         );
 
         Utils._log("panel sensor builded...");
     }
 
-    _configSensorsPanelRefresh() {
+    _rebuildPanelSensors(force_reload=false) {
+        Utils._log("Rebuild panel sensors...");
+        Utils.getSensors(
+            function(panelSensors) {
+                Utils._log("Get enabled sensors, rebuild panel...");
+                let panelSensorsIds = panelSensors.map((p) => p.entity_id);
+
+                // Firstly, remove all panel sensors from their box and destroy removed sensors
+                for (let [panelSensorId, panelSensor] of Object.entries(this.panelSensors)) {
+                    this.panelSensorBox.remove_child(panelSensor);
+                    if (!panelSensorsIds.includes(panelSensorId)) {
+                        Utils._log("Remove sensor %s (%s) from panel", [panelSensor.entity.name, panelSensor.entity.entity_id]);
+                        panelSensor.destroy();
+                        delete this.panelSensors[panelSensorId];
+                    }
+                }
+
+                // Now refresh existing sensors, create new ones and put them in their box
+                for (let [idx, panelSensor] of panelSensors.entries()) {
+                    if (panelSensor.entity_id in this.panelSensors) {
+                        Utils._log("Refresh sensor %s (%s) in panel", [panelSensor.name, panelSensor.entity_id]);
+                        this.panelSensors[panelSensor.entity_id].refresh(force_reload, panelSensor);
+                    }
+                    else {
+                        Utils._log("Add sensor %s (%s) to panel", [panelSensor.name, panelSensor.entity_id]);
+                        this.panelSensors[panelSensor.entity_id] = new HassPanelSensor(panelSensor, force_reload);
+                    }
+                    this.panelSensorBox.add_child(this.panelSensors[panelSensor.entity_id]);
+                }
+                Utils._log("Panel sensors rebuilded");
+            }.bind(this),
+            function() {
+                Utils._log("fail to load enabled panel sensors, remove all", null, true);
+                this._deletePanelSensors();
+            }.bind(this),
+            true,  // we want only enabled sensors
+        );
+    }
+
+    _configPanelSensorsRefresh() {
         // Firstly cancel previous configured timeout (if defined)
         if (this.refreshSensorsTimeout) {
             Utils._log("cancel previous sensors refresh timer...");
@@ -395,52 +479,22 @@ var HassMenu = GObject.registerClass ({
             [this.refreshSeconds]
         );
         this.refreshSensorsTimeout = Mainloop.timeout_add_seconds(this.refreshSeconds, () => {
-            this._refreshSensorsPanel(true);
+            this._refreshPanelSensors(true);
             // We have to return true to keep the timer alive
             return true;
         });
     }
 
-    _refreshSensorsPanel(force_reload=false) {
-        // Get enabled panel sensors and continue in callback
-        Utils.getSensors(
-            function(panelSensors) {
-                Utils._log("refresh sensors panel");
-                if (panelSensors.length === 0) {
-                    Utils._log("no sensor enabled for the panel, hide it");
-                    this.sensorsPanel.visible = false;
-                    return;
-                }
-
-                try {
-                    let outText = [];
-                    for (let sensor of panelSensors)
-                        outText.push(Utils.computeSensorState(sensor));
-                    Utils._log('refreshed panel sensors value = "%s"', [outText.join(' | ')]);
-                    this.sensorsPanelText.text = outText.join(' | ');
-                    this.sensorsPanel.visible = true;
-                } catch (error) {
-                    logError(error, `${MyUUID}: Fail to compute sensors panel text, hide it`);
-                    this.sensorsPanel.visible = false;
-                }
-            }.bind(this),
-            function() {
-                Utils._log("fail to load enabled panel sensors, hide it", null, true);
-                this.sensorsPanel.visible = false;
-            }.bind(this),
-            true,  // we want only enabled sensors
-            force_reload
-        );
+    _refreshPanelSensors(force_reload=false) {
+        for (let panelSensor of Object.values(this.panelSensors))
+            panelSensor.refresh(force_reload);
     }
 
-    _deleteSensorsPanel() {
-        if (this.sensorsPanelText) {
-            this.sensorsPanelText.destroy();
-            this.sensorsPanelText = null;
-        }
-        if (this.sensorsPanel) {
-            this.sensorsPanel.destroy();
-            this.sensorsPanel = null;
+    _deletePanelSensors() {
+        for (let [panelSensorId, panelSensor] of Object.entries(this.panelSensors)) {
+            this.box.remove_child(panelSensor);
+            panelSensor.destroy();
+            delete this.panelSensors[panelSensorId];
         }
     }
 
