@@ -45,7 +45,7 @@ var HassPanelSensor = GObject.registerClass ({
         // Import settings to have access to its constants
         // Note: we can't do that globally.
         this.Settings = Me.imports.settings;
-        Utils.connectSettings([this.Settings.HASS_ENTITIES_CACHE], this.refresh.bind(this));
+        this.connectedSettingIds = Utils.connectSettings([this.Settings.HASS_ENTITIES_CACHE], this.refresh.bind(this));
     }
 
     refresh(force_reload=false, entity=null) {
@@ -76,6 +76,12 @@ var HassPanelSensor = GObject.registerClass ({
         return `- ${this.entity.unit}`;
     }
 
+    destroy() {
+        Utils.disconnectSettings(this.connectedSettingIds);
+        this.label.destroy();
+        super.destroy();
+    }
+
 });
 
 // Credits for organizing this class: https://github.com/vchlum/hue-lights/
@@ -100,6 +106,8 @@ var HassMenu = GObject.registerClass ({
         this.panelSensorBox = null;
         this.panelSensors = [];
         this.refreshSensorsTimeout = null;
+
+        this.connectedSettingIds = [];
     }
 
     enable() {
@@ -141,6 +149,7 @@ var HassMenu = GObject.registerClass ({
 
     disable () {
         Utils._log("disabling...");
+        Utils.disconnectSettings(this.connectedSettingIds);
         this._deletePanelSensors();
         this._deleteTrayIcon();
         this._disableShortcut();
@@ -202,12 +211,15 @@ var HassMenu = GObject.registerClass ({
     }
 
     _connectSettings(settings, callback, args=[]) {
-        Utils.connectSettings(
-            settings,
-            function() {
-                this._loadSettings();
-                callback.apply(this, args);
-            }.bind(this)
+        this.connectedSettingIds.push.apply(
+            this.connectedSettingIds,
+            Utils.connectSettings(
+                settings,
+                function() {
+                    this._loadSettings();
+                    callback.apply(this, args);
+                }.bind(this)
+            )
         );
     }
 

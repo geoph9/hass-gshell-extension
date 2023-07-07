@@ -1,11 +1,13 @@
 const {Soup, Gio, GLib, Secret} = imports.gi;
-const Me = imports.misc.extensionUtils.getCurrentExtension();
+const ExtensionUtils = imports.misc.extensionUtils;
+const Me = ExtensionUtils.getCurrentExtension();
 const MscOptions = Me.imports.settings.MscOptions;
 
 const Gettext = imports.gettext.domain(Me.metadata['gettext-domain']);
 const _ = Gettext.gettext;
 
 const mscOptions = new MscOptions();
+const _settings = ExtensionUtils.getSettings();
 const MyUUID = Me.metadata.uuid;
 
 let TOKEN_SCHEMA;
@@ -557,10 +559,22 @@ function notify(msg, details) {
  * @param {Array}    [args=[]]  Optional arguments to pass to callback
  */
 function connectSettings(settings, callback, args=[]) {
+    let connectedSettingIds = [];
     for (let setting of settings) {
-        mscOptions.connect(
-            "changed::" + setting,
-            () => callback.apply(this, args)
+        connectedSettingIds.push(
+            _settings.connect(
+                "changed::" + setting,
+                () => callback.apply(this, args)
+            )
         );
     }
+    return connectedSettingIds;
+}
+
+/**
+ * Disconnect connected settings by ID
+ * @param {Array} connectedSettingIds List of connected setting IDs
+ */
+function disconnectSettings(connectedSettingIds) {
+    connectedSettingIds.forEach(id => _settings.disconnect(id));
 }
