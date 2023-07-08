@@ -69,10 +69,21 @@ var HassPanelSensor = GObject.registerClass ({
                     x + Math.round(this.get_width() / 2) - Math.round(w / 2),
                     y + Math.round(1.3 * h)
                 );
-                this.tooltip.visible = true;
+                this.tooltip.show();
+                this.tooltip.ease({
+                    opacity: 200,
+                    duration: 300,
+                    mode: Clutter.AnimationMode.EASE_OUT_QUAD,
+                });
             }
             else {
-                this.tooltip.visible = false;
+                this.tooltip.remove_all_transitions();
+                this.tooltip.ease({
+                    opacity: 0,
+                    duration: 100,
+                    mode: Clutter.AnimationMode.EASE_OUT_QUAD,
+                    onComplete: () => this.tooltip.hide(),
+                });
             }
         });
     }
