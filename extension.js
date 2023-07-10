@@ -92,6 +92,7 @@ var HassPanelSensor = GObject.registerClass ({
         if (entity) {
             this.entity = entity;
             this.label.text = this.computeLabelText();
+            this.tooltip.text = this.entity.name;
             return;
         }
         Utils.getSensor(
@@ -103,7 +104,6 @@ var HassPanelSensor = GObject.registerClass ({
                     [this.entity.name, this.entity.entity_id]
                 );
                 this.label.text = this.computePlaceholderText();
-                this.tooltip.text = this.entity.name;
             },
             force_reload
         );
