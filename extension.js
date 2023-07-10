@@ -52,7 +52,7 @@ var HassPanelSensor = GObject.registerClass ({
 
     build_tooltip() {
         this.tooltip = new St.Label({
-            text: this.computeTooltipText(),
+            text: this.entity.name,
             visible: false,
             style_class: "hass-sensor-tooltip",
         });
@@ -103,7 +103,7 @@ var HassPanelSensor = GObject.registerClass ({
                     [this.entity.name, this.entity.entity_id]
                 );
                 this.label.text = this.computePlaceholderText();
-                this.tooltip.text = this.computeTooltipText()
+                this.tooltip.text = this.entity.name;
             },
             force_reload
         );
@@ -115,10 +115,6 @@ var HassPanelSensor = GObject.registerClass ({
 
     computePlaceholderText() {
         return `- ${this.entity.unit}`;
-    }
-
-    computeTooltipText() {
-        return `${this.entity.name} (${this.entity.entity_id})`;
     }
 
     destroy() {
