@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2023-06-25 09:46+0200\n"
+"POT-Creation-Date: 2023-07-06 14:35+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -17,111 +17,182 @@ msgstr ""
 "Content-Type: text/plain; charset=CHARSET\n"
 "Content-Transfer-Encoding: 8bit\n"
 
-#: extension.js:75
-msgid "Toggle:"
-msgstr ""
-
-#: extension.js:93
+#: extension.js:230
 msgid "HASS Events"
 msgstr ""
 
-#: extension.js:95
+#: extension.js:234
 msgid "Start Home Assistant"
 msgstr ""
 
-#: extension.js:96
+#: extension.js:238
 msgid "Stop Home Assistant"
 msgstr ""
 
-#: extension.js:97
+#: extension.js:242
 msgid "Close Home Assistant"
 msgstr ""
 
-#: extension.js:113
+#: extension.js:247
+msgid "Refresh"
+msgstr ""
+
+#: extension.js:258
 msgid "Preferences"
 msgstr ""
 
-#: prefs.js:48
+#: extension.js:289
+msgid "Toggle:"
+msgstr ""
+
+#: prefs.js:37 prefs.js:41
 msgid "General Settings"
 msgstr ""
 
-#: prefs.js:51
-msgid "Togglables"
+#: prefs.js:49 schemas/org.gnome.shell.extensions.hass-data.gschema.xml:34
+msgid "Refresh sensors"
 msgstr ""
 
-#: prefs.js:56 schemas/org.gnome.shell.extensions.hass-data.gschema.xml:94
-msgid "Panel Sensors"
-msgstr ""
-
-#: prefs.js:85
-msgid "Global options:"
-msgstr ""
-
-#: prefs.js:103
-msgid "Temperature/Humidity options:"
-msgstr ""
-
-#: prefs.js:132
+#: prefs.js:55
 msgid "Panel Icon Options:"
 msgstr ""
 
-#: prefs.js:149
-#, javascript-format
-msgid "%s Icon"
+#: prefs.js:79
+msgid "Togglables"
 msgstr ""
 
-#: prefs.js:157
+#: prefs.js:83
+msgid "Choose which togglables should appear in the menu:"
+msgstr ""
+
+#: prefs.js:102
 msgid ""
-"You will need to restart your session in order for this change to take "
-"effect."
+"No togglable found. Please check your Home-Assistant connection settings."
 msgstr ""
 
-#: prefs.js:158
-msgid ""
-"On Xorg, you can do that by Alt+F2 and then pressing 'r' and Enter. If this "
-"doesn't work (Wayland), you have to logout and re-login."
+#: prefs.js:167
+msgid "Sensors"
 msgstr ""
 
-#: prefs.js:282
-msgid "Togglable Entities:"
+#: prefs.js:171
+msgid "Choose which sensors should appear on the panel:"
 msgstr ""
 
-#: prefs.js:287
-msgid "Choose Togglable Entities:"
+#: prefs.js:190
+msgid "No sensor found. Please check your Home-Assistant connection settings."
 msgstr ""
 
-#: prefs.js:310
-msgid "Group Switches"
+#: prefs.js:290
+msgid "Access Token"
 msgstr ""
 
-#: prefs.js:317
-msgid "Experimental"
-msgstr ""
-
-#: prefs.js:318
-msgid "Does not currently work."
-msgstr ""
-
-#: prefs.js:409
-msgid "Sensors:"
-msgstr ""
-
-#: prefs.js:414
-msgid "Choose Which Sensors Should Appear on the Panel:"
-msgstr ""
-
-#: prefs.js:586
+#: utils.js:303 utils.js:325
 #, javascript-format
-msgid "Do you want to have the '%s' icon in your panel?"
+msgid "Error toggling %s"
 msgstr ""
 
-#: prefs.js:588
+#: utils.js:304
 #, javascript-format
-msgid "Do you want to show %s in the tray menu?"
+msgid "Error occured trying to toggle %s: entity not found."
 msgstr ""
 
-#: prefs.js:635
-msgid "Add"
+#: utils.js:309
+#, javascript-format
+msgid "%s toggled on"
+msgstr ""
+
+#: utils.js:310
+#, javascript-format
+msgid "%s successfully toggled on."
+msgstr ""
+
+#: utils.js:314
+#, javascript-format
+msgid "%s toggled off"
+msgstr ""
+
+#: utils.js:315
+#, javascript-format
+msgid "%s successfully toggled off."
+msgstr ""
+
+#: utils.js:319
+#, javascript-format
+msgid "%s toggled"
+msgstr ""
+
+#: utils.js:320
+#, javascript-format
+msgid "%s successfully toggled."
+msgstr ""
+
+#: utils.js:326
+#, javascript-format
+msgid "Error occured trying to toggle %s."
+msgstr ""
+
+#: utils.js:344
+msgid "Home-Assistant start event triggered"
+msgstr ""
+
+#: utils.js:345
+msgid "Home-Assistant start event successfully triggered."
+msgstr ""
+
+#: utils.js:349
+msgid "Home-Assistant stop event triggered"
+msgstr ""
+
+#: utils.js:350
+msgid "Home-Assistant stop event successfully triggered."
+msgstr ""
+
+#: utils.js:354
+msgid "Home-Assistant close event triggered"
+msgstr ""
+
+#: utils.js:355
+msgid "Home-Assistant close event successfully triggered."
+msgstr ""
+
+#: utils.js:359
+msgid "Home-Assistant event triggered"
+msgstr ""
+
+#: utils.js:360
+msgid "Home-Assistant event successfully triggered."
+msgstr ""
+
+#: utils.js:366
+msgid "Error triggering Home-Assistant start event"
+msgstr ""
+
+#: utils.js:367
+msgid "Error occured triggering Home-Assistant start event."
+msgstr ""
+
+#: utils.js:371
+msgid "Error triggering Home-Assistant stop event"
+msgstr ""
+
+#: utils.js:372
+msgid "Error occured triggering Home-Assistant stop event."
+msgstr ""
+
+#: utils.js:376
+msgid "Error triggering Home-Assistant close event"
+msgstr ""
+
+#: utils.js:377
+msgid "Error occured triggering Home-Assistant close event."
+msgstr ""
+
+#: utils.js:381
+msgid "Error triggering Home-Assistant event"
+msgstr ""
+
+#: utils.js:382
+msgid "Error occured triggering Home-Assistant event."
 msgstr ""
 
 #: schemas/org.gnome.shell.extensions.hass-data.gschema.xml:16
@@ -148,18 +219,14 @@ msgstr ""
 
 #: schemas/org.gnome.shell.extensions.hass-data.gschema.xml:29
 msgid ""
-"(Currently Broken) The refresh rate for the weather statistics in seconds "
-"(works only if \"Refresh Temperature/Humidity Sensors\" is enabled)."
-msgstr ""
-
-#: schemas/org.gnome.shell.extensions.hass-data.gschema.xml:34
-msgid "Refresh Temperature/Humidity Sensors"
+"The refresh rate for the weather statistics in seconds (works only if "
+"\"Refresh Temperature/Humidity Sensors\" is enabled)."
 msgstr ""
 
 #: schemas/org.gnome.shell.extensions.hass-data.gschema.xml:35
 msgid ""
-"(Currently Broken) Whether or not you want to refresh the temperature and/or "
-"humidity sensor values."
+"Whether or not you want to refresh the temperature and/or humidity sensor "
+"values."
 msgstr ""
 
 #: schemas/org.gnome.shell.extensions.hass-data.gschema.xml:40
@@ -167,98 +234,59 @@ msgid "Show notifications"
 msgstr ""
 
 #: schemas/org.gnome.shell.extensions.hass-data.gschema.xml:41
-msgid "Show notifications when enabled/disabled."
+msgid "Show notifications when enable/disable togglables or on HASS events."
 msgstr ""
 
 #: schemas/org.gnome.shell.extensions.hass-data.gschema.xml:46
-msgid "Show Temperature/Humidity"
-msgstr ""
-
-#: schemas/org.gnome.shell.extensions.hass-data.gschema.xml:47
-msgid ""
-"Whether to show the temperature and/or humidity values (assuming you have "
-"provided the corresponding entity ids)."
-msgstr ""
-
-#: schemas/org.gnome.shell.extensions.hass-data.gschema.xml:52
-msgid "Show Humidity"
-msgstr ""
-
-#: schemas/org.gnome.shell.extensions.hass-data.gschema.xml:53
-msgid "Whether to show humidity value or not."
-msgstr ""
-
-#: schemas/org.gnome.shell.extensions.hass-data.gschema.xml:58
-msgid "Temperature ID"
-msgstr ""
-
-#: schemas/org.gnome.shell.extensions.hass-data.gschema.xml:59
-msgid "Your Home Assistant EntityID for the temperature sensor."
-msgstr ""
-
-#: schemas/org.gnome.shell.extensions.hass-data.gschema.xml:64
-msgid "Humidity ID"
-msgstr ""
-
-#: schemas/org.gnome.shell.extensions.hass-data.gschema.xml:65
-msgid "Your Home Assistant EntityID for the humidity sensor."
-msgstr ""
-
-#: schemas/org.gnome.shell.extensions.hass-data.gschema.xml:70
-msgid "Access Token"
-msgstr ""
-
-#: schemas/org.gnome.shell.extensions.hass-data.gschema.xml:71
-msgid ""
-"Long Live Access Token for Home Assistant (Go to Profile->Bottom-of-the-page-"
-">Long-Live-Access-Tokens and create a new one)."
-msgstr ""
-
-#: schemas/org.gnome.shell.extensions.hass-data.gschema.xml:76
 msgid "URL"
 msgstr ""
 
-#: schemas/org.gnome.shell.extensions.hass-data.gschema.xml:77
+#: schemas/org.gnome.shell.extensions.hass-data.gschema.xml:47
 msgid "The url where your hass instance is hosted."
 msgstr ""
 
-#: schemas/org.gnome.shell.extensions.hass-data.gschema.xml:82
-msgid "Complete list of entity ids for home-assistant switches."
+#: schemas/org.gnome.shell.extensions.hass-data.gschema.xml:52
+msgid "Home-Assistant entities's state cache."
 msgstr ""
 
-#: schemas/org.gnome.shell.extensions.hass-data.gschema.xml:83
+#: schemas/org.gnome.shell.extensions.hass-data.gschema.xml:53
 msgid ""
-"Full list of home assistant switches. It is meant to be filled automatically "
-"after pressing the 'Scan' button in the Preferences menu."
+"Home-Assistant entities's state cache. It is meant to be filled "
+"automatically on start-up or after pressing the 'Refresh' button in the "
+"Preferences menu."
 msgstr ""
 
-#: schemas/org.gnome.shell.extensions.hass-data.gschema.xml:88
+#: schemas/org.gnome.shell.extensions.hass-data.gschema.xml:58
 msgid "Entity ids for home-assistant switches."
 msgstr ""
 
-#: schemas/org.gnome.shell.extensions.hass-data.gschema.xml:89
+#: schemas/org.gnome.shell.extensions.hass-data.gschema.xml:59
 msgid ""
 "Entity ids for home-assistant switches. E.g. switch.livingroom_lights_relay."
 msgstr ""
 
-#: schemas/org.gnome.shell.extensions.hass-data.gschema.xml:95
-msgid ""
-"List of entity ids for the sensor values that you want to show in the panel ."
-msgstr ""
-
-#: schemas/org.gnome.shell.extensions.hass-data.gschema.xml:100
+#: schemas/org.gnome.shell.extensions.hass-data.gschema.xml:64
 msgid "Entity ids for home assistant sensors."
 msgstr ""
 
-#: schemas/org.gnome.shell.extensions.hass-data.gschema.xml:101
+#: schemas/org.gnome.shell.extensions.hass-data.gschema.xml:65
 msgid ""
-"Entity ids for home-assistant sensors. E.g. sensor.livingroom_temperature ."
+"Entity ids for home-assistant sensors. E.g. sensor.livingroom_temperature."
 msgstr ""
 
-#: schemas/org.gnome.shell.extensions.hass-data.gschema.xml:112
+#: schemas/org.gnome.shell.extensions.hass-data.gschema.xml:70
+msgid "Enable debug mode"
+msgstr ""
+
+#: schemas/org.gnome.shell.extensions.hass-data.gschema.xml:71
+msgid ""
+"When this mode is enabled, more logged messages could be seen in the journal."
+msgstr ""
+
+#: schemas/org.gnome.shell.extensions.hass-data.gschema.xml:82
 msgid "Home Assistant Extension - Shortcut Key"
 msgstr ""
 
-#: schemas/org.gnome.shell.extensions.hass-data.gschema.xml:113
+#: schemas/org.gnome.shell.extensions.hass-data.gschema.xml:83
 msgid "Shortcut key on how to open the extension's menu from the tray."
 msgstr ""

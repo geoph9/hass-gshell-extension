@@ -1,3 +1,13 @@
 .bg-color {
   background-color : gold;
 }
+
+.hass-sensor-tooltip {
+    background-color : black;
+    color: white;
+    padding: 0.4em;
+    border-radius: 0.5em;
+    font-size: 0.9em;
+    font-weight: 600;
+    opacity: 0;
+}

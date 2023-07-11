@@ -4,28 +4,20 @@ const ExtensionUtils = imports.misc.extensionUtils;
 const Me = ExtensionUtils.getCurrentExtension();
 const Utils = Me.imports.utils;
 
-const PANEL_ICON_PATH = "default-panel-icon";
-const VALID_PANEL_ICONS = 'valid-panel-icons';
-const HASS_ACCESS_TOKEN = 'hass-access-token';
-const HASS_URL = 'hass-url';
-const HASS_TOGGLABLE_ENTITIES = 'hass-togglable-entities';
-const HASS_ENABLED_ENTITIES = 'hass-enabled-entities';
-const HASS_PANEL_SENSOR_IDS = 'hass-panel-sensor-ids';
-const HASS_ENABLED_SENSOR_IDS = 'hass-enabled-sensor-ids';
-// const HASS_SHORTCUT = 'hass-shortcut';
-const SHOW_NOTIFICATIONS_KEY = 'show-notifications';
-const SHOW_WEATHER_STATS = 'show-weather-stats';
-const SHOW_HUMIDITY = 'show-humidity';
-const TEMPERATURE_ID = 'temp-entity-id';
-const HUMIDITY_ID = 'humidity-entity-id';
-const DO_REFRESH = 'refresh-weather';
-const REFRESH_RATE = 'weather-refresh-seconds';
-
-const HASS_SETTINGS = 'org.gnome.shell.extensions.hass-data';
+var PANEL_ICON_PATH = 'default-panel-icon';
+var VALID_PANEL_ICONS = 'valid-panel-icons';
+var HASS_URL = 'hass-url';
+var HASS_ENTITIES_CACHE = 'hass-entities-cache';
+var HASS_ENABLED_ENTITIES = 'hass-enabled-entities';
+var HASS_ENABLED_SENSOR_IDS = 'hass-enabled-sensor-ids';
+var SHOW_NOTIFICATIONS_KEY = 'show-notifications';
+var DO_REFRESH = 'sensors-refresh';
+var REFRESH_RATE = 'sensors-refresh-seconds';
+var DEBUG_MODE = 'debug-mode';
 
 var MscOptions = class MscOptions {
     constructor() {
-        this._gsettings = Utils.getSettings(HASS_SETTINGS);
+        this._gsettings = Utils.getSettings();
         this._connectionIds = [];
     }
 
@@ -61,34 +53,6 @@ var MscOptions = class MscOptions {
         this._gsettings.set_string(HASS_URL, bool_val);
     }
 
-    get tempHumi() {
-        return this._gsettings.get_boolean(SHOW_WEATHER_STATS);
-    }
-    set tempHumi(bool_val) {
-        this._gsettings.set_boolean(SHOW_WEATHER_STATS, bool_val);
-    }
-
-    get showHumidity() {
-        return this._gsettings.get_boolean(SHOW_HUMIDITY);
-    }
-    set showHumidity(bool_val) {
-        this._gsettings.set_boolean(SHOW_HUMIDITY, bool_val);
-    }
-
-    get temperatureId() {
-        return this._gsettings.get_string(TEMPERATURE_ID);
-    }
-    set temperatureId(tempId) {
-        this._gsettings.set_string(TEMPERATURE_ID, tempId);
-    }
-
-    get humidityId() {
-        return this._gsettings.get_string(HUMIDITY_ID);
-    }
-    set humidityId(humiId) {
-        this._gsettings.set_string(HUMIDITY_ID, humiId);
-    }
-
     get doRefresh() {
         return this._gsettings.get_boolean(DO_REFRESH);
     }
@@ -100,17 +64,18 @@ var MscOptions = class MscOptions {
         return this._gsettings.get_string(REFRESH_RATE);
     }
     set refreshRate(rate) {
-        this._gsettings.set_string(REFRESH_RATE, humiId);
+        this._gsettings.set_string(REFRESH_RATE, rate);
     }
 
-    // Togglable settings
-    get togglableEntities() {
-        return this._gsettings.get_strv(HASS_TOGGLABLE_ENTITIES).map(ent => JSON.parse(ent));
+    // Entities cache
+    get entitiesCache() {
+        return this._gsettings.get_strv(HASS_ENTITIES_CACHE).map(ent => JSON.parse(ent));
     }
-    set togglableEntities(entities) {
-        this._gsettings.set_strv(HASS_TOGGLABLE_ENTITIES, entities.map(ent => JSON.stringify(ent)));
+    set entitiesCache(entities) {
+        this._gsettings.set_strv(HASS_ENTITIES_CACHE, entities.map(ent => JSON.stringify(ent)));
     }
 
+    // Togglable entities of menu
     get enabledEntities() {
         return this._gsettings.get_strv(HASS_ENABLED_ENTITIES);
     }
@@ -118,19 +83,28 @@ var MscOptions = class MscOptions {
         this._gsettings.set_strv(HASS_ENABLED_ENTITIES, entities);
     }
 
-    // Panel Icons for Extra Sensors
-    get hassSensorEntities() {
-        return this._gsettings.get_strv(HASS_PANEL_SENSOR_IDS).map(ent => JSON.parse(ent));
-    }
-    set hassSensorEntities(entities) {
-        this._gsettings.set_strv(HASS_PANEL_SENSOR_IDS, entities.map(ent => JSON.stringify(ent)));
-    }
-
+    // Panel extra sensors
     get enabledSensors() {
         return this._gsettings.get_strv(HASS_ENABLED_SENSOR_IDS);
     }
     set enabledSensors(entities) {
         this._gsettings.set_strv(HASS_ENABLED_SENSOR_IDS, entities);
+    }
+
+    // Debug mode
+    get debugMode() {
+        return this._gsettings.get_boolean(DEBUG_MODE);
+    }
+    set debugMode(bool_val) {
+        this._gsettings.set_boolean(DEBUG_MODE, bool_val);
+    }
+
+    // Show notifications
+    get showNotifications() {
+        return this._gsettings.get_boolean(SHOW_NOTIFICATIONS_KEY);
+    }
+    set showNotifications(bool_val) {
+        this._gsettings.set_boolean(SHOW_NOTIFICATIONS_KEY, bool_val);
     }
 
 }

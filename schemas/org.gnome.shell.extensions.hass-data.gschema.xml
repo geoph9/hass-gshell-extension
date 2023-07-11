@@ -23,52 +23,22 @@
       <description>The paths have to be relative to the directory where the 'extension.js' file is located.</description>
     </key>
 
-    <key type="s" name="weather-refresh-seconds">
+    <key type="s" name="sensors-refresh-seconds">
       <default>"60"</default>
       <summary>Refresh Rate</summary>
-      <description>(Currently Broken) The refresh rate for the weather statistics in seconds (works only if "Refresh Temperature/Humidity Sensors" is enabled).</description>
+      <description>The refresh rate for the weather statistics in seconds (works only if "Refresh Temperature/Humidity Sensors" is enabled).</description>
     </key>
 
-    <key type="b" name="refresh-weather">
+    <key type="b" name="sensors-refresh">
         <default>false</default>
-        <summary>Refresh Temperature/Humidity Sensors</summary>
-        <description>(Currently Broken) Whether or not you want to refresh the temperature and/or humidity sensor values.</description>
+        <summary>Refresh sensors</summary>
+        <description>Whether or not you want to refresh the temperature and/or humidity sensor values.</description>
     </key>
 
     <key type="b" name="show-notifications">
-        <default>true</default>
+        <default>false</default>
         <summary>Show notifications</summary>
-        <description>Show notifications when enabled/disabled.</description>
-    </key>
-
-    <key type="b" name="show-weather-stats">
-        <default>false</default>
-        <summary>Show Temperature/Humidity</summary>
-        <description>Whether to show the temperature and/or humidity values (assuming you have provided the corresponding entity ids).</description>
-    </key>
-
-    <key type="b" name="show-humidity">
-        <default>false</default>
-        <summary>Show Humidity</summary>
-        <description>Whether to show humidity value or not.</description>
-    </key>
-
-    <key type="s" name="temp-entity-id">
-      <default>"sensor.livingroom_temperature"</default>
-      <summary>Temperature ID</summary>
-      <description>Your Home Assistant EntityID for the temperature sensor.</description>
-    </key>
-
-    <key type="s" name="humidity-entity-id">
-      <default>"sensor.livingroom_humidity"</default>
-      <summary>Humidity ID</summary>
-      <description>Your Home Assistant EntityID for the humidity sensor.</description>
-    </key>
-
-    <key type="s" name="hass-access-token">
-      <default>""</default>
-      <summary>Access Token</summary>
-      <description>Long Live Access Token for Home Assistant (Go to Profile->Bottom-of-the-page->Long-Live-Access-Tokens and create a new one).</description>
+        <description>Show notifications when enable/disable togglables or on HASS events.</description>
     </key>
 
     <key type="s" name="hass-url">
@@ -77,10 +47,10 @@
       <description>The url where your hass instance is hosted.</description>
     </key>
 
-    <key type="as" name="hass-togglable-entities">
+    <key type="as" name="hass-entities-cache">
       <default>[]</default>
-      <summary>Complete list of entity ids for home-assistant switches.</summary>
-      <description>Full list of home assistant switches. It is meant to be filled automatically after pressing the 'Scan' button in the Preferences menu.</description>
+      <summary>Home-Assistant entities's state cache.</summary>
+      <description>Home-Assistant entities's state cache. It is meant to be filled automatically on start-up or after pressing the 'Refresh' button in the Preferences menu.</description>
     </key>
 
     <key type="as" name="hass-enabled-entities">
@@ -89,16 +59,16 @@
       <description>Entity ids for home-assistant switches. E.g. switch.livingroom_lights_relay.</description>
     </key>
 
-    <key type="as" name="hass-panel-sensor-ids">
-      <default>[]</default>
-      <summary>Panel Sensors</summary>
-      <description>List of entity ids for the sensor values that you want to show in the panel .</description>
-    </key>
-
     <key type="as" name="hass-enabled-sensor-ids">
       <default>[]</default>
       <summary>Entity ids for home assistant sensors.</summary>
-      <description>Entity ids for home-assistant sensors. E.g. sensor.livingroom_temperature .</description>
+      <description>Entity ids for home-assistant sensors. E.g. sensor.livingroom_temperature.</description>
+    </key>
+
+    <key type="b" name="debug-mode">
+        <default>false</default>
+        <summary>Enable debug mode</summary>
+        <description>When this mode is enabled, more logged messages could be seen in the journal.</description>
     </key>
 
   </schema>
