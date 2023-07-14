@@ -296,17 +296,20 @@ class HassPrefs {
           Utils._log('Access token changed: "%s"', [row.get_text()]);
           let new_value = row.get_text();
           if (!new_value) return;
-          Secret.password_store_sync(
+          Secret.password_store(
               Utils.getTokenSchema(),
               {"token_string": "user_token"},
               Secret.COLLECTION_DEFAULT,
               "long_live_access_token",
               row.get_text(),
-              null
+              null,
+              (source, result) => {
+                  Secret.password_store_finish(result);
+                  // Always force reload entities cache in case of HASS Token change and invalidate it in case
+                  // of error
+                  Utils.getEntities(null, () => Utils.invalidateEntitiesCache(), true);
+              }
           );
-          // Always force reload entities cache in case of HASS Token change and invalidate it in case
-          // of error
-          Utils.getEntities(null, () => Utils.invalidateEntitiesCache(), true);
         });
 
         return row;

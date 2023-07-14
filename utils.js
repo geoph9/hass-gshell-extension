@@ -30,28 +30,44 @@ const VALID_TOGGLABLES = ['switch.', 'light.', 'fan.', 'input_boolean.'];
  *
  * @param {String} type Request type.
  * @param {String} url Url of the request.
- * @param {Object} data Data in json format.
+ * @param {Object} data Data of the request (null if no data)
+ * @param {Function} callback The callback to run with resulting message
+ * @param {Function} on_error The callback to run on error (optional)
  * @return {Soup.Message} A soup message with the requested parameters.
  */
-function _constructMessage(type, url, data=null) {
-    // Initialize message and set the required headers
-    // let message = Soup.Message.new_from_encoded_form(
-    _log("constructing Message for %s", [url]);
-    let message = Soup.Message.new(type, url);
-    let token = Secret.password_lookup_sync(getTokenSchema(), {"token_string": "user_token"}, null);
-    if (!token) {
-      _log("Fail to retreive token from configuration, can't construct API message", null, false);
-      return false;
-    }
-    message.request_headers.append('Authorization', `Bearer ${token}`);
-    if (data !== null){
-        // Set body data: Should be in json format, e.g. '{"entity_id": "switch.some_relay"}'
-        // TODO: Maybe perform a check here
-        let bytes2 = GLib.Bytes.new(JSON.stringify(data));
-        message.set_request_body_from_bytes('application/json', bytes2);
-    }
-    message.request_headers.set_content_type("application/json", null);
-    return message
+function forge_async_message(type, url, data, callback, on_error=null) {
+    // Encode data to JSON (if provided)
+    if (data != null) data = JSON.stringify(data);
+    _log(
+        "Forge a %s message for %s (%s): firstly retrieve the API Long-Live Token...",
+        [type, url, data?"with data=%s".format(data):"without data"]
+    );
+    Secret.password_lookup(
+        getTokenSchema(),
+        {"token_string": "user_token"},
+        null,
+        (source, result) => {
+            let token = Secret.password_lookup_finish(result);
+            if (!token) {
+                _log(
+                    "Fail to retreive API Long-Live Token from configuration, "
+                    + "can't construct API message", null, false
+                );
+                if (on_error) on_error();
+                return;
+            }
+            _log("API Long-Live Token retreived, forge message...");
+            // Initialize message and set the required headers
+            let message = Soup.Message.new(type, url);
+            message.request_headers.append('Authorization', `Bearer ${token}`);
+            message.request_headers.set_content_type("application/json", null);
+            if (data !== null){
+                let bytes2 = GLib.Bytes.new(data);
+                message.set_request_body_from_bytes('application/json', bytes2);
+            }
+            callback(message);
+        }
+    );
 }
 
 /**
@@ -64,64 +80,70 @@ function _constructMessage(type, url, data=null) {
  * @return {Object} The response of the request (returns false if the request was unsuccessful)
  */
 function send_async_request(url, type, data, callback=null, on_error=null) {
-    type = type ? type : 'GET';
-    // Initialize session
-    let session = Soup.Session.new();
-    session.set_timeout(5);
-    let message;
-    try{
-        message = _constructMessage(type, url, data);
-    } catch (error) {
-        logError(error, `${MyUUID}: Could not construct ${type} message for ${url}`);
-        if (on_error) on_error();
-        return;
-    }
-    if (!message) {
-      _log("Fail to build message for %s request on %s", [type, url]);
-      if (on_error) on_error();
-      return;
-    }
-    try {
-        _log("Sending %s request on %s...", [type, url]);
-        let result = session.send_and_read_async(
-            message,
-            GLib.PRIORITY_DEFAULT,
-            null,
-            (session, result) => {
-                _log(
-                    "Handling result of %s request on %s (status: %s)...",
-                    [type, url, Soup.Status.get_phrase(message.get_status())]
+    forge_async_message(
+        type ? type : 'GET',
+        url,
+        data,
+        (message) => {
+            // Initialize session
+            let session = Soup.Session.new();
+            session.set_timeout(5);
+
+            try {
+                _log("Sending %s request on %s...", [type, url]);
+                let result = session.send_and_read_async(
+                    message,
+                    GLib.PRIORITY_DEFAULT,
+                    null,
+                    (session, result) => {
+                        _log(
+                            "Handling result of %s request on %s (status: %s)...",
+                            [type, url, Soup.Status.get_phrase(message.get_status())]
+                        );
+                        if (message.get_status() == Soup.Status.OK) {
+                            result = session.send_and_read_finish(result);
+                            if (!callback) {
+                                _log("%s request on %s: success", [type, url]);
+                                return;
+                            }
+                            try {
+                                _log("Decoding result of %s request on %s...", [type, url]);
+                                let decoder = new TextDecoder('utf-8');
+                                let response = decoder.decode(result.get_data());
+                                _log(
+                                    "Result of %s request on %s (%s): %s", [
+                                    type,
+                                    url,
+                                    data?"with data=%s".format(JSON.stringify(data)):"without data",
+                                    response
+                                ]);
+                                _log("Run callback for %s request on %s", [type, url]);
+                                callback(JSON.parse(response));
+                            } catch (error) {
+                                logError(error, `${MyUUID}: fail to decode result of request on ${url}.`);
+                                if (on_error) on_error();
+                            }
+                        }
+                        else {
+                            _log(
+                                "Invalid return of request on %s (status: %s)",
+                                [url, Soup.Status.get_phrase(message.get_status())], false
+                            );
+                            if (on_error) on_error();
+                        }
+                    }
                 );
-                if (message.get_status() == Soup.Status.OK) {
-                    result = session.send_and_read_finish(result);
-                    if (!callback) {
-                        _log("%s request on %s: success", [type, url]);
-                        return;
-                    }
-                    try {
-                        _log("Decoding result of %s request on %s...", [type, url]);
-                        let decoder = new TextDecoder('utf-8');
-                        let response = decoder.decode(result.get_data());
-                        _log("Run callback for %s request on %s", [type, url]);
-                        callback(JSON.parse(response));
-                    } catch (error) {
-                        logError(error, `${MyUUID}: fail to decode result of request on ${url}.`);
-                        if (on_error) on_error();
-                    }
-                }
-                else {
-                    _log(
-                        "Invalid return of request on %s (status: %s)",
-                        [url, Soup.Status.get_phrase(message.get_status())], false
-                    );
-                    if (on_error) on_error();
-                }
+            } catch (error) {
+                logError(error, `${MyUUID}: error durring request on ${url}: ${error}`);
+                if (on_error) on_error();
             }
-        );
-    } catch (error) {
-        logError(error, `${MyUUID}: error durring request on ${url}: ${error}`);
-        if (on_error) on_error();
-    }
+        },
+        () => {
+            _log("Fail to build message for %s request on %s", [type, url]);
+            if (on_error) on_error();
+            return;
+        }
+    );
 }
 
 
