@@ -582,8 +582,9 @@ class Extension {
 }
 
 function init() {
+    Utils.init();
     Utils._log("initializing...");
     ExtensionUtils.initTranslations();
+    Utils._log("initialized settings and mscoptions");
     return new Extension();
 }
-

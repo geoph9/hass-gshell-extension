@@ -6,11 +6,18 @@ const MscOptions = Me.imports.settings.MscOptions;
 const Gettext = imports.gettext.domain(Me.metadata['gettext-domain']);
 const _ = Gettext.gettext;
 
-const mscOptions = new MscOptions();
-const _settings = ExtensionUtils.getSettings();
+// const mscOptions = new MscOptions();
+// const _settings = ExtensionUtils.getSettings();
+let mscOptions;
+let _settings;
 const MyUUID = Me.metadata.uuid;
 
 let TOKEN_SCHEMA;
+
+function init() {
+    mscOptions = new MscOptions();
+    _settings = ExtensionUtils.getSettings();
+}
 
 function getTokenSchema() {
     if (!TOKEN_SCHEMA) {
