@@ -236,6 +236,10 @@ var HassMenu = GObject.registerClass ({
         );
     }
     _disableShortcut() {
+        if (this.refreshSensorsTimeout) {
+            Mainloop.source_remove(this.refreshSensorsTimeout);
+            this.refreshSensorsTimeout = null;
+        }
         Main.wm.removeKeybinding(this.shortcutId);
     }
 
@@ -582,3 +586,4 @@ function init() {
     ExtensionUtils.initTranslations();
     return new Extension();
 }
+
