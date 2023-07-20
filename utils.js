@@ -8,15 +8,23 @@ const _ = Gettext.gettext;
 
 // const mscOptions = new MscOptions();
 // const _settings = ExtensionUtils.getSettings();
-let mscOptions;
-let _settings;
+let mscOptions = null;
+let _settings = null;
 const MyUUID = Me.metadata.uuid;
 
 let TOKEN_SCHEMA;
 
 function init() {
-    mscOptions = new MscOptions();
-    _settings = ExtensionUtils.getSettings();
+    if (_settings === null) _settings = ExtensionUtils.getSettings();
+    if (mscOptions === null)  mscOptions = new MscOptions();
+}
+
+function disable() {
+	if (mscOptions !== null)  {
+		mscOptions.destroy();
+		mscOptions = null;
+	}
+	if (_settings !== null) _settings = null;
 }
 
 function getTokenSchema() {

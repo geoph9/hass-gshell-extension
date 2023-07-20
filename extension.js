@@ -564,6 +564,7 @@ class Extension {
     }
 
     enable() {
+    	Utils.init();
         Utils._log("enabling...");
 
         this.popupMenu = new HassMenu();
@@ -578,13 +579,11 @@ class Extension {
         this.popupMenu.disable();
         this.popupMenu.destroy();
         this.popupMenu = null;
+        Utils.disable();
     }
 }
 
 function init() {
-    Utils.init();
-    Utils._log("initializing...");
     ExtensionUtils.initTranslations();
-    Utils._log("initialized settings and mscoptions");
     return new Extension();
 }

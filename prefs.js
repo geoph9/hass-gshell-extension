@@ -374,11 +374,10 @@ class HassPrefs {
 
 function init() {
     ExtensionUtils.initTranslations();
-    Utils.init();
-    Utils._log("initializing %s Preferences", [Me.metadata.name]);
 }
 
 function fillPreferencesWindow(window) {
+    Utils.init();
     let prefs = new HassPrefs(window);
     prefs.build();
 }
