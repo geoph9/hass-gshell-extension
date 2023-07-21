@@ -380,4 +380,7 @@ function fillPreferencesWindow(window) {
     Utils.init();
     let prefs = new HassPrefs(window);
     prefs.build();
+    window.connect('close-request', () => {
+        Utils.disable();
+    });
 }
