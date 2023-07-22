@@ -40,6 +40,7 @@ function getTokenSchema() {
 }
 
 const VALID_TOGGLABLES = ['switch.', 'light.', 'fan.', 'input_boolean.'];
+const VALID_RUNNABLES = ['scene.', 'script.'];
 
 /**
  *
@@ -289,6 +290,32 @@ function getTogglables(callback, on_error=null, only_enabled=false, force_reload
             }
             _log("%s %stogglable entities found", [togglables.length, only_enabled?'enabled ':'']);
             callback(togglables);
+        },
+        on_error,
+        force_reload
+    );
+}
+
+/**
+ * Get runnables (script and scene entities)
+ *
+ * @param {Function} callback The callback to run with the result
+ * @param {Function} on_error The callback to run on error
+ * @param {Boolean} force_reload Force reloading cache (optional, default: false)
+ *
+ */
+function getRunnables(callback, on_error=null, force_reload=false) {
+    getEntities(
+        function(entities) {
+            let runnables = [];
+            for (let ent of entities) {
+                // Filter on togglable
+                if (VALID_RUNNABLES.filter(tog => ent.entity_id.startsWith(tog)).length == 0)
+                    continue;
+                runnables.push({'entity_id': ent.entity_id, 'name': ent.name});
+            }
+            _log("%s runnable entities found", [runnables.length]);
+            callback(runnables);
         },
         on_error,
         force_reload
