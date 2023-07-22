@@ -170,7 +170,7 @@ class HassPrefs {
     buildRunnableSettingsPage() {
         this.runnablesPage = new Adw.PreferencesPage({
             title: _('Runnables'),
-            icon_name: "system-shutdown-symbolic", // TODO find correct icon
+            icon_name: "system-shutdown-symbolic", // maybe find a more fitting icon
         });
 
         this.runnablesGroup = new Adw.PreferencesGroup({ title: _("Choose which runnables should appear in the menu:")});

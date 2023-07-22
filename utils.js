@@ -626,11 +626,11 @@ function getTogglableEntityIcon(entity) {
 function getRunnableEntityIcon(entity) {
     let icon_path = Me.dir.get_path();
     if (entity.entity_id.startsWith('scene.'))
-        icon_path += '/icons/ceiling-light.svg'; // TODO find correct icon 
+        icon_path += '/icons/palette.svg';
     else if (entity.entity_id.startsWith('script.'))
-        icon_path += '/icons/fan.svg'; // TODO find correct icon
+        icon_path += '/icons/script-text.svg';
     else
-        icon_path += '/icons/toggle-switch-outline.svg'; // TODO find correct icon, don't know what to add here as default value
+        icon_path += '/icons/run.svg';
     return Gio.icon_new_for_string(icon_path);
 }
 
