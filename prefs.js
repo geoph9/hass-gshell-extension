@@ -199,36 +199,36 @@ class HassPrefs {
             return;
         }
 
-        let enabledEntities = this._mscOptions.enabledRunnables; // TODO rename enabledEntities to enabledRunnables
-        for (let tog of runnables) { // TODO rename tog to run/rnbl (?)
+        let enabledRunnables = this._mscOptions.enabledRunnables;
+        for (let run of runnables) {
             let row = this.createEntityRow(
-                tog,
-                enabledEntities.includes(tog.entity_id),
-                (tog, checked) => {
+                run,
+                enabledRunnables.includes(run.entity_id),
+                (run, checked) => {
                     Utils._log(
                         "%s %s (%s) as runnable in menu",
-                        [checked ? "Check" : "Uncheck", tog.name, tog.entity_id]
+                        [checked ? "Check" : "Uncheck", run.name, run.entity_id]
                     );
-                    let currentEntities = this._mscOptions.enabledRunnables; // TODO rename enabledEntities to enabledRunnables
-                    let index = currentEntities.indexOf(tog.entity_id);
+                    let currentEntities = this._mscOptions.enabledRunnables;
+                    let index = currentEntities.indexOf(run.entity_id);
                     if (index > -1 && !checked) { // then it exists and so we pop
                         Utils._log(
                             "entity %s (%s) currently present, remove it",
-                            [tog.name, tog.entity_id]
+                            [run.name, run.entity_id]
                         );
                         currentEntities.splice(index, 1);
                     }
                     else if (index <= -1 && checked) {
                         Utils._log(
                             "entity %s (%s) not currently present, add it",
-                            [tog.name, tog.entity_id]
+                            [run.name, run.entity_id]
                         );
-                        currentEntities.push(tog.entity_id);
+                        currentEntities.push(run.entity_id);
                     }
                     else {
                         Utils._log(
                             "entity %s (%s) currently %s, no change",
-                            [tog.name, tog.entity_id, checked ? "present" : "not present"]
+                            [run.name, run.entity_id, checked ? "present" : "not present"]
                         );
                         return;
                     }
