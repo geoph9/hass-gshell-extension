@@ -2,8 +2,8 @@
 
 This is a simple gnome shell extension which allows you to control your home assistant setup from your gnome desktop. 
 
-Currently, the extension only supports temperature (and humidity) sensors and also toggling lights or switches. In addition, 
-you can also use this extension in order to send `start`, `stop` or `close` events to your Home Assistant instance. 
+Currently, the extension supports temperature (and humidity) sensors, toggling lights and switches and turning on scenes and scripts. 
+In addition, you can also use this extension in order to send `start`, `stop` or `close` events to your Home Assistant instance. 
 
 ## Contents
 
@@ -132,14 +132,13 @@ By pressing the `Preferences` button you will get the following:
 
 ![Preferences](screenshots/general_settings.png?raw=true "How the preferences/settings appear.")
 
-Currently, there are two pages. One containing generic settings and one containing the settings for you 
-togglable entities. In the general settings, you are prompted to enter the URL and Long-Live Access Token of 
-your Home Assistant instance.
+Currently, there are four pages. Generic settings, togglables (lights/switches), runnables (scenes/scripts) and sensors.
+In the general settings, you are prompted to enter the URL and Long-Live Access Token of your Home Assistant instance.
 
 The rest of the options are self-describing. About the temperature and humidity id, they are only needed if the 
 `Show Temperature/Humidity` and `Show Humidity` switches are on. Otherwise, you can still use the extension by 
-using only the toggles. Theoretically, you can put any kind of sensor in these spots (but I haven't tested any 
-other kind of sensor).
+using only the toggles or runnables. Theoretically, you can put any kind of sensor in these spots 
+(but I haven't tested any other kind of sensor).
 
 **Note:** The `Hass White Icon` is the default Icon option and it is the classical home-assistant icon without any color. This integrates better with the rest of the icons in your panel. In the screenshots above I am using the `Hass Blue Icon`.
 
@@ -147,7 +146,7 @@ other kind of sensor).
 
 **Note:** The options to refresh the temperature/humidity statistics are currently not working.
 
-### Changing the Togglables
+### Changing the Togglables and Runnables
 
 If you click the `Togglables` page on the side you will get the following:
 
@@ -158,7 +157,7 @@ two togglable entities and I use both of them. If I unchecked the switch.kitchen
 
 By default, all togglables will appear. If you only want a subset of the switches, you can do that here. 
 
-The last block refers to grouping switches. For example, you could have one toggle for a set of switches. I have not implemented this yet.
+The same applies to the `Runnables` page with scene and script entities.
 
 ## Security
 
