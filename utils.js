@@ -301,14 +301,17 @@ function getTogglables(callback, on_error=null, only_enabled=false, force_reload
  *
  * @param {Function} callback The callback to run with the result
  * @param {Function} on_error The callback to run on error
+ * @param {Boolean} only_enabled Filter on enabled runnables (optional, default: false)
  * @param {Boolean} force_reload Force reloading cache (optional, default: false)
  *
  */
-function getRunnables(callback, on_error=null, force_reload=false) {
+function getRunnables(callback, on_error=null, only_enabled=false, force_reload=false) {
     getEntities(
         function(entities) {
             let runnables = [];
             for (let ent of entities) {
+                if (only_enabled && !mscOptions.enabledRunnables.includes(ent.entity_id))
+                    continue;
                 // Filter on togglable
                 if (VALID_RUNNABLES.filter(tog => ent.entity_id.startsWith(tog)).length == 0)
                     continue;
@@ -457,6 +460,35 @@ function toggleEntity(entity) {
 }
 
 /**
+ * Turns an entity on in Home-Assistant
+ * @param {String} entityId  The entity ID
+ */
+function turnOnEntity(entity) {
+    let data = { "entity_id": entity.entity_id };
+    let domain = entity.entity_id.split(".")[0];  // e.g. script.run_me => script
+    send_async_request(
+        computeURL(`api/services/${domain}/turn_on`),
+        'POST',
+        data,
+        function(response) {
+            _log(
+                'HA result turning on %s (%s): %s',
+                [entity.name, entity.entity_id, JSON.stringify(response)]
+            );
+
+            // HA does respond with a timestamp as a new scenes/scripts state,
+            // so there is no use in computing the response here 
+        },
+        function() {
+            notify(
+                _('Error turning on %s').format(entity.name),
+                _('Error occured trying to turn on %s.').format(entity.name),
+            )
+        }
+    );
+}
+
+/**
  * Trigger Home-Assistant event by name
  * @param {String} eventName  The HA event name (start/stop/restart)
  */
@@ -588,6 +620,17 @@ function getTogglableEntityIcon(entity) {
         icon_path += '/icons/fan.svg';
     else
         icon_path += '/icons/toggle-switch-outline.svg';
+    return Gio.icon_new_for_string(icon_path);
+}
+
+function getRunnableEntityIcon(entity) {
+    let icon_path = Me.dir.get_path();
+    if (entity.entity_id.startsWith('scene.'))
+        icon_path += '/icons/ceiling-light.svg'; // TODO find correct icon 
+    else if (entity.entity_id.startsWith('script.'))
+        icon_path += '/icons/fan.svg'; // TODO find correct icon
+    else
+        icon_path += '/icons/toggle-switch-outline.svg'; // TODO find correct icon, don't know what to add here as default value
     return Gio.icon_new_for_string(icon_path);
 }
 
