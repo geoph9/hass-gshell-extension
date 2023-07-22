@@ -9,6 +9,7 @@ var VALID_PANEL_ICONS = 'valid-panel-icons';
 var HASS_URL = 'hass-url';
 var HASS_ENTITIES_CACHE = 'hass-entities-cache';
 var HASS_ENABLED_ENTITIES = 'hass-enabled-entities';
+var HASS_ENABLED_RUNNABLES = 'hass-enabled-runnables';
 var HASS_ENABLED_SENSOR_IDS = 'hass-enabled-sensor-ids';
 var SHOW_NOTIFICATIONS_KEY = 'show-notifications';
 var DO_REFRESH = 'sensors-refresh';
@@ -81,6 +82,14 @@ var MscOptions = class MscOptions {
     }
     set enabledEntities(entities) {
         this._gsettings.set_strv(HASS_ENABLED_ENTITIES, entities);
+    }
+
+    // Runnable entities of menu (script and scene domains)
+    get enabledRunnables() {
+        return this._gsettings.get_strv(HASS_ENABLED_RUNNABLES);
+    }
+    set enabledRunnables(entities) {
+        this._gsettings.set_strv(HASS_ENABLED_RUNNABLES, entities);
     }
 
     // Panel extra sensors

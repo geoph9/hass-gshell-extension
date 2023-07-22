@@ -59,6 +59,12 @@
       <description>Entity ids for home-assistant switches. E.g. switch.livingroom_lights_relay.</description>
     </key>
 
+    <key type="as" name="hass-enabled-runnables">
+      <default>[]</default>
+      <summary>Entity ids for home-assistant runnables (scenes and scripts).</summary>
+      <description>Entity ids for home-assistant runnables (scenes and scripts). E.g. script.run_me.</description>
+    </key>
+
     <key type="as" name="hass-enabled-sensor-ids">
       <default>[]</default>
       <summary>Entity ids for home assistant sensors.</summary>
