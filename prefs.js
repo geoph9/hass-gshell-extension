@@ -18,6 +18,10 @@ class HassPrefs {
         this.togglablesGroup = null;
         this.togglablesRows = [];
 
+        this.runnablesPage = null;
+        this.runnablesGroup = null;
+        this.runnablesRows = [];
+
         this.sensorsPage = null;
         this.sensorsGroup = null;
         this.sensorsRows = [];
@@ -26,6 +30,7 @@ class HassPrefs {
     build() {
         this.buildGeneralSettingsPage();
         this.buildTogglableSettingsPage();
+        this.buildRunnableSettingsPage();
         this.buildSensorsSettingsPage();
 
         // Enable search on settings
@@ -161,6 +166,96 @@ class HassPrefs {
             this.togglablesGroup.remove(row);
         this.togglablesRows = [];
     }
+
+    // TEMP LSC BEGIN
+    buildRunnableSettingsPage() {
+        this.runnablesPage = new Adw.PreferencesPage({
+            title: _('Runnables'),
+            icon_name: "system-shutdown-symbolic",
+        });
+
+        this.runnablesGroup = new Adw.PreferencesGroup({ title: _("Choose which runnables should appear in the menu:")});
+        this.runnablesPage.add(this.runnablesGroup);
+        this.window.add(this.runnablesPage);
+        this.refreshRunnableSettingsPage();
+        Utils.connectSettings([Settings.HASS_ENTITIES_CACHE], this.refreshRunnableSettingsPage.bind(this)); // TODO dont know if my changes are correct here
+    }
+
+    refreshRunnableSettingsPage(runnables=null) {
+        this.deleteRunnablesRows();
+        if (!runnables) {
+            Utils.getRunnables(
+                (runnables) => this.refreshRunnableSettingsPage(runnables),
+                () => this.refreshRunnableSettingsPage([])
+            );
+            return;
+        }
+        
+        if (!runnables.length) {
+            let row = this.createTextRow(
+                _('No runnables found. Please check your Home-Assistant connection settings.')
+            );
+            this.runnablesRows.push(row);
+            this.runnablesGroup.add(row);
+            return;
+        }
+
+        let enabledEntities = this._mscOptions.enabledRunnables; // TODO rename enabledEntities to enabledRunnables
+        for (let tog of runnables) { // TODO rename tog to run/rnbl (?)
+            let row = this.createEntityRow(
+                tog,
+                enabledEntities.includes(tog.entity_id),
+                (tog, checked) => {
+                    Utils._log(
+                        "%s %s (%s) as runnable in menu",
+                        [checked ? "Check" : "Uncheck", tog.name, tog.entity_id]
+                    );
+                    let currentEntities = this._mscOptions.enabledRunnables; // TODO rename enabledEntities to enabledRunnables
+                    let index = currentEntities.indexOf(tog.entity_id);
+                    if (index > -1 && !checked) { // then it exists and so we pop
+                        Utils._log(
+                            "entity %s (%s) currently present, remove it",
+                            [tog.name, tog.entity_id]
+                        );
+                        currentEntities.splice(index, 1);
+                    }
+                    else if (index <= -1 && checked) {
+                        Utils._log(
+                            "entity %s (%s) not currently present, add it",
+                            [tog.name, tog.entity_id]
+                        );
+                        currentEntities.push(tog.entity_id);
+                    }
+                    else {
+                        Utils._log(
+                            "entity %s (%s) currently %s, no change",
+                            [tog.name, tog.entity_id, checked ? "present" : "not present"]
+                        );
+                        return;
+                    }
+                    this._mscOptions.enabledRunnables = runnables.map(
+                        ent => ent.entity_id
+                    ).filter(
+                        ent => currentEntities.includes(ent)
+                    );
+                    Utils._log(
+                        "%s runnable entities enabled: %s",
+                        [this._mscOptions.enabledRunnables.length, this._mscOptions.enabledRunnables.join(', ')]
+                    );
+                }
+            );
+            this.runnablesRows.push(row);
+            this.runnablesGroup.add(row);
+        }
+    }
+
+    deleteRunnablesRows() {
+        // Remove previously created runnables rows
+        for (let row of this.runnablesRows)
+            this.runnablesRows.remove(row);
+        this.runnablesRows = [];
+    }
+    // TEMP LSC END
 
     buildSensorsSettingsPage() {
         this.sensorsPage = new Adw.PreferencesPage({
