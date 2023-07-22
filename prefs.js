@@ -167,18 +167,17 @@ class HassPrefs {
         this.togglablesRows = [];
     }
 
-    // TEMP LSC BEGIN
     buildRunnableSettingsPage() {
         this.runnablesPage = new Adw.PreferencesPage({
             title: _('Runnables'),
-            icon_name: "system-shutdown-symbolic",
+            icon_name: "system-shutdown-symbolic", // TODO find correct icon
         });
 
         this.runnablesGroup = new Adw.PreferencesGroup({ title: _("Choose which runnables should appear in the menu:")});
         this.runnablesPage.add(this.runnablesGroup);
         this.window.add(this.runnablesPage);
         this.refreshRunnableSettingsPage();
-        Utils.connectSettings([Settings.HASS_ENTITIES_CACHE], this.refreshRunnableSettingsPage.bind(this)); // TODO dont know if my changes are correct here
+        Utils.connectSettings([Settings.HASS_ENTITIES_CACHE], this.refreshRunnableSettingsPage.bind(this));
     }
 
     refreshRunnableSettingsPage(runnables=null) {
@@ -255,7 +254,6 @@ class HassPrefs {
             this.runnablesRows.remove(row);
         this.runnablesRows = [];
     }
-    // TEMP LSC END
 
     buildSensorsSettingsPage() {
         this.sensorsPage = new Adw.PreferencesPage({
