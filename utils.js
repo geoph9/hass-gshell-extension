@@ -268,67 +268,9 @@ function invalidateEntitiesCache() {
 }
 
 /**
- * Get togglables
- *
- * @param {Function} callback The callback to run with the result
- * @param {Function} on_error The callback to run on error
- * @param {Boolean} only_enabled Filter on enabled togglables (optional, default: false)
- * @param {Boolean} force_reload Force reloading cache (optional, default: false)
- *
- */
-/*function getTogglables(callback, on_error=null, only_enabled=false, force_reload=false) {
-    getEntities(
-        function(entities) {
-            let togglables = [];
-            for (let ent of entities) {
-                if (only_enabled && !mscOptions.enabledEntities.includes(ent.entity_id))
-                    continue;
-                // Filter on togglable
-                if (VALID_TOGGLABLES.filter(tog => ent.entity_id.startsWith(tog)).length == 0)
-                    continue;
-                togglables.push({'entity_id': ent.entity_id, 'name': ent.name});
-            }
-            _log("%s %stogglable entities found", [togglables.length, only_enabled?'enabled ':'']);
-            callback(togglables);
-        },
-        on_error,
-        force_reload
-    );
-}*/
-
-/**
- * Get runnables (script and scene entities)
- *
- * @param {Function} callback The callback to run with the result
- * @param {Function} on_error The callback to run on error
- * @param {Boolean} only_enabled Filter on enabled runnables (optional, default: false)
- * @param {Boolean} force_reload Force reloading cache (optional, default: false)
- *
- */
-/*function getRunnables(callback, on_error=null, only_enabled=false, force_reload=false) {
-    getEntities(
-        function(entities) {
-            let runnables = [];
-            for (let ent of entities) {
-                if (only_enabled && !mscOptions.enabledRunnables.includes(ent.entity_id))
-                    continue;
-                // Filter on togglable
-                if (VALID_RUNNABLES.filter(tog => ent.entity_id.startsWith(tog)).length == 0)
-                    continue;
-                runnables.push({'entity_id': ent.entity_id, 'name': ent.name});
-            }
-            _log("%s runnable entities found", [runnables.length]);
-            callback(runnables);
-        },
-        on_error,
-        force_reload
-    );
-}*/
-
-/**
  * Get entities by type
  *
- * @param {string} type The type of the entities to get ("runnables", "togglables", or "sensors") // TODO sensors! 
+ * @param {string} type The type of the entities to get ("runnable", "togglable", or "sensor") // TODO sensors! 
  * @param {Function} callback The callback to run with the result
  * @param {Function} on_error The callback to run on error
  * @param {Boolean} only_enabled Filter on enabled runnables (optional, default: false)
@@ -343,8 +285,8 @@ function getEntitiesByType(type, callback, on_error=null, only_enabled=false, fo
                     continue;
 
                 let validDomains;
-                if (type === "togglables") validDomains = VALID_TOGGLABLES;
-                else if (type === "runnables") validDomains = VALID_RUNNABLES;
+                if (type === "togglable") validDomains = VALID_TOGGLABLES;
+                else if (type === "runnable") validDomains = VALID_RUNNABLES;
 
                 if (validDomains.filter(domain => ent.entity_id.startsWith(domain)).length == 0)
                     continue;

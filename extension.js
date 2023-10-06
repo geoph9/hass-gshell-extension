@@ -126,6 +126,78 @@ var HassPanelSensor = GObject.registerClass ({
 
 });
 
+class TrayMenuItems {
+    constructor(type, parentMenu) {
+        if (type !== "togglable" && type !== "runnable")
+            throw new Error(`Type ${type} is not supported in TrayMenuItems`)
+
+        this.type = type;
+        this.parentMenu = parentMenu;
+        this.menuItems = [];
+        this.separatorItem = null;
+    }
+
+    refresh(force_reload=false) {
+        Utils._log(`refresh ${this.type} in tray menu...`);
+
+        // Firstly delete previously created menu items
+        this.delete();
+
+        // Now get the entities and continue in callback
+        Utils.getEntitiesByType(
+            this.type,
+            function(results) {
+                Utils._log(`get enabled ${this.type}s, continue refreshing tray menu`);
+                this.menuItems = [];
+                for (let [idx, entity] of results.entries()) {
+                    if (entity.entity_id === "" || !entity.entity_id.includes("."))
+                        continue
+                    let pmItem = new PopupMenu.PopupImageMenuItem(
+                        _(this.type === "togglable" ? 'Toggle:': 'Run:') + ' ' + entity.name,
+                        Utils.getEntityIcon(entity.entity_id.split(".")[0]),
+                    );
+                    pmItem.connect('activate', () => {
+                        if (this.type === "togglable")
+                            Utils.toggleEntity(entity)
+                        else if (this.type === "runnable")
+                            Utils.turnOnEntity(entity)
+                    });
+                    this.menuItems.push({item: pmItem, entity: entity, index: idx});
+
+                    // We insert here the menu items with their index as position to put
+                    // them at the top of the popup menu
+                    this.parentMenu.addMenuItem(pmItem, idx);
+                }
+                // If we have at least one item in menu, add the separator
+                if (this.menuItems.length) {
+                    this.separatorItem = new PopupMenu.PopupSeparatorMenuItem();
+                    this.parentMenu.addMenuItem(
+                        this.separatorItem,
+                        // use the count as position of the separator in the menu
+                        this.menuItems.length
+                    );
+                }
+                Utils._log(`${this.type}s in tray menu refreshed`);
+            }.bind(this),
+            // On error callback
+            () => Utils._log(`fail to load enabled ${this.type}s`, null, true),
+            true,  // we want only enabled entities
+            force_reload
+        );
+    }
+
+    delete() {
+        // Destroy the previously created togglable menu items
+        for (let ptItem of this.menuItems)
+            ptItem.item.destroy();
+        this.menuItems = [];
+        if (this.separatorItem) {
+            this.separatorItem.destroy();
+            this.separatorItem = null;
+        }
+    }
+}
+
 // Credits for organizing this class: https://github.com/vchlum/hue-lights/
 var HassMenu = GObject.registerClass ({
     GTypeName: "HassMenu"
@@ -142,11 +214,8 @@ var HassMenu = GObject.registerClass ({
         this.trayButton = null;
         this.trayIcon = null;
 
-        this.togglablesMenuItems = [];
-        this.togglablesMenuSeparatorItem = null;
-
-        this.runnablesMenuItems = [];
-        this.runnablesMenuSeparatorItem = null;
+        this.togglablesMenuItems = new TrayMenuItems("togglable", this.menu); 
+        this.runnablesMenuItems = new TrayMenuItems("runnable", this.menu);
 
         this.panelSensorBox = null;
         this.panelSensors = [];
@@ -192,7 +261,7 @@ var HassMenu = GObject.registerClass ({
         this._connectSettings([this.Settings.HASS_ENTITIES_CACHE], this.refresh);
     }
 
-    disable () {
+    disable() {
         Utils._log("disabling...");
         Utils.disconnectSettings(this.connectedSettingIds);
         this._deletePanelSensors();
@@ -218,7 +287,8 @@ var HassMenu = GObject.registerClass ({
             );
         }
         else {
-            this._refreshTogglable();
+            this.togglablesMenuItems.refresh();
+            this.runnablesMenuItems.refresh();
             this._refreshPanelSensors();
         }
     }
@@ -373,141 +443,25 @@ var HassMenu = GObject.registerClass ({
         });
         this.menu.addMenuItem(prefsMenuItem);
 
-        // Connect the setting field that contain enabled togglable entities with the
-        // _refreshTogglable() method
-        this._connectSettings([this.Settings.HASS_ENABLED_ENTITIES], this._refreshTogglable);
+        // Connect the setting field that contain enabled togglable entities
+        this._connectSettings([this.Settings.HASS_ENABLED_ENTITIES], this.togglablesMenuItems.refresh.bind(this.togglablesMenuItems));
 
         // Refresh togglable items a first time
-        this._refreshTogglable();
+        this.togglablesMenuItems.refresh();
 
-        // Connect the setting field that contain enabled runnable entities with the
-        // _refreshRunnable() method
-        this._connectSettings([this.Settings.HASS_ENABLED_RUNNABLES], this._refreshRunnable)
+        // Connect the setting field that contain enabled runnable entities
+        this._connectSettings([this.Settings.HASS_ENABLED_RUNNABLES], this.runnablesMenuItems.refresh.bind(this.runnablesMenuItems));
 
         // Refresh runnable items a first time
-        this._refreshRunnable();
+        this.runnablesMenuItems.refresh();
 
         Utils._log("tray menu builded");
     }
 
-    _refreshTogglable(force_reload=false) {
-        Utils._log("refresh togglables in tray menu...");
-
-        // Firstly delete previously created togglable menu items
-        this._deleteTogglablesMenuItems();
-
-        // Now get the togglable entities and continue in callback
-        Utils.getEntitiesByType(
-            "togglables",
-            function(togglables) {
-                Utils._log("get enabled togglables, continue refreshing tray menu");
-                this.togglablesMenuItems = [];
-                for (let [idx, entity] of togglables.entries()) {
-                    if (entity.entity_id === "" || !entity.entity_id.includes("."))
-                        continue
-                    let pmItem = new PopupMenu.PopupImageMenuItem(
-                        _('Toggle:') + ' ' + entity.name,
-                        Utils.getEntityIcon(entity.split(".")[0]),
-                    );
-                    pmItem.connect('activate', () => {
-                        Utils.toggleEntity(entity)
-                    });
-                    this.togglablesMenuItems.push({item: pmItem, entity: entity, index: idx});
-
-                    // We insert here the togglable menu items with their index as position to put
-                    // them at the top of the popup menu
-                    this.menu.addMenuItem(pmItem, idx);
-                }
-                // If we have at least one togglable item in menu, add the separator
-                if (this.togglablesMenuItems.length) {
-                    this.togglablesMenuSeparatorItem = new PopupMenu.PopupSeparatorMenuItem();
-                    this.menu.addMenuItem(
-                        this.togglablesMenuSeparatorItem,
-                        // use the togglables count as position of the separator in the menu
-                        this.togglablesMenuItems.length
-                    );
-                }
-                Utils._log("togglables in tray menu refreshed");
-            }.bind(this),
-            // On error callback
-            () => Utils._log("fail to load enabled togglables", null, true),
-            true,  // we want only enabled togglables
-            force_reload
-        );
-    }
-
-    _deleteTogglablesMenuItems() {
-        // Destroy the previously created togglable menu items
-        for (let ptItem of this.togglablesMenuItems)
-            ptItem.item.destroy();
-        this.togglablesMenuItems = [];
-        if (this.togglablesMenuSeparatorItem) {
-            this.togglablesMenuSeparatorItem.destroy();
-            this.togglablesMenuSeparatorItem = null;
-        }
-    }
-
-    _refreshRunnable(force_reload=false) {
-        Utils._log("refresh runnables in tray menu...");
-
-        // Firstly delete previously created runnable menu items
-        this._deleteRunnablesMenuItems();
-
-        // Now get the runnable entities and continue in callback
-        Utils.getEntitiesByType(
-            "runnables",
-            function(runnables) {
-                Utils._log("get enabled runnables, continue refreshing tray menu");
-                this.runnablesMenuItems = [];
-                for (let [idx, entity] of runnables.entries()) {
-                    if (entity.entity_id === "" || !entity.entity_id.includes("."))
-                        continue
-                    let pmItem = new PopupMenu.PopupImageMenuItem(
-                        _('Run:') + ' ' + entity.name,
-                        Utils.getEntityIcon(entity.split(".")[0]),
-                    );
-                    pmItem.connect('activate', () => {
-                        Utils.turnOnEntity(entity)
-                    });
-                    this.runnablesMenuItems.push({item: pmItem, entity: entity, index: idx});
-
-                    // We insert here the runnable menu items with their index as position 
-                    // to put them at the top of the popup menu
-                    this.menu.addMenuItem(pmItem, idx);
-                }
-                // If we have at least one runnable item in menu, add the separator
-                if (this.runnablesMenuItems.length) {
-                    this.runnablesMenuSeparatorItem = new PopupMenu.PopupSeparatorMenuItem();
-                    this.menu.addMenuItem(
-                        this.runnablesMenuSeparatorItem,
-                        // use the runnables count as position of the separator in the menu
-                        this.runnablesMenuItems.length
-                    );
-                }
-                Utils._log("runnables in tray menu refreshed");
-            }.bind(this),
-            // On error callback
-            () => Utils._log("fail to load enabled runnables", null, true),
-            true,  // we want only enabled runnables
-            force_reload
-        )
-    }
-
-    _deleteRunnablesMenuItems() {
-        // Destroy the previously created runnable menu items
-        for (let ptItem of this.runnablesMenuItems)
-            ptItem.item.destroy();
-        this.runnablesMenuItems = [];
-        if (this.runnablesMenuSeparatorItem) {
-            this.runnablesMenuSeparatorItem.destroy();
-            this.runnablesMenuSeparatorItem = null;
-        }
-    }
-
     _deleteMenuItems() {
         // Delete all the menu items
-        this._deleteTogglablesMenuItems();
-        this._deleteRunnablesMenuItems();
+        this.togglablesMenuItems.delete();
+        this.runnablesMenuItems.delete();
         this.menu.removeAll();
     }
 
