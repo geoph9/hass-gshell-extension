@@ -406,7 +406,7 @@ var HassMenu = GObject.registerClass ({
                         continue
                     let pmItem = new PopupMenu.PopupImageMenuItem(
                         _('Toggle:') + ' ' + entity.name,
-                        Utils.getTogglableEntityIcon(entity),
+                        Utils.getEntityIcon(entity.split(".")[0]),
                     );
                     pmItem.connect('activate', () => {
                         Utils.toggleEntity(entity)
@@ -462,7 +462,7 @@ var HassMenu = GObject.registerClass ({
                         continue
                     let pmItem = new PopupMenu.PopupImageMenuItem(
                         _('Run:') + ' ' + entity.name,
-                        Utils.getRunnableEntityIcon(entity),
+                        Utils.getEntityIcon(entity.split(".")[0]),
                     );
                     pmItem.connect('activate', () => {
                         Utils.turnOnEntity(entity)

@@ -612,25 +612,27 @@ const getMethods = (obj) => {
   return [...properties.keys()].filter(item => typeof obj[item] === 'function')
 }
 
-function getTogglableEntityIcon(entity) {
+function getEntityIcon(domain) {
     let icon_path = Me.dir.get_path();
-    if (entity.entity_id.startsWith('light.'))
-        icon_path += '/icons/ceiling-light.svg';
-    else if (entity.entity_id.startsWith('fan.'))
-        icon_path += '/icons/fan.svg';
-    else
-        icon_path += '/icons/toggle-switch-outline.svg';
-    return Gio.icon_new_for_string(icon_path);
-}
-
-function getRunnableEntityIcon(entity) {
-    let icon_path = Me.dir.get_path();
-    if (entity.entity_id.startsWith('scene.'))
-        icon_path += '/icons/palette.svg';
-    else if (entity.entity_id.startsWith('script.'))
-        icon_path += '/icons/script-text.svg';
-    else
-        icon_path += '/icons/run.svg';
+    switch (domain) {
+        case "scene":
+            icon_path += '/icons/palette.svg';
+            break;
+        case "script":
+            icon_path += '/icons/script-text.svg';
+            break;
+        case "light":
+            icon_path += '/icons/ceiling-light.svg';
+            break;
+        case "fan":
+            icon_path += '/icons/fan.svg';
+            break;
+        case "switch":
+        case "input_boolean":
+            icon_path += '/icons/toggle-switch-outline.svg';
+            break;
+        // no need for a default as these are all the supported domains by the plugin
+    }
     return Gio.icon_new_for_string(icon_path);
 }
 
