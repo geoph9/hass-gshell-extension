@@ -615,7 +615,9 @@ function getEntityIcon(domain) {
         case "input_boolean":
             icon_path += '/icons/toggle-switch-outline.svg';
             break;
-        // no need for a default as these are all the supported domains by the plugin
+        default:
+            // no need for a default as these are all the supported domains by the plugin, but log anyways
+            _log(`Received unexpected domain in getEntityIcon: ${domain}`)
     }
     return Gio.icon_new_for_string(icon_path);
 }
