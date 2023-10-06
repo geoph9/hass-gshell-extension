@@ -7,31 +7,177 @@ const Settings = Me.imports.settings;
 const Gettext = imports.gettext.domain(Me.metadata['gettext-domain']);
 const _ = Gettext.gettext;
 
-class HassPrefs {
+class SettingsPage {
+    constructor(type, window, mscOptions) {
+        if (type !== "togglable" && type !== "runnable" && type !== "sensor")
+            throw new Error(`Type ${type} is not supported in SettingsPage`)
 
+        this.type = type;
+        this.window = window;
+        this._mscOptions = mscOptions;
+        this.page = null;
+        this.group = null;
+        this.rows = [];
+    }
+
+    get pageConfig() {
+        let title;
+        let iconName;
+        switch (this.type) {
+            case "togglable":
+                title = _('Togglables');
+                iconName = "system-shutdown-symbolic";
+                break;
+            case "runnable":
+                title = _('Runnables');
+                iconName = "system-shutdown-symbolic";
+                break;
+            case "sensor":
+                title = _('Sensors');
+                iconName = "weather-clear-symbolic";
+                break;
+        }
+        return {
+            title: title,
+            iconName: iconName
+        }
+    }
+
+    build() {
+        this.page = new Adw.PreferencesPage({
+            title: this.pageConfig.title,
+            icon_name: this.pageConfig.iconName,
+        });
+
+        this.group = new Adw.PreferencesGroup({ title: _(`Choose which ${this.type}s should appear in the menu:`)});
+        this.page.add(this.group);
+        this.window.add(this.page);
+        Utils.connectSettings([Settings.HASS_ENTITIES_CACHE], this.refresh.bind(this));
+        this.refresh();
+    }
+
+    refresh(entries=null) {
+        this.deleteRows();
+        if (!entries) {
+            Utils.getEntitiesByType(
+                this.type,
+                (results) => this.refresh(results),
+                () => this.refresh([])
+            );
+            return;
+        }
+
+        if (!entries.length) {
+            let row = SettingsPage.createTextRow(
+                _(`No ${this.type} found. Please check your Home-Assistant connection settings.`)
+            );
+            this.rows.push(row);
+            this.group.add(row);
+            return;
+        }
+
+        let enabledEntities = this._mscOptions.getEnabledByType(this.type);
+        for (let entry of entries) {
+            let row = SettingsPage.createEntityRow(
+                entry,
+                enabledEntities.includes(entry.entity_id),
+                (rowEntry, checked) => {
+                  Utils._log(
+                      "%s %s (%s) as panel entry",
+                      [checked ? "Check" : "Uncheck", rowEntry.name, rowEntry.entity_id]
+                  );
+                  let currentEntities = this._mscOptions.getEnabledByType(this.type);
+                  let index = currentEntities.indexOf(rowEntry.entity_id);
+                  if (index > -1 && !checked) { // then it exists and so we pop
+                      Utils._log(
+                          "Entry %s (%s) currently present, remove it",
+                          [rowEntry.name, rowEntry.entity_id]
+                      );
+                      currentEntities.splice(index, 1);
+                  }
+                  else if (index <= -1 && checked) {
+                      Utils._log(
+                          "Entry %s (%s) not currently present, add it",
+                          [rowEntry.name, rowEntry.entity_id]
+                      );
+                      currentEntities.push(rowEntry.entity_id);
+                  }
+                  else {
+                      Utils._log(
+                          "Entry %s (%s) currently %s, no change",
+                          [rowEntry.name, rowEntry.entity_id, checked ? "present" : "not present"]
+                      );
+                      return;
+                  }
+                  this._mscOptions.setEnabledByType(this.type, entries.map(
+                      ent => ent.entity_id
+                  ).filter(
+                      ent => currentEntities.includes(ent)
+                  ));
+                  Utils._log(
+                      "%s entries enabled: %s",
+                      [this._mscOptions.getEnabledByType(this.type).length, this._mscOptions.getEnabledByType(this.type).join(', ')]
+                  );
+                }
+            );
+            this.rows.push(row);
+            this.group.add(row);
+        }
+    }
+
+    deleteRows() {
+        // Remove previously created rows
+        for (let row of this.rows)
+            this.group.remove(row);
+        this.rows = [];
+    }
+
+    static createEntityRow(entity, checked, on_toggle) {
+        let row = new Adw.ActionRow({
+            title: "%s (%s)".format(entity.name, entity.entity_id),
+        });
+
+        // Create a switch and bind its value to the `show-indicator` key
+        let toggle = new Gtk.CheckButton({
+            active: checked,
+            valign: Gtk.Align.CENTER,
+        });
+
+        // Add the switch to the row
+        row.add_suffix(toggle);
+        row.activatable_widget = toggle;
+
+        toggle.connect('notify::active', () => {
+            on_toggle(entity, toggle.active);
+        });
+
+        return row;
+    }
+
+    static createTextRow(text) {
+        return new Adw.ActionRow({
+            title: text,
+        });
+    }
+}
+
+class HassPrefs {
     constructor(window) {
         this.window = window;
         this._settings = ExtensionUtils.getSettings();
         this._mscOptions = new Settings.MscOptions();
 
-        this.togglablesPage = null;
-        this.togglablesGroup = null;
-        this.togglablesRows = [];
-
-        this.runnablesPage = null;
-        this.runnablesGroup = null;
-        this.runnablesRows = [];
-
-        this.sensorsPage = null;
-        this.sensorsGroup = null;
-        this.sensorsRows = [];
+        this.togglablesPage = new SettingsPage("togglable", this.window, this._mscOptions);
+        this.runnablesPage = new SettingsPage("runnable", this.window, this._mscOptions);
+        this.sensorsPage = new SettingsPage("sensor", this.window, this._mscOptions);
     }
 
     build() {
         this.buildGeneralSettingsPage();
-        this.buildTogglableSettingsPage();
-        this.buildRunnableSettingsPage();
-        this.buildSensorsSettingsPage();
+        
+        this.togglablesPage.build();
+        this.runnablesPage.build();
+        this.sensorsPage.build();
 
         // Enable search on settings
         this.window.search_enabled = true;
@@ -77,272 +223,6 @@ class HassPrefs {
         }
 
         this.window.add(page);
-    }
-
-    buildTogglableSettingsPage() {
-        this.togglablesPage = new Adw.PreferencesPage({
-            title: _('Togglables'),
-            icon_name: "system-shutdown-symbolic",
-        });
-
-        this.togglablesGroup = new Adw.PreferencesGroup({ title: _("Choose which togglables should appear in the menu:")});
-        this.togglablesPage.add(this.togglablesGroup);
-        this.window.add(this.togglablesPage);
-        this.refreshTogglableSettingsPage();
-        Utils.connectSettings([Settings.HASS_ENTITIES_CACHE], this.refreshTogglableSettingsPage.bind(this));
-    }
-
-    refreshTogglableSettingsPage(togglables=null) {
-        this.deleteTogglablesRows();
-        if (!togglables) {
-            Utils.getEntitiesByType(
-                "togglable",
-                (togglables) => this.refreshTogglableSettingsPage(togglables),
-                () => this.refreshTogglableSettingsPage([])
-            );
-            return;
-        }
-
-        if (!togglables.length) {
-            let row = this.createTextRow(
-                _('No togglable found. Please check your Home-Assistant connection settings.')
-            );
-            this.togglablesRows.push(row);
-            this.togglablesGroup.add(row);
-            return;
-        }
-
-        let enabledEntities = this._mscOptions.enabledEntities;
-        for (let tog of togglables) {
-            let row = this.createEntityRow(
-              tog,
-              enabledEntities.includes(tog.entity_id),
-              (tog, checked) => {
-                  Utils._log(
-                      "%s %s (%s) as togglable in menu",
-                      [checked ? "Check" : "Uncheck", tog.name, tog.entity_id]
-                  );
-                  let currentEntities = this._mscOptions.enabledEntities;
-                  let index = currentEntities.indexOf(tog.entity_id);
-                  if (index > -1 && !checked) { // then it exists and so we pop
-                      Utils._log(
-                          "entity %s (%s) currently present, remove it",
-                          [tog.name, tog.entity_id]
-                      );
-                      currentEntities.splice(index, 1);
-                  }
-                  else if (index <= -1 && checked) {
-                      Utils._log(
-                          "entity %s (%s) not currently present, add it",
-                          [tog.name, tog.entity_id]
-                      );
-                      currentEntities.push(tog.entity_id);
-                  }
-                  else {
-                      Utils._log(
-                          "entity %s (%s) currently %s, no change",
-                          [tog.name, tog.entity_id, checked ? "present" : "not present"]
-                      );
-                      return;
-                  }
-                  this._mscOptions.enabledEntities = togglables.map(
-                      ent => ent.entity_id
-                  ).filter(
-                      ent => currentEntities.includes(ent)
-                  );
-                  Utils._log(
-                      "%s togglable entities enabled: %s",
-                      [this._mscOptions.enabledEntities.length, this._mscOptions.enabledEntities.join(', ')]
-                  );
-              }
-          );
-          this.togglablesRows.push(row);
-          this.togglablesGroup.add(row);
-        }
-    }
-
-    deleteTogglablesRows() {
-        // Remove previously created togglable rows
-        for (let row of this.togglablesRows)
-            this.togglablesGroup.remove(row);
-        this.togglablesRows = [];
-    }
-
-    buildRunnableSettingsPage() {
-        this.runnablesPage = new Adw.PreferencesPage({
-            title: _('Runnables'),
-            icon_name: "system-shutdown-symbolic", // maybe find a more fitting icon
-        });
-
-        this.runnablesGroup = new Adw.PreferencesGroup({ title: _("Choose which runnables should appear in the menu:")});
-        this.runnablesPage.add(this.runnablesGroup);
-        this.window.add(this.runnablesPage);
-        this.refreshRunnableSettingsPage();
-        Utils.connectSettings([Settings.HASS_ENTITIES_CACHE], this.refreshRunnableSettingsPage.bind(this));
-    }
-
-    refreshRunnableSettingsPage(runnables=null) {
-        this.deleteRunnablesRows();
-        if (!runnables) {
-            Utils.getEntitiesByType(
-                "runnable",
-                (runnables) => this.refreshRunnableSettingsPage(runnables),
-                () => this.refreshRunnableSettingsPage([])
-            );
-            return;
-        }
-        
-        if (!runnables.length) {
-            let row = this.createTextRow(
-                _('No runnables found. Please check your Home-Assistant connection settings.')
-            );
-            this.runnablesRows.push(row);
-            this.runnablesGroup.add(row);
-            return;
-        }
-
-        let enabledRunnables = this._mscOptions.enabledRunnables;
-        for (let run of runnables) {
-            let row = this.createEntityRow(
-                run,
-                enabledRunnables.includes(run.entity_id),
-                (run, checked) => {
-                    Utils._log(
-                        "%s %s (%s) as runnable in menu",
-                        [checked ? "Check" : "Uncheck", run.name, run.entity_id]
-                    );
-                    let currentEntities = this._mscOptions.enabledRunnables;
-                    let index = currentEntities.indexOf(run.entity_id);
-                    if (index > -1 && !checked) { // then it exists and so we pop
-                        Utils._log(
-                            "entity %s (%s) currently present, remove it",
-                            [run.name, run.entity_id]
-                        );
-                        currentEntities.splice(index, 1);
-                    }
-                    else if (index <= -1 && checked) {
-                        Utils._log(
-                            "entity %s (%s) not currently present, add it",
-                            [run.name, run.entity_id]
-                        );
-                        currentEntities.push(run.entity_id);
-                    }
-                    else {
-                        Utils._log(
-                            "entity %s (%s) currently %s, no change",
-                            [run.name, run.entity_id, checked ? "present" : "not present"]
-                        );
-                        return;
-                    }
-                    this._mscOptions.enabledRunnables = runnables.map(
-                        ent => ent.entity_id
-                    ).filter(
-                        ent => currentEntities.includes(ent)
-                    );
-                    Utils._log(
-                        "%s runnable entities enabled: %s",
-                        [this._mscOptions.enabledRunnables.length, this._mscOptions.enabledRunnables.join(', ')]
-                    );
-                }
-            );
-            this.runnablesRows.push(row);
-            this.runnablesGroup.add(row);
-        }
-    }
-
-    deleteRunnablesRows() {
-        // Remove previously created runnables rows
-        for (let row of this.runnablesRows)
-            this.runnablesRows.remove(row);
-        this.runnablesRows = [];
-    }
-
-    buildSensorsSettingsPage() {
-        this.sensorsPage = new Adw.PreferencesPage({
-            title: _('Sensors'),
-            icon_name: "weather-clear-symbolic",
-        });
-
-        this.sensorsGroup = new Adw.PreferencesGroup({ title: _("Choose which sensors should appear on the panel:")});
-        this.sensorsPage.add(this.sensorsGroup);
-        this.window.add(this.sensorsPage);
-        this.refreshSensorsSettingsPage();
-        Utils.connectSettings([Settings.HASS_ENTITIES_CACHE], this.refreshSensorsSettingsPage.bind(this));
-    }
-
-    refreshSensorsSettingsPage(sensors=null) {
-        this.deleteSensorsRows();
-        if (!sensors) {
-            Utils.getSensors(
-                (sensors) => this.refreshSensorsSettingsPage(sensors),
-                () => this.refreshSensorsSettingsPage([])
-            );
-            return;
-        }
-
-        if (!sensors.length) {
-            let row = this.createTextRow(
-                _('No sensor found. Please check your Home-Assistant connection settings.')
-            );
-            this.sensorsRows.push(row);
-            this.sensorsGroup.add(row);
-            return;
-        }
-
-        let enabledSensors = this._mscOptions.enabledSensors;
-        for (let sensor of sensors) {
-            let row = this.createEntityRow(
-                sensor,
-                enabledSensors.includes(sensor.entity_id),
-                (sensor, checked) => {
-                  Utils._log(
-                      "%s %s (%s) as panel sensor",
-                      [checked ? "Check" : "Uncheck", sensor.name, sensor.entity_id]
-                  );
-                  let currentSensors = this._mscOptions.enabledSensors;
-                  let index = currentSensors.indexOf(sensor.entity_id);
-                  if (index > -1 && !checked) { // then it exists and so we pop
-                      Utils._log(
-                          "Sensor %s (%s) currently present, remove it",
-                          [sensor.name, sensor.entity_id]
-                      );
-                      currentSensors.splice(index, 1);
-                  }
-                  else if (index <= -1 && checked) {
-                      Utils._log(
-                          "Sensor %s (%s) not currently present, add it",
-                          [sensor.name, sensor.entity_id]
-                      );
-                      currentSensors.push(sensor.entity_id);
-                  }
-                  else {
-                      Utils._log(
-                          "Sensor %s (%s) currently %s, no change",
-                          [sensor.name, sensor.entity_id, checked ? "present" : "not present"]
-                      );
-                      return;
-                  }
-                  this._mscOptions.enabledSensors = sensors.map(
-                      ent => ent.entity_id
-                  ).filter(
-                      ent => currentSensors.includes(ent)
-                  );
-                  Utils._log(
-                      "%s sensors enabled: %s",
-                      [this._mscOptions.enabledSensors.length, this._mscOptions.enabledSensors.join(', ')]
-                  );
-                }
-            );
-            this.sensorsRows.push(row);
-            this.sensorsGroup.add(row);
-        }
-    }
-
-    deleteSensorsRows() {
-        // Remove previously created sensors rows
-        for (let row of this.sensorsRows)
-            this.sensorsGroup.remove(row);
-        this.sensorsRows = [];
     }
 
     createBooleanSettingRow(name) {
@@ -436,34 +316,6 @@ class HassPrefs {
         });
 
         return row;
-    }
-
-    createEntityRow(entity, checked, on_toggle) {
-        let row = new Adw.ActionRow({
-            title: "%s (%s)".format(entity.name, entity.entity_id),
-        });
-
-        // Create a switch and bind its value to the `show-indicator` key
-        let toggle = new Gtk.CheckButton({
-            active: checked,
-            valign: Gtk.Align.CENTER,
-        });
-
-        // Add the switch to the row
-        row.add_suffix(toggle);
-        row.activatable_widget = toggle;
-
-        toggle.connect('notify::active', () => {
-            on_toggle(entity, toggle.active);
-        });
-
-        return row;
-    }
-
-    createTextRow(text) {
-        return new Adw.ActionRow({
-            title: text,
-        });
     }
 }
 

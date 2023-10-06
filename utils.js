@@ -284,14 +284,21 @@ function getEntitiesByType(type, callback, on_error=null, only_enabled=false, fo
                 if (only_enabled && !mscOptions.getEnabledByType(type).includes(ent.entity_id))
                     continue;
 
-                let validDomains;
-                if (type === "togglable") validDomains = VALID_TOGGLABLES;
-                else if (type === "runnable") validDomains = VALID_RUNNABLES;
+                if (type === "sensor") {
+                    if (!isSensor(ent)) 
+                        continue;
+                    results.push(mapSensor(ent));
+                } else {
+                    let validDomains;
+                    if (type === "togglable") validDomains = VALID_TOGGLABLES;
+                    else if (type === "runnable") validDomains = VALID_RUNNABLES;
+    
+                    if (validDomains.filter(domain => ent.entity_id.startsWith(domain)).length == 0)
+                        continue;
+                    
+                    results.push({'entity_id': ent.entity_id, 'name': ent.name});
+                }
 
-                if (validDomains.filter(domain => ent.entity_id.startsWith(domain)).length == 0)
-                    continue;
-                
-                results.push({'entity_id': ent.entity_id, 'name': ent.name});
             }
             _log("%s entities found", [results.length]);
             callback(results);
@@ -348,7 +355,8 @@ function getSensors(callback, on_error=null, only_enabled=false, force_reload=fa
             for (let ent of entities) {
                 if (only_enabled && !mscOptions.enabledSensors.includes(ent.entity_id))
                     continue;
-                if (!isSensor(ent)) continue;
+                if (!isSensor(ent))
+                    continue;
                 sensors.push(mapSensor(ent));
             }
             _log("%s %ssensor entities found", [sensors.length, only_enabled?'enabled ':'']);
