@@ -92,6 +92,22 @@ var MscOptions = class MscOptions {
         this._gsettings.set_strv(HASS_ENABLED_RUNNABLES, entities);
     }
 
+    // abstraction layer for runnables and togglables
+    getEnabledByType(type) {
+        if (type === "runnables") {
+            return this.enabledRunnables; // calls the getter
+        } else if (type === "togglables") {
+            return this.enabledEntities; // calls the getter
+        }
+    }
+    setEnabledByType(type, enabledEntities) {
+        if (type === "runnables") {
+            this.enabledRunnables = enabledEntities; // calls the setter
+        } else if (type === "togglables") {
+            this.enabledEntities = enabledEntities; // calls the setter
+        }
+    }
+
     // Panel extra sensors
     get enabledSensors() {
         return this._gsettings.get_strv(HASS_ENABLED_SENSOR_IDS);

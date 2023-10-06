@@ -397,7 +397,8 @@ var HassMenu = GObject.registerClass ({
         this._deleteTogglablesMenuItems();
 
         // Now get the togglable entities and continue in callback
-        Utils.getTogglables(
+        Utils.getEntitiesByType(
+            "togglables",
             function(togglables) {
                 Utils._log("get enabled togglables, continue refreshing tray menu");
                 this.togglablesMenuItems = [];
@@ -453,7 +454,8 @@ var HassMenu = GObject.registerClass ({
         this._deleteRunnablesMenuItems();
 
         // Now get the runnable entities and continue in callback
-        Utils.getRunnables(
+        Utils.getEntitiesByType(
+            "runnables",
             function(runnables) {
                 Utils._log("get enabled runnables, continue refreshing tray menu");
                 this.runnablesMenuItems = [];

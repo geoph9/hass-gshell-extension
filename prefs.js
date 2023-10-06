@@ -95,7 +95,8 @@ class HassPrefs {
     refreshTogglableSettingsPage(togglables=null) {
         this.deleteTogglablesRows();
         if (!togglables) {
-            Utils.getTogglables(
+            Utils.getEntitiesByType(
+                "togglables",
                 (togglables) => this.refreshTogglableSettingsPage(togglables),
                 () => this.refreshTogglableSettingsPage([])
             );
@@ -183,7 +184,8 @@ class HassPrefs {
     refreshRunnableSettingsPage(runnables=null) {
         this.deleteRunnablesRows();
         if (!runnables) {
-            Utils.getRunnables(
+            Utils.getEntitiesByType(
+                "runnables",
                 (runnables) => this.refreshRunnableSettingsPage(runnables),
                 () => this.refreshRunnableSettingsPage([])
             );
