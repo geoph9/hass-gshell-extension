@@ -40,6 +40,7 @@ function getTokenSchema() {
 }
 
 const VALID_TOGGLABLES = ['switch.', 'light.', 'fan.', 'input_boolean.'];
+const VALID_RUNNABLES = ['scene.', 'script.'];
 
 /**
  *
@@ -267,28 +268,40 @@ function invalidateEntitiesCache() {
 }
 
 /**
- * Get togglables
+ * Get entities by type
  *
+ * @param {string} type The type of the entities to get ("runnable", "togglable", or "sensor") // TODO sensors! 
  * @param {Function} callback The callback to run with the result
  * @param {Function} on_error The callback to run on error
- * @param {Boolean} only_enabled Filter on enabled togglables (optional, default: false)
+ * @param {Boolean} only_enabled Filter on enabled runnables (optional, default: false)
  * @param {Boolean} force_reload Force reloading cache (optional, default: false)
- *
  */
-function getTogglables(callback, on_error=null, only_enabled=false, force_reload=false) {
+function getEntitiesByType(type, callback, on_error=null, only_enabled=false, force_reload=false) {
     getEntities(
         function(entities) {
-            let togglables = [];
+            let results = [];
             for (let ent of entities) {
-                if (only_enabled && !mscOptions.enabledEntities.includes(ent.entity_id))
+                if (only_enabled && !mscOptions.getEnabledByType(type).includes(ent.entity_id))
                     continue;
-                // Filter on togglable
-                if (VALID_TOGGLABLES.filter(tog => ent.entity_id.startsWith(tog)).length == 0)
-                    continue;
-                togglables.push({'entity_id': ent.entity_id, 'name': ent.name});
+
+                if (type === "sensor") {
+                    if (!isSensor(ent)) 
+                        continue;
+                    results.push(mapSensor(ent));
+                } else {
+                    let validDomains;
+                    if (type === "togglable") validDomains = VALID_TOGGLABLES;
+                    else if (type === "runnable") validDomains = VALID_RUNNABLES;
+    
+                    if (validDomains.filter(domain => ent.entity_id.startsWith(domain)).length == 0)
+                        continue;
+                    
+                    results.push({'entity_id': ent.entity_id, 'name': ent.name});
+                }
+
             }
-            _log("%s %stogglable entities found", [togglables.length, only_enabled?'enabled ':'']);
-            callback(togglables);
+            _log("%s entities found", [results.length]);
+            callback(results);
         },
         on_error,
         force_reload
@@ -342,7 +355,8 @@ function getSensors(callback, on_error=null, only_enabled=false, force_reload=fa
             for (let ent of entities) {
                 if (only_enabled && !mscOptions.enabledSensors.includes(ent.entity_id))
                     continue;
-                if (!isSensor(ent)) continue;
+                if (!isSensor(ent))
+                    continue;
                 sensors.push(mapSensor(ent));
             }
             _log("%s %ssensor entities found", [sensors.length, only_enabled?'enabled ':'']);
@@ -424,6 +438,35 @@ function toggleEntity(entity) {
             notify(
                 _('Error toggling %s').format(entity.name),
                 _('Error occured trying to toggle %s.').format(entity.name),
+            )
+        }
+    );
+}
+
+/**
+ * Turns an entity on in Home-Assistant
+ * @param {String} entityId  The entity ID
+ */
+function turnOnEntity(entity) {
+    let data = { "entity_id": entity.entity_id };
+    let domain = entity.entity_id.split(".")[0];  // e.g. script.run_me => script
+    send_async_request(
+        computeURL(`api/services/${domain}/turn_on`),
+        'POST',
+        data,
+        function(response) {
+            _log(
+                'HA result turning on %s (%s): %s',
+                [entity.name, entity.entity_id, JSON.stringify(response)]
+            );
+
+            // HA does respond with a timestamp as a new scenes/scripts state,
+            // so there is no use in computing the response here 
+        },
+        function() {
+            notify(
+                _('Error turning on %s').format(entity.name),
+                _('Error occured trying to turn on %s.').format(entity.name),
             )
         }
     );
@@ -553,14 +596,29 @@ const getMethods = (obj) => {
   return [...properties.keys()].filter(item => typeof obj[item] === 'function')
 }
 
-function getTogglableEntityIcon(entity) {
+function getEntityIcon(domain) {
     let icon_path = Me.dir.get_path();
-    if (entity.entity_id.startsWith('light.'))
-        icon_path += '/icons/ceiling-light.svg';
-    else if (entity.entity_id.startsWith('fan.'))
-        icon_path += '/icons/fan.svg';
-    else
-        icon_path += '/icons/toggle-switch-outline.svg';
+    switch (domain) {
+        case "scene":
+            icon_path += '/icons/palette.svg';
+            break;
+        case "script":
+            icon_path += '/icons/script-text.svg';
+            break;
+        case "light":
+            icon_path += '/icons/ceiling-light.svg';
+            break;
+        case "fan":
+            icon_path += '/icons/fan.svg';
+            break;
+        case "switch":
+        case "input_boolean":
+            icon_path += '/icons/toggle-switch-outline.svg';
+            break;
+        default:
+            // no need for a default as these are all the supported domains by the plugin, but log anyways
+            _log(`Received unexpected domain in getEntityIcon: ${domain}`)
+    }
     return Gio.icon_new_for_string(icon_path);
 }
 

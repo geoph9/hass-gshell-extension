@@ -22,6 +22,10 @@ msgstr ""
 msgid "Toggle:"
 msgstr "Umschalten:"
 
+#: extension.js:464
+msgid "Run:"
+msgstr "Ausführen:"
+
 #: extension.js:93
 msgid "HASS Events"
 msgstr "Home Assistant Ereignisse"
@@ -49,6 +53,10 @@ msgstr "Allgemeine Einstellungen"
 #: prefs.js:51
 msgid "Togglables"
 msgstr "Schaltbares"
+
+#: prefs.js:172
+msgid "Runnables"
+msgstr "Ausführbares"
 
 #: prefs.js:56 schemas/org.gnome.shell.extensions.hass-data.gschema.xml:94
 msgid "Panel Sensors"
@@ -113,6 +121,10 @@ msgstr "Sensoren:"
 #: prefs.js:414
 msgid "Choose Which Sensors Should Appear on the Panel:"
 msgstr "Wählen Sie aus, welche Sensoren im Panel angezeigt werden sollen:"
+
+#: prefs.js:176
+msgid "Choose which runnables should appear in the menu:"
+msgstr "Wählen Sie aus, welche ausführbare Entitäten im Panel angezeigt werden sollen:"
 
 #: prefs.js:586
 #, javascript-format
@@ -290,3 +302,15 @@ msgstr "Tastenkombination zum Öffnen des Menüs der Erweiterung über das Panel
 
 #~ msgid " in the tray menu?"
 #~ msgstr " im Panel?"
+
+#: prefs.js:195
+msgid "No runnables found. Please check your Home-Assistant connection settings."
+msgstr "Keine ausführbaren Entitäten gefunden. Bitte überprüfe die Home Assistant Verbindungseinstellungen."
+
+# utils.js:484
+msgid "Error turning on %s"
+msgid "Fehler beim Einschalten von %s"
+
+# utils.js:485
+msgid "Error occured trying to turn on %s."
+msgstr "Beim Einschalten von %s ist ein Fehler aufgetreten."
