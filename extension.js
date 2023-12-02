@@ -1,20 +1,37 @@
-const {Gio, Shell, Meta, St, Clutter, Secret, GLib, Soup, GObject} = imports.gi;
+// const {Gio, Shell, Meta, St, Clutter, Secret, GLib, Soup, GObject} = imports.gi;
+// import GLib from 'gi://GLib';
+// import Soup from 'gi://Soup';
+import Gio from 'gi://Gio';
+import St from 'gi://St';
+import Clutter from 'gi://Clutter';
+import Meta from 'gi://Meta';
+import Shell from 'gi://Shell';
+import GObject from 'gi://GObject';
+// import Secret from 'gi://Secret';
 
-const Main = imports.ui.main;
-const PanelMenu = imports.ui.panelMenu;
-const PopupMenu = imports.ui.popupMenu;
+import * as Main from 'resource:///org/gnome/shell/ui/main.js';
+import * as PanelMenu from 'resource:///org/gnome/shell/ui/panelMenu.js';
+import * as PopupMenu from 'resource:///org/gnome/shell/ui/popupMenu.js';
 
-const ExtensionUtils = imports.misc.extensionUtils;
-const Me = ExtensionUtils.getCurrentExtension();
+import * as Utils from './utils.js';
+import * as Settings from './settings.js';
+
+// const Main = imports.ui.main;
+// const PanelMenu = imports.ui.panelMenu;
+// const PopupMenu = imports.ui.popupMenu;
+
+// const ExtensionUtils = imports.misc.extensionUtils;
+// const Me = ExtensionUtils.getCurrentExtension();
 // const Util = imports.misc.util;
-const Gettext = imports.gettext.domain(Me.metadata['gettext-domain']);
-const _ = Gettext.gettext;
+// const Gettext = imports.gettext.domain(Me.metadata['gettext-domain']);
+// const _ = Gettext.gettext;
+import {Extension, gettext as _} from 'resource:///org/gnome/shell/extensions/extension.js';
 
 // MainLoop for updating the time every X seconds.
 const Mainloop = imports.mainloop;
-const Utils = Me.imports.utils;
+// const Utils = Me.imports.utils;
 
-const MyUUID = Me.metadata.uuid;
+// const MyUUID = Me.metadata.uuid;
 
 var HassPanelSensor = GObject.registerClass ({
     GTypeName: "HassPanelSensor"
@@ -46,7 +63,7 @@ var HassPanelSensor = GObject.registerClass ({
 
         // Import settings to have access to its constants
         // Note: we can't do that globally.
-        this.Settings = Me.imports.settings;
+        this.Settings = Settings;
         this.connectedSettingIds = Utils.connectSettings([this.Settings.HASS_ENTITIES_CACHE], this.refresh.bind(this));
     }
 
@@ -202,12 +219,14 @@ class TrayMenuItems {
 var HassMenu = GObject.registerClass ({
     GTypeName: "HassMenu"
 }, class HassMenu extends PanelMenu.Button {
-    _init() {
-        super._init(0, Me.metadata.name, false);
+    _init(metadata, settings, mainDir, openPref) {
+        super._init(0, metadata, false);
         this.style_class = 'hass-menu';
-        this._settings = ExtensionUtils.getSettings();
+        this._settings = settings;
         this.Settings = null;
         this.shortcutId = "hass-shortcut";
+        this._mainDir = mainDir;
+        this._openPrefs = openPref;
 
         this.box = null;
 
@@ -229,7 +248,7 @@ var HassMenu = GObject.registerClass ({
 
         // Import settings to have access to its constants
         // Note: we can't do that globally.
-        this.Settings = Me.imports.settings;
+        this.Settings = Settings;
 
         // Disable click event on the PopupMenu to handle it in the components it contains
         this.connect('event', (actor, event) => {
@@ -302,7 +321,7 @@ var HassMenu = GObject.registerClass ({
     _enableShortcut() {
         Main.wm.addKeybinding(
             this.shortcutId,
-            ExtensionUtils.getSettings('org.gnome.shell.extensions.hass-shortcut'),
+            this._settings.get_strv('org.gnome.shell.extensions.hass-shortcut'),
             Meta.KeyBindingFlags.NONE,  // key binding flag
             Shell.ActionMode.ALL,  // binding mode
             () => this.menu.toggle()
@@ -353,7 +372,7 @@ var HassMenu = GObject.registerClass ({
         // Make sure the path is valid
         if (!icon_path.startsWith("/"))
             icon_path = "/" + icon_path;
-        return Me.dir.get_path() + icon_path;
+        return this._mainDir.get_path() + icon_path;
     }
 
     _buildTrayIcon() {
@@ -407,7 +426,7 @@ var HassMenu = GObject.registerClass ({
 
         // Build the submenu containing the HASS events
         let subItem = new PopupMenu.PopupSubMenuMenuItem(_('HASS Events'), true);
-        subItem.icon.gicon = Gio.icon_new_for_string(Me.dir.get_path() + '/icons/hass-symbolic.svg');
+        subItem.icon.gicon = Gio.icon_new_for_string(this._mainDir.get_path() + '/icons/hass-symbolic.svg');
         this.menu.addMenuItem(subItem);
 
         let start_hass_item = new PopupMenu.PopupMenuItem(_('Start Home Assistant'));
@@ -439,7 +458,7 @@ var HassMenu = GObject.registerClass ({
         );
         prefsMenuItem.connect('activate', () => {
             Utils._log("opening Preferences...");
-            ExtensionUtils.openPrefs();
+            this._openPrefs();
         });
         this.menu.addMenuItem(prefsMenuItem);
 
@@ -581,7 +600,7 @@ var HassMenu = GObject.registerClass ({
 
 })
 
-class Extension {
+export default class HassExtension extends Extension {
     constructor() {
         this.popupMenu = null;
     }
@@ -590,7 +609,12 @@ class Extension {
     	Utils.init();
         Utils._log("enabling...");
 
-        this.popupMenu = new HassMenu();
+        this.popupMenu = new HassMenu(
+            this.metadata,
+            this.getSettings(),
+            this.dir,
+            this.openPreferences.bind(this)
+        );
         this.popupMenu.enable()
 
         Main.panel.addToStatusArea('hass-extension', this.popupMenu);
@@ -607,6 +631,6 @@ class Extension {
 }
 
 function init() {
-    ExtensionUtils.initTranslations();
-    return new Extension();
+    // ExtensionUtils.initTranslations();
+    return new HassExtension();
 }

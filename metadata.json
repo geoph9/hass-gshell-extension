@@ -5,10 +5,9 @@
   "name": "Home Assistant Extension",
   "settings-schema": "org.gnome.shell.extensions.hass-data",
   "shell-version": [
-    "43",
-    "44"
+    "45"
   ],
   "url": "https://github.com/geoph9/hass-gshell-extension",
   "uuid": "hass-gshell@geoph9-on-github",
-  "version": 16.1
+  "version": 17.0
 }
