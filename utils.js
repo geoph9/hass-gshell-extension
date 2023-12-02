@@ -2,15 +2,15 @@ import Soup from 'gi://Soup';
 import Gio from 'gi://Gio';
 import GLib from 'gi://GLib';
 import Secret from 'gi://Secret';
-const ExtensionUtils = imports.misc.extensionUtils;
-const Me = ExtensionUtils.getCurrentExtension();
-// const {Soup, Gio, GLib, Secret} = imports.gi;
-// const MscOptions = Me.imports.settings.MscOptions;
 
 import * as Settings from './settings.js';
 
-import {gettext as _} from 'resource:///org/gnome/shell/extensions/extension.js';
+import {Extension, gettext as _} from 'resource:///org/gnome/shell/extensions/extension.js';
 
+// const ExtensionUtils = imports.misc.extensionUtils;
+// const Me = ExtensionUtils.getCurrentExtension();
+// const {Soup, Gio, GLib, Secret} = imports.gi;
+// const MscOptions = Me.imports.settings.MscOptions;
 // const Gettext = imports.gettext.domain(Me.metadata['gettext-domain']);
 // const _ = Gettext.gettext;
 
@@ -19,6 +19,8 @@ import {gettext as _} from 'resource:///org/gnome/shell/extensions/extension.js'
 let mscOptions = null;
 let _settings = null;
 let MyUUID = null;
+let _metadata = null;
+let _mainDir = null;
 
 let TOKEN_SCHEMA;
 
@@ -26,6 +28,8 @@ export function init(metadata, settings, mainDir) {
     if (_settings === null) _settings = settings;
     if (mscOptions === null)  mscOptions = new Settings.MscOptions(metadata, mainDir);
     if (MyUUID === null) MyUUID = metadata.uuid;
+    if (_mainDir === null) _mainDir = mainDir;
+    if (_metadata === null) _metadata = metadata;
 }
 
 export function disable() {
@@ -572,7 +576,7 @@ export function arraysEqual(a, b) {
 // }
 
 export function getEntityIcon(domain) {
-    let icon_path = Me.dir.get_path();
+    let icon_path = _mainDir.get_path();
     switch (domain) {
         case "scene":
             icon_path += '/icons/palette.svg';
@@ -615,11 +619,11 @@ export function notify(msg, details) {
     if (!mscOptions.showNotifications) return;
     let Main = imports.ui.main;
     let MessageTray = imports.ui.messageTray;
-    let source = new MessageTray.Source(Me.metadata.name);
+    let source = new MessageTray.Source(_metadata.name);
     Main.messageTray.add(source);
     let notification = new MessageTray.Notification(
         source, msg, details,
-        {gicon: Gio.icon_new_for_string(Me.dir.get_path() + '/icons/hass-symbolic.svg')}
+        {gicon: Gio.icon_new_for_string(_mainDir.get_path() + '/icons/hass-symbolic.svg')}
     );
     notification.setTransient(true);
     source.showNotification(notification);

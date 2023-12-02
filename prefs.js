@@ -2,13 +2,13 @@ import Adw from 'gi://Adw';
 import Gio from 'gi://Gio';
 import Gtk from 'gi://Gtk';
 import Secret from 'gi://Secret';
-const {Adw, Gio, Gtk, Secret} = imports.gi;
 
 import * as Utils from './utils.js';
 import * as Settings from './settings.js';
 
-import {ExtensionPreferences, gettext as _} from 'resource:///org/gnome/shell/extensions/extension.js';
+import {ExtensionPreferences, gettext as _} from 'resource:///org/gnome/Shell/Extensions/js/extensions/prefs.js';
 
+// const {Adw, Gio, Gtk, Secret} = imports.gi;
 // const ExtensionUtils = imports.misc.extensionUtils;
 // const Me = ExtensionUtils.getCurrentExtension();
 

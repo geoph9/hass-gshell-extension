@@ -4,10 +4,6 @@ import Clutter from 'gi://Clutter';
 import Meta from 'gi://Meta';
 import Shell from 'gi://Shell';
 import GObject from 'gi://GObject';
-// const {Gio, Shell, Meta, St, Clutter, Secret, GLib, Soup, GObject} = imports.gi;
-// import GLib from 'gi://GLib';
-// import Soup from 'gi://Soup';
-// import Secret from 'gi://Secret';
 
 import * as Main from 'resource:///org/gnome/shell/ui/main.js';
 import * as PanelMenu from 'resource:///org/gnome/shell/ui/panelMenu.js';
@@ -18,6 +14,10 @@ import * as Settings from './settings.js';
 
 import {Extension, gettext as _} from 'resource:///org/gnome/shell/extensions/extension.js';
 
+// const {Gio, Shell, Meta, St, Clutter, Secret, GLib, Soup, GObject} = imports.gi;
+// import GLib from 'gi://GLib';
+// import Soup from 'gi://Soup';
+// import Secret from 'gi://Secret';
 // const Main = imports.ui.main;
 // const PanelMenu = imports.ui.panelMenu;
 // const PopupMenu = imports.ui.popupMenu;
