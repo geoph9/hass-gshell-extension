@@ -1,12 +1,12 @@
-// const {Gio, Shell, Meta, St, Clutter, Secret, GLib, Soup, GObject} = imports.gi;
-// import GLib from 'gi://GLib';
-// import Soup from 'gi://Soup';
 import Gio from 'gi://Gio';
 import St from 'gi://St';
 import Clutter from 'gi://Clutter';
 import Meta from 'gi://Meta';
 import Shell from 'gi://Shell';
 import GObject from 'gi://GObject';
+// const {Gio, Shell, Meta, St, Clutter, Secret, GLib, Soup, GObject} = imports.gi;
+// import GLib from 'gi://GLib';
+// import Soup from 'gi://Soup';
 // import Secret from 'gi://Secret';
 
 import * as Main from 'resource:///org/gnome/shell/ui/main.js';
@@ -15,6 +15,8 @@ import * as PopupMenu from 'resource:///org/gnome/shell/ui/popupMenu.js';
 
 import * as Utils from './utils.js';
 import * as Settings from './settings.js';
+
+import {Extension, gettext as _} from 'resource:///org/gnome/shell/extensions/extension.js';
 
 // const Main = imports.ui.main;
 // const PanelMenu = imports.ui.panelMenu;
@@ -25,7 +27,6 @@ import * as Settings from './settings.js';
 // const Util = imports.misc.util;
 // const Gettext = imports.gettext.domain(Me.metadata['gettext-domain']);
 // const _ = Gettext.gettext;
-import {Extension, gettext as _} from 'resource:///org/gnome/shell/extensions/extension.js';
 
 // MainLoop for updating the time every X seconds.
 const Mainloop = imports.mainloop;
@@ -630,7 +631,7 @@ export default class HassExtension extends Extension {
     }
 }
 
-function init() {
+export function init() {
     // ExtensionUtils.initTranslations();
     return new HassExtension();
 }

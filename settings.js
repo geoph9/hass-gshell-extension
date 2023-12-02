@@ -1,5 +1,5 @@
-// const {Gio, Gtk, GObject, Secret} = imports.gi;
 import Gio from 'gi://Gio';
+// const {Gio, Gtk, GObject, Secret} = imports.gi;
 // import Gtk from 'gi://Gtk';
 // import GObject from 'gi://GObject';
 // import Secret from 'gi://Secret';
