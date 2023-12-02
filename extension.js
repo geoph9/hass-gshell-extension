@@ -606,7 +606,7 @@ export default class HassExtension extends Extension {
     }
 
     enable() {
-    	Utils.init();
+    	Utils.init(this.metadata, this.getSettings(), this.dir);
         Utils._log("enabling...");
 
         this.popupMenu = new HassMenu(
