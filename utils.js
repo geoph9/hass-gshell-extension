@@ -6,7 +6,6 @@ import Secret from 'gi://Secret';
 import * as Settings from './settings.js';
 
 import {Extension, gettext as _} from 'resource:///org/gnome/shell/extensions/extension.js';
-
 // const ExtensionUtils = imports.misc.extensionUtils;
 // const Me = ExtensionUtils.getCurrentExtension();
 // const {Soup, Gio, GLib, Secret} = imports.gi;
@@ -16,20 +15,24 @@ import {Extension, gettext as _} from 'resource:///org/gnome/shell/extensions/ex
 
 // const mscOptions = new MscOptions();
 // const _settings = ExtensionUtils.getSettings();
+
+let extensionObject = null;
+let MyUUID = null;  // "hass-gshell@geoph9-on-github";
+
 let mscOptions = null;
 let _settings = null;
-let MyUUID = null;
 let _metadata = null;
 let _mainDir = null;
 
 let TOKEN_SCHEMA;
 
-export function init(metadata, settings, mainDir) {
-    if (_settings === null) _settings = settings;
-    if (mscOptions === null)  mscOptions = new Settings.MscOptions(metadata, mainDir);
-    if (MyUUID === null) MyUUID = metadata.uuid;
-    if (_mainDir === null) _mainDir = mainDir;
-    if (_metadata === null) _metadata = metadata;
+export function init(uuid) {
+    if (MyUUID === null) MyUUID = uuid;
+    if (extensionObject === null) extensionObject = Extension.lookupByUUID(MyUUID);
+    if (_settings === null) _settings = extensionObject.getSettings();
+    if (_metadata === null) _metadata = extensionObject.metadata;
+    if (_mainDir === null) _mainDir = extensionObject.dir;
+    if (mscOptions === null)  mscOptions = new Settings.MscOptions(_metadata, _mainDir);
 }
 
 export function disable() {

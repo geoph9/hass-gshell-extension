@@ -602,12 +602,13 @@ var HassMenu = GObject.registerClass ({
 })
 
 export default class HassExtension extends Extension {
-    constructor() {
-        this.popupMenu = null;
-    }
+    // constructor() {
+    //     super();
+    //     this.popupMenu = null;
+    // }
 
     enable() {
-    	Utils.init(this.metadata, this.getSettings(), this.dir);
+    	Utils.init(this.metadata.uuid);
         Utils._log("enabling...");
 
         this.popupMenu = new HassMenu(
@@ -631,7 +632,7 @@ export default class HassExtension extends Extension {
     }
 }
 
-export function init() {
-    // ExtensionUtils.initTranslations();
-    return new HassExtension();
-}
+// export function init() {
+//     // ExtensionUtils.initTranslations();
+//     return new HassExtension();
+// }
