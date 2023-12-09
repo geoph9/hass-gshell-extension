@@ -5,24 +5,6 @@ import Secret from 'gi://Secret';
 
 import * as Settings from './settings.js';
 
-// try {
-//     // Try to import from extension.js which will only work when importing
-//     // Utils from extension.js. Unfortunately, since Gnome 45, this won't
-//     // work when loading Utils from prefs.js
-//     import {gettext as _} from 'resource:///org/gnome/shell/extensions/extension.js';
-// } catch (error) {
-//     import {gettext as _} from 'resource:///org/gnome/Shell/Extensions/js/extensions/prefs.js';
-// }
-// const ExtensionUtils = imports.misc.extensionUtils;
-// const Me = ExtensionUtils.getCurrentExtension();
-// const {Soup, Gio, GLib, Secret} = imports.gi;
-// const MscOptions = Me.imports.settings.MscOptions;
-// const Gettext = imports.gettext.domain(Me.metadata['gettext-domain']);
-// const _ = Gettext.gettext;
-
-// const mscOptions = new MscOptions();
-// const _settings = ExtensionUtils.getSettings();
-
 let MyUUID = null;  // "hass-gshell@geoph9-on-github";
 
 let mscOptions = null;

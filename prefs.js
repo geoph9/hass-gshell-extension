@@ -8,12 +8,6 @@ import * as Settings from './settings.js';
 
 import {ExtensionPreferences, gettext as _} from 'resource:///org/gnome/Shell/Extensions/js/extensions/prefs.js';
 
-// const {Adw, Gio, Gtk, Secret} = imports.gi;
-// const ExtensionUtils = imports.misc.extensionUtils;
-// const Me = ExtensionUtils.getCurrentExtension();
-
-// const Gettext = imports.gettext.domain(Me.metadata['gettext-domain']);
-// const _ = Gettext.gettext;
 
 class SettingsPage {
     constructor(type, window, mscOptions) {
@@ -344,7 +338,3 @@ export default class HassPrefs extends ExtensionPreferences  {
         return row;
     }
 }
-
-// function init() {
-//     // ExtensionUtils.initTranslations();
-// }

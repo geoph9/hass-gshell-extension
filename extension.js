@@ -1,8 +1,6 @@
 import Gio from 'gi://Gio';
 import St from 'gi://St';
 import Clutter from 'gi://Clutter';
-import Meta from 'gi://Meta';
-import Shell from 'gi://Shell';
 import GObject from 'gi://GObject';
 
 import * as Main from 'resource:///org/gnome/shell/ui/main.js';
@@ -13,20 +11,6 @@ import * as Utils from './utils.js';
 import * as Settings from './settings.js';
 
 import {Extension, gettext as _} from 'resource:///org/gnome/shell/extensions/extension.js';
-
-// const {Gio, Shell, Meta, St, Clutter, Secret, GLib, Soup, GObject} = imports.gi;
-// import GLib from 'gi://GLib';
-// import Soup from 'gi://Soup';
-// import Secret from 'gi://Secret';
-// const Main = imports.ui.main;
-// const PanelMenu = imports.ui.panelMenu;
-// const PopupMenu = imports.ui.popupMenu;
-
-// const ExtensionUtils = imports.misc.extensionUtils;
-// const Me = ExtensionUtils.getCurrentExtension();
-// const Util = imports.misc.util;
-// const Gettext = imports.gettext.domain(Me.metadata['gettext-domain']);
-// const _ = Gettext.gettext;
 
 // MainLoop for updating the time every X seconds.
 const Mainloop = imports.mainloop;
@@ -318,7 +302,7 @@ var HassMenu = GObject.registerClass ({
      * Shortcut
      **********************************************************************************************
      */
-
+    // TODO: Add proper support for shortcuts (in a similar manner as with hass-url for example)
     // _enableShortcut() {
     //     Main.wm.addKeybinding(
     //         this.shortcutId,
@@ -602,11 +586,6 @@ var HassMenu = GObject.registerClass ({
 })
 
 export default class HassExtension extends Extension {
-    // constructor() {
-    //     super();
-    //     this.popupMenu = null;
-    // }
-
     enable() {
         this._settings = this.getSettings();
     	Utils.init(
@@ -639,7 +618,3 @@ export default class HassExtension extends Extension {
     }
 }
 
-// export function init() {
-//     // ExtensionUtils.initTranslations();
-//     return new HassExtension();
-// }
