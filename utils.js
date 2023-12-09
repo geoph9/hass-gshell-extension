@@ -5,7 +5,14 @@ import Secret from 'gi://Secret';
 
 import * as Settings from './settings.js';
 
-import {Extension, gettext as _} from 'resource:///org/gnome/shell/extensions/extension.js';
+// try {
+//     // Try to import from extension.js which will only work when importing
+//     // Utils from extension.js. Unfortunately, since Gnome 45, this won't
+//     // work when loading Utils from prefs.js
+//     import {gettext as _} from 'resource:///org/gnome/shell/extensions/extension.js';
+// } catch (error) {
+//     import {gettext as _} from 'resource:///org/gnome/Shell/Extensions/js/extensions/prefs.js';
+// }
 // const ExtensionUtils = imports.misc.extensionUtils;
 // const Me = ExtensionUtils.getCurrentExtension();
 // const {Soup, Gio, GLib, Secret} = imports.gi;
@@ -16,22 +23,22 @@ import {Extension, gettext as _} from 'resource:///org/gnome/shell/extensions/ex
 // const mscOptions = new MscOptions();
 // const _settings = ExtensionUtils.getSettings();
 
-let extensionObject = null;
 let MyUUID = null;  // "hass-gshell@geoph9-on-github";
 
 let mscOptions = null;
 let _settings = null;
 let _metadata = null;
 let _mainDir = null;
+let _ = null;
 
 let TOKEN_SCHEMA;
 
-export function init(uuid) {
+export function init(uuid, settings, metadata, mainDir, gettext_func) {
     if (MyUUID === null) MyUUID = uuid;
-    if (extensionObject === null) extensionObject = Extension.lookupByUUID(MyUUID);
-    if (_settings === null) _settings = extensionObject.getSettings();
-    if (_metadata === null) _metadata = extensionObject.metadata;
-    if (_mainDir === null) _mainDir = extensionObject.dir;
+    if (_settings === null) _settings = settings;
+    if (_metadata === null) _metadata = metadata;
+    if (_mainDir === null) _mainDir = mainDir;
+    if (_ === null) _ = gettext_func;
     if (mscOptions === null)  mscOptions = new Settings.MscOptions(_metadata, _mainDir);
 }
 

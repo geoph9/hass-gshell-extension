@@ -608,12 +608,19 @@ export default class HassExtension extends Extension {
     // }
 
     enable() {
-    	Utils.init(this.metadata.uuid);
+        this._settings = this.getSettings();
+    	Utils.init(
+            this.metadata.uuid,
+            this._settings,
+            this.metadata,
+            this.dir,
+            _
+        );
         Utils._log("enabling...");
 
         this.popupMenu = new HassMenu(
             this.metadata,
-            this.getSettings(),
+            this._settings,
             this.dir,
             this.openPreferences.bind(this)
         );

@@ -185,7 +185,13 @@ export default class HassPrefs extends ExtensionPreferences  {
         this.togglablesPage = new SettingsPage("togglable", this.window, this._mscOptions);
         this.runnablesPage = new SettingsPage("runnable", this.window, this._mscOptions);
         this.sensorsPage = new SettingsPage("sensor", this.window, this._mscOptions);
-        Utils.init(this.metadata.uuid);
+        Utils.init(
+            this.metadata.uuid,
+            this._settings,
+            this.metadata,
+            this.dir,
+            _
+        );
         this.build();
         this.window.connect('close-request', () => {
             Utils.disable();
