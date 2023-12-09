@@ -226,10 +226,10 @@ export function getEntities(callback=null, on_error=null, force_reload=false) {
     if (entities.length == 0 || force_reload) {
         _log("get entities from API");
         send_async_request(
-            this.computeURL('api/states'), 'GET', null,
+            computeURL('api/states'), 'GET', null,
             function (response) {
                 if (Array.isArray(response)) {
-                    let entities = response.map(this.mapEntity);
+                    let entities = response.map(mapEntity);
                     _log("%s entities retreived, sort it by name", [entities.length]);
                     entities = entities.sort((a,b) => (a.name > b.name) ? 1 : ((b.name > a.name) ? -1 : 0));
                     _log("update entities cache");
@@ -264,7 +264,7 @@ function getEntity(entity_id, callback=null, on_error=null, force_reload=false) 
     if (entity.length == 0 || force_reload) {
         _log("get entity %s from API", [entity_id]);
         send_async_request(
-            this.computeURL(`api/states/${entity_id}`), 'GET', null,
+            computeURL(`api/states/${entity_id}`), 'GET', null,
             function (response) {
                 if (typeof response === "object") {
                     if (callback)

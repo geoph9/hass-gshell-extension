@@ -221,11 +221,11 @@ var HassMenu = GObject.registerClass ({
     GTypeName: "HassMenu"
 }, class HassMenu extends PanelMenu.Button {
     _init(metadata, settings, mainDir, openPref) {
-        super._init(0, metadata, false);
+        super._init(0.0, metadata.name, false);
         this.style_class = 'hass-menu';
         this._settings = settings;
         this.Settings = null;
-        this.shortcutId = "hass-shortcut";
+        // this.shortcutId = "hass-shortcut";
         this._mainDir = mainDir;
         this._openPrefs = openPref;
 
@@ -267,7 +267,7 @@ var HassMenu = GObject.registerClass ({
         this._buildTrayMenu();
         this._buildPanelSensors();
         this._buildTrayIcon();
-        this._enableShortcut();
+        // this._enableShortcut();
 
         // Add the main box as child of the PopupMenu
         this.add_child(this.box);
@@ -286,7 +286,7 @@ var HassMenu = GObject.registerClass ({
         Utils.disconnectSettings(this.connectedSettingIds);
         this._deletePanelSensors();
         this._deleteTrayIcon();
-        this._disableShortcut();
+        // this._disableShortcut();
         this._deleteMenuItems();
         if (this.panelSensorBox) this.panelSensorBox.destroy();
         if (this.box) this.box.destroy();
@@ -319,22 +319,22 @@ var HassMenu = GObject.registerClass ({
      **********************************************************************************************
      */
 
-    _enableShortcut() {
-        Main.wm.addKeybinding(
-            this.shortcutId,
-            this._settings.get_strv('org.gnome.shell.extensions.hass-shortcut'),
-            Meta.KeyBindingFlags.NONE,  // key binding flag
-            Shell.ActionMode.ALL,  // binding mode
-            () => this.menu.toggle()
-        );
-    }
-    _disableShortcut() {
-        if (this.refreshSensorsTimeout) {
-            Mainloop.source_remove(this.refreshSensorsTimeout);
-            this.refreshSensorsTimeout = null;
-        }
-        Main.wm.removeKeybinding(this.shortcutId);
-    }
+    // _enableShortcut() {
+    //     Main.wm.addKeybinding(
+    //         this.shortcutId,
+    //         this._settings.get_strv('org.gnome.shell.extensions.hass-shortcut'),
+    //         Meta.KeyBindingFlags.NONE,  // key binding flag
+    //         Shell.ActionMode.ALL,  // binding mode
+    //         () => this.menu.toggle()
+    //     );
+    // }
+    // _disableShortcut() {
+    //     if (this.refreshSensorsTimeout) {
+    //         Mainloop.source_remove(this.refreshSensorsTimeout);
+    //         this.refreshSensorsTimeout = null;
+    //     }
+    //     Main.wm.removeKeybinding(this.shortcutId);
+    // }
 
     /*
      **********************************************************************************************
