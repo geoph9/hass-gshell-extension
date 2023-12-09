@@ -113,7 +113,7 @@ If you click the home assistant icon, you will get the following:
 
 In this example, I have added 2 togglable entities that control my kitchen lights and my TV power. By pressing any of these buttons, its state will toggle. The names of these entries are taken from home assistant.
 
-**NOTE:** The menu can also be opened (toglled)by using the `Super+G` shortcut.This may make it easier for you to toggle something without using the mouse/touchpad. It is not possible (currently) to change this shortcut key (unless you change the schema file and re-compile it or use something like dconf).
+**NOTE:** The menu can also be opened (toglled)by using the `Super+G` shortcut.This may make it easier for you to toggle something without using the mouse/touchpad. It is not possible (currently) to change this shortcut key (unless you change the schema file and re-compile it or use something like dconf).  **UPDATE: This feature is removed now.**
 
 
 #### Home Assistant Events
