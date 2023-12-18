@@ -1,11 +1,13 @@
-const {Adw, Gio, Gtk, Secret} = imports.gi;
+import Adw from 'gi://Adw';
+import Gio from 'gi://Gio';
+import Gtk from 'gi://Gtk';
+import Secret from 'gi://Secret';
 
-const ExtensionUtils = imports.misc.extensionUtils;
-const Me = ExtensionUtils.getCurrentExtension();
-const Utils = Me.imports.utils;
-const Settings = Me.imports.settings;
-const Gettext = imports.gettext.domain(Me.metadata['gettext-domain']);
-const _ = Gettext.gettext;
+import * as Utils from './utils.js';
+import * as Settings from './settings.js';
+
+import {ExtensionPreferences, gettext as _} from 'resource:///org/gnome/Shell/Extensions/js/extensions/prefs.js';
+
 
 class SettingsPage {
     constructor(type, window, mscOptions) {
@@ -161,15 +163,33 @@ class SettingsPage {
     }
 }
 
-class HassPrefs {
-    constructor(window) {
+export default class HassPrefs extends ExtensionPreferences  {
+    // constructor(window) {
+    // }
+
+    fillPreferencesWindow(window) {
         this.window = window;
-        this._settings = ExtensionUtils.getSettings();
-        this._mscOptions = new Settings.MscOptions();
+        this._settings = this.getSettings();
+        this.window._settings = this._settings;
+        this._mscOptions = new Settings.MscOptions(
+            this.metadata,
+            this.dir
+        );
 
         this.togglablesPage = new SettingsPage("togglable", this.window, this._mscOptions);
         this.runnablesPage = new SettingsPage("runnable", this.window, this._mscOptions);
         this.sensorsPage = new SettingsPage("sensor", this.window, this._mscOptions);
+        Utils.init(
+            this.metadata.uuid,
+            this._settings,
+            this.metadata,
+            this.dir,
+            _
+        );
+        this.build();
+        this.window.connect('close-request', () => {
+            Utils.disable();
+        });
     }
 
     build() {
@@ -317,17 +337,4 @@ class HassPrefs {
 
         return row;
     }
-}
-
-function init() {
-    ExtensionUtils.initTranslations();
-}
-
-function fillPreferencesWindow(window) {
-    Utils.init();
-    let prefs = new HassPrefs(window);
-    prefs.build();
-    window.connect('close-request', () => {
-        Utils.disable();
-    });
 }

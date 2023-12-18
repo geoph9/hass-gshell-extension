@@ -1,33 +1,39 @@
-const {Soup, Gio, GLib, Secret} = imports.gi;
-const ExtensionUtils = imports.misc.extensionUtils;
-const Me = ExtensionUtils.getCurrentExtension();
-const MscOptions = Me.imports.settings.MscOptions;
+import Soup from 'gi://Soup';
+import Gio from 'gi://Gio';
+import GLib from 'gi://GLib';
+import Secret from 'gi://Secret';
 
-const Gettext = imports.gettext.domain(Me.metadata['gettext-domain']);
-const _ = Gettext.gettext;
+import * as Settings from './settings.js';
 
-// const mscOptions = new MscOptions();
-// const _settings = ExtensionUtils.getSettings();
+let MyUUID = null;  // "hass-gshell@geoph9-on-github";
+
 let mscOptions = null;
 let _settings = null;
-const MyUUID = Me.metadata.uuid;
+let _metadata = null;
+let _mainDir = null;
+let _ = null;
 
 let TOKEN_SCHEMA;
 
-function init() {
-    if (_settings === null) _settings = ExtensionUtils.getSettings();
-    if (mscOptions === null)  mscOptions = new MscOptions();
+export function init(uuid, settings, metadata, mainDir, gettext_func) {
+    if (MyUUID === null) MyUUID = uuid;
+    if (_settings === null) _settings = settings;
+    if (_metadata === null) _metadata = metadata;
+    if (_mainDir === null) _mainDir = mainDir;
+    if (_ === null) _ = gettext_func;
+    if (mscOptions === null)  mscOptions = new Settings.MscOptions(_metadata, _mainDir);
 }
 
-function disable() {
+export function disable() {
 	if (mscOptions !== null)  {
 		mscOptions.destroy();
 		mscOptions = null;
 	}
 	if (_settings !== null) _settings = null;
+    if (MyUUID !== null) MyUUID = null;
 }
 
-function getTokenSchema() {
+export function getTokenSchema() {
     if (!TOKEN_SCHEMA) {
         TOKEN_SCHEMA = Secret.Schema.new("org.gnome.hass-data.Password",
             Secret.SchemaFlags.NONE,
@@ -197,15 +203,15 @@ function mapEntity(ent) {
  * @param {Boolean} force_reload Force reloading cache (optional, default: false)
  *
  */
-function getEntities(callback=null, on_error=null, force_reload=false) {
+export function getEntities(callback=null, on_error=null, force_reload=false) {
     let entities = mscOptions.entitiesCache;
     if (entities.length == 0 || force_reload) {
         _log("get entities from API");
         send_async_request(
-            this.computeURL('api/states'), 'GET', null,
+            computeURL('api/states'), 'GET', null,
             function (response) {
                 if (Array.isArray(response)) {
-                    let entities = response.map(this.mapEntity);
+                    let entities = response.map(mapEntity);
                     _log("%s entities retreived, sort it by name", [entities.length]);
                     entities = entities.sort((a,b) => (a.name > b.name) ? 1 : ((b.name > a.name) ? -1 : 0));
                     _log("update entities cache");
@@ -240,7 +246,7 @@ function getEntity(entity_id, callback=null, on_error=null, force_reload=false) 
     if (entity.length == 0 || force_reload) {
         _log("get entity %s from API", [entity_id]);
         send_async_request(
-            this.computeURL(`api/states/${entity_id}`), 'GET', null,
+            computeURL(`api/states/${entity_id}`), 'GET', null,
             function (response) {
                 if (typeof response === "object") {
                     if (callback)
@@ -262,7 +268,7 @@ function getEntity(entity_id, callback=null, on_error=null, force_reload=false) 
 /**
  * Invalidate entities cache
  */
-function invalidateEntitiesCache() {
+export function invalidateEntitiesCache() {
     _log("invalidate entities cache");
     mscOptions.entitiesCache = [];
 }
@@ -276,7 +282,7 @@ function invalidateEntitiesCache() {
  * @param {Boolean} only_enabled Filter on enabled runnables (optional, default: false)
  * @param {Boolean} force_reload Force reloading cache (optional, default: false)
  */
-function getEntitiesByType(type, callback, on_error=null, only_enabled=false, force_reload=false) {
+export function getEntitiesByType(type, callback, on_error=null, only_enabled=false, force_reload=false) {
     getEntities(
         function(entities) {
             let results = [];
@@ -348,7 +354,7 @@ function isSensor(entity) {
  * @param {Boolean} force_reload Force reloading cache (optional, default: false)
  *
  */
-function getSensors(callback, on_error=null, only_enabled=false, force_reload=false) {
+export function getSensors(callback, on_error=null, only_enabled=false, force_reload=false) {
     getEntities(
         function(entities) {
             let sensors = [];
@@ -376,7 +382,7 @@ function getSensors(callback, on_error=null, only_enabled=false, force_reload=fa
  * @param {Boolean} force_reload Force reloading cache (optional, default: false)
  *
  */
-function getSensor(sensor_id, callback, on_not_found=null, force_reload=false) {
+export function getSensor(sensor_id, callback, on_not_found=null, force_reload=false) {
     getEntity(
         sensor_id,
         function(entity) {
@@ -396,7 +402,7 @@ function getSensor(sensor_id, callback, on_not_found=null, force_reload=false) {
  * Toggle an entity in Home-Assistant
  * @param {String} entityId  The entity ID
  */
-function toggleEntity(entity) {
+export function toggleEntity(entity) {
     let data = { "entity_id": entity.entity_id };
     let domain = entity.entity_id.split(".")[0];  // e.g. light.mylight => light
     send_async_request(
@@ -447,7 +453,7 @@ function toggleEntity(entity) {
  * Turns an entity on in Home-Assistant
  * @param {String} entityId  The entity ID
  */
-function turnOnEntity(entity) {
+export function turnOnEntity(entity) {
     let data = { "entity_id": entity.entity_id };
     let domain = entity.entity_id.split(".")[0];  // e.g. script.run_me => script
     send_async_request(
@@ -476,7 +482,7 @@ function turnOnEntity(entity) {
  * Trigger Home-Assistant event by name
  * @param {String} eventName  The HA event name (start/stop/restart)
  */
-function triggerHassEvent(eventName, callback=null, on_error=null) {
+export function triggerHassEvent(eventName, callback=null, on_error=null) {
     send_async_request(
         computeURL(`api/events/homeassistant_${eventName}`),
         'POST',
@@ -535,7 +541,7 @@ function triggerHassEvent(eventName, callback=null, on_error=null) {
  * @param {Array} b Array 2
  * @return {Boolean} true if the two arrays have the same elements. false otherwise.
  */
-function arraysEqual(a, b) {
+export function arraysEqual(a, b) {
     if (a === b) return true;
     if (a == null || b == null) return false;
     if (a.length !== b.length) return false;
@@ -551,53 +557,18 @@ function arraysEqual(a, b) {
     return true;
 }
 
-/**
- *
- * @param {String} schema_name
- * @return {Gio.Settings} The settings corresponding to the input schema
- */
-function getSettings(schema=null) {
-    schema = schema ? schema : Me.metadata['settings-schema'];
-    const schemaDir = Me.dir.get_child('schemas');
-    let schemaSource;
-    if (schemaDir.query_exists(null)) {
-        schemaSource = Gio.SettingsSchemaSource.new_from_directory(
-            schemaDir.get_path(),
-            Gio.SettingsSchemaSource.get_default(),
-            false
-        );
-    } else {
-        schemaSource = Gio.SettingsSchemaSource.get_default();
-    }
 
-    const schemaObj = schemaSource.lookup(schema, true);
-    if (!schemaObj) {
-        throw new Error(
-            'Schema' + schema + ' could not be found for extension ' +
-            Me.metadata.uuid + '. Please check your installation.'
-        );
-    }
+// const getMethods = (obj) => {
+//   let properties = new Set()
+//   let currentObj = obj
+//   do {
+//     Object.getOwnPropertyNames(currentObj).map(item => properties.add(item))
+//   } while ((currentObj = Object.getPrototypeOf(currentObj)))
+//   return [...properties.keys()].filter(item => typeof obj[item] === 'function')
+// }
 
-    const args = { settings_schema: schemaObj };
-    // let path = schema.replace('.', '/');
-    // if (path) {
-    //     args.path = path;
-    // }
-
-    return new Gio.Settings(args);
-}
-
-const getMethods = (obj) => {
-  let properties = new Set()
-  let currentObj = obj
-  do {
-    Object.getOwnPropertyNames(currentObj).map(item => properties.add(item))
-  } while ((currentObj = Object.getPrototypeOf(currentObj)))
-  return [...properties.keys()].filter(item => typeof obj[item] === 'function')
-}
-
-function getEntityIcon(domain) {
-    let icon_path = Me.dir.get_path();
+export function getEntityIcon(domain) {
+    let icon_path = _mainDir.get_path();
     switch (domain) {
         case "scene":
             icon_path += '/icons/palette.svg';
@@ -630,21 +601,21 @@ function getEntityIcon(domain) {
  * @param       {Boolean} [debug=true]   If true, consider message as debugging one and logged it
  *                                       only if the debug mode is enabled (optional, default: true)
  */
-function _log(msg, args=null, debug=true) {
+export function _log(msg, args=null, debug=true) {
     if (debug && !mscOptions.debugMode) return;
     if (args) msg = msg.format.apply(msg, args);
     log(`${MyUUID}: ${msg}`);
 }
 
-function notify(msg, details) {
+export function notify(msg, details) {
     if (!mscOptions.showNotifications) return;
     let Main = imports.ui.main;
     let MessageTray = imports.ui.messageTray;
-    let source = new MessageTray.Source(Me.metadata.name);
+    let source = new MessageTray.Source(_metadata.name);
     Main.messageTray.add(source);
     let notification = new MessageTray.Notification(
         source, msg, details,
-        {gicon: Gio.icon_new_for_string(Me.dir.get_path() + '/icons/hass-symbolic.svg')}
+        {gicon: Gio.icon_new_for_string(_mainDir.get_path() + '/icons/hass-symbolic.svg')}
     );
     notification.setTransient(true);
     source.showNotification(notification);
@@ -656,7 +627,7 @@ function notify(msg, details) {
  * @param {Function} callback   The callback to run on change
  * @param {Array}    [args=[]]  Optional arguments to pass to callback
  */
-function connectSettings(settings, callback, args=[]) {
+export function connectSettings(settings, callback, args=[]) {
     let connectedSettingIds = [];
     for (let setting of settings) {
         connectedSettingIds.push(
@@ -673,6 +644,6 @@ function connectSettings(settings, callback, args=[]) {
  * Disconnect connected settings by ID
  * @param {Array} connectedSettingIds List of connected setting IDs
  */
-function disconnectSettings(connectedSettingIds) {
+export function disconnectSettings(connectedSettingIds) {
     connectedSettingIds.forEach(id => _settings.disconnect(id));
 }

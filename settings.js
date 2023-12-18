@@ -1,25 +1,67 @@
-const {Gio, Gtk, GObject, Secret} = imports.gi;
+import Gio from 'gi://Gio';
+// const {Gio, Gtk, GObject, Secret} = imports.gi;
+// import Gtk from 'gi://Gtk';
+// import GObject from 'gi://GObject';
+// import Secret from 'gi://Secret';
 
-const ExtensionUtils = imports.misc.extensionUtils;
-const Me = ExtensionUtils.getCurrentExtension();
-const Utils = Me.imports.utils;
+// const ExtensionUtils = imports.misc.extensionUtils;
+// const Me = ExtensionUtils.getCurrentExtension();
+// const Utils = Me.imports.utils;
 
-var PANEL_ICON_PATH = 'default-panel-icon';
-var VALID_PANEL_ICONS = 'valid-panel-icons';
-var HASS_URL = 'hass-url';
-var HASS_ENTITIES_CACHE = 'hass-entities-cache';
-var HASS_ENABLED_ENTITIES = 'hass-enabled-entities';
-var HASS_ENABLED_RUNNABLES = 'hass-enabled-runnables';
-var HASS_ENABLED_SENSOR_IDS = 'hass-enabled-sensor-ids';
-var SHOW_NOTIFICATIONS_KEY = 'show-notifications';
-var DO_REFRESH = 'sensors-refresh';
-var REFRESH_RATE = 'sensors-refresh-seconds';
-var DEBUG_MODE = 'debug-mode';
+export var PANEL_ICON_PATH = 'default-panel-icon';
+export var VALID_PANEL_ICONS = 'valid-panel-icons';
+export var HASS_URL = 'hass-url';
+export var HASS_ENTITIES_CACHE = 'hass-entities-cache';
+export var HASS_ENABLED_ENTITIES = 'hass-enabled-entities';
+export var HASS_ENABLED_RUNNABLES = 'hass-enabled-runnables';
+export var HASS_ENABLED_SENSOR_IDS = 'hass-enabled-sensor-ids';
+export var SHOW_NOTIFICATIONS_KEY = 'show-notifications';
+export var DO_REFRESH = 'sensors-refresh';
+export var REFRESH_RATE = 'sensors-refresh-seconds';
+export var DEBUG_MODE = 'debug-mode';
 
-var MscOptions = class MscOptions {
-    constructor() {
-        this._gsettings = Utils.getSettings();
+export var MscOptions = class MscOptions {
+    constructor(metadata, mainDir) {
+        this._metadata = metadata;
+        this._mainDir = mainDir;
+        this._gsettings = this._getSettings();
         this._connectionIds = [];
+    }
+
+    /**
+     * A helper function to get the Gio.Settings object for the extension
+     * @param {String} schema_name
+     * @return {Gio.Settings} The settings corresponding to the input schema
+     */
+    _getSettings(schema=null) {
+        schema = schema ? schema : this._metadata['settings-schema'];
+        const schemaDir = this._mainDir.get_child('schemas');
+        let schemaSource;
+        if (schemaDir.query_exists(null)) {
+            schemaSource = Gio.SettingsSchemaSource.new_from_directory(
+                schemaDir.get_path(),
+                Gio.SettingsSchemaSource.get_default(),
+                false
+            );
+        } else {
+            schemaSource = Gio.SettingsSchemaSource.get_default();
+        }
+    
+        const schemaObj = schemaSource.lookup(schema, true);
+        if (!schemaObj) {
+            throw new Error(
+                'Schema' + schema + ' could not be found for extension ' +
+                this._metadata.uuid + '. Please check your installation.'
+            );
+        }
+    
+        const args = { settings_schema: schemaObj };
+        // let path = schema.replace('.', '/');
+        // if (path) {
+        //     args.path = path;
+        // }
+    
+        return new Gio.Settings(args);
     }
 
     connect(name, callback) {
