@@ -1,12 +1,4 @@
 import Gio from 'gi://Gio';
-// const {Gio, Gtk, GObject, Secret} = imports.gi;
-// import Gtk from 'gi://Gtk';
-// import GObject from 'gi://GObject';
-// import Secret from 'gi://Secret';
-
-// const ExtensionUtils = imports.misc.extensionUtils;
-// const Me = ExtensionUtils.getCurrentExtension();
-// const Utils = Me.imports.utils;
 
 export var PANEL_ICON_PATH = 'default-panel-icon';
 export var VALID_PANEL_ICONS = 'valid-panel-icons';

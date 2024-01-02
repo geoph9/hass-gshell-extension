@@ -14,9 +14,6 @@ import {Extension, gettext as _} from 'resource:///org/gnome/shell/extensions/ex
 
 // MainLoop for updating the time every X seconds.
 const Mainloop = imports.mainloop;
-// const Utils = Me.imports.utils;
-
-// const MyUUID = Me.metadata.uuid;
 
 var HassPanelSensor = GObject.registerClass ({
     GTypeName: "HassPanelSensor"
