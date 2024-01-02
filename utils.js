@@ -29,8 +29,14 @@ function disable() {
 
 function getTokenSchema() {
     if (!TOKEN_SCHEMA) {
-        TOKEN_SCHEMA = Secret.Schema.new("org.gnome.hass-data.Password",
-            Secret.SchemaFlags.NONE,
+        TOKEN_SCHEMA = Secret.Schema.new(
+        	"org.gnome.hass-data.Password",
+            /** DONT_MATCH_NAME is used as a workaround for a bug in gnome-keyring
+             *  which prevents cold keyrings from being searched (and hence does not prompt for unlocking)
+             *  see https://gitlab.gnome.org/GNOME/gnome-keyring/-/issues/89 and
+             *  https://gitlab.gnome.org/GNOME/libsecret/-/issues/7 for more information
+             */
+            Secret.SchemaFlags.DONT_MATCH_NAME,
             {
                 "token_string": Secret.SchemaAttributeType.STRING,
             }
