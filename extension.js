@@ -2,6 +2,7 @@ import Gio from 'gi://Gio';
 import St from 'gi://St';
 import Clutter from 'gi://Clutter';
 import GObject from 'gi://GObject';
+import GLib from 'gi://GLib';
 
 import * as Main from 'resource:///org/gnome/shell/ui/main.js';
 import * as PanelMenu from 'resource:///org/gnome/shell/ui/panelMenu.js';
@@ -11,9 +12,6 @@ import * as Utils from './utils.js';
 import * as Settings from './settings.js';
 
 import {Extension, gettext as _} from 'resource:///org/gnome/shell/extensions/extension.js';
-
-// MainLoop for updating the time every X seconds.
-const Mainloop = imports.mainloop;
 
 var HassPanelSensor = GObject.registerClass ({
     GTypeName: "HassPanelSensor"
@@ -271,6 +269,10 @@ var HassMenu = GObject.registerClass ({
         this._deleteMenuItems();
         if (this.panelSensorBox) this.panelSensorBox.destroy();
         if (this.box) this.box.destroy();
+        if (this.refreshSensorsTimeout) {
+            GLib.Source.remove(this.refreshSensorsTimeout);
+            this.refreshSensorsTimeout = null;
+        }
     }
 
     refresh(force_reload=false) {
@@ -546,7 +548,7 @@ var HassMenu = GObject.registerClass ({
         // Firstly cancel previous configured timeout (if defined)
         if (this.refreshSensorsTimeout) {
             Utils._log("cancel previous sensors refresh timer...");
-            Mainloop.source_remove(this.refreshSensorsTimeout);
+            GLib.Source.remove(this.refreshSensorsTimeout);
             this.refreshSensorsTimeout = null;
         }
 
@@ -560,11 +562,14 @@ var HassMenu = GObject.registerClass ({
             'schedule refreshing sensors panel every %s seconds',
             [this.refreshSeconds]
         );
-        this.refreshSensorsTimeout = Mainloop.timeout_add_seconds(this.refreshSeconds, () => {
-            this._refreshPanelSensors(true);
-            // We have to return true to keep the timer alive
-            return true;
-        });
+        this.refreshSensorsTimeout = GLib.timeout_add_seconds(
+            GLib.PRIORITY_DEFAULT,
+            this.refreshSeconds, () => {
+                this._refreshPanelSensors(true);
+                // We have to return true to keep the timer alive
+                return true  // return GLib.SOURCE_CONTINUE;
+            }
+        );
     }
 
     _refreshPanelSensors(force_reload=false) {
