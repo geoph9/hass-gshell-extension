@@ -31,6 +31,7 @@ export function disable() {
 	}
 	if (_settings !== null) _settings = null;
     if (MyUUID !== null) MyUUID = null;
+    _settings = null;
 }
 
 export function getTokenSchema() {

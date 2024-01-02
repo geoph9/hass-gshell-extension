@@ -614,6 +614,7 @@ export default class HassExtension extends Extension {
         this.popupMenu.disable();
         this.popupMenu.destroy();
         this.popupMenu = null;
+        this._settings = null;
         Utils.disable();
     }
 }
