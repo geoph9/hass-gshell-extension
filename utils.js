@@ -12,16 +12,28 @@ let _settings = null;
 let _metadata = null;
 let _mainDir = null;
 let _ = null;
+let MessageTray = null;
+let Main = null;
 
 let TOKEN_SCHEMA;
 
-export function init(uuid, settings, metadata, mainDir, gettext_func) {
+export function init(
+        uuid,
+        settings,
+        metadata,
+        mainDir,
+        gettext_func,
+        messageTray_class=null,  // not mandatory (only used for notifications in extensions.js)
+        main_class=null  // not mandatory (only used for notifications in extensions.js)
+    ) {
     if (MyUUID === null) MyUUID = uuid;
     if (_settings === null) _settings = settings;
     if (_metadata === null) _metadata = metadata;
     if (_mainDir === null) _mainDir = mainDir;
     if (_ === null) _ = gettext_func;
     if (mscOptions === null)  mscOptions = new Settings.MscOptions(_metadata, _mainDir);
+    if (MessageTray === null && messageTray_class !== null) MessageTray = messageTray_class;
+    if (Main === null && main_class !== null) Main = main_class;
 }
 
 export function disable() {
@@ -552,7 +564,7 @@ export function arraysEqual(a, b) {
     // Please note that calling sort on an array will modify that array.
     // you might want to clone your array first.
 
-    for (var i = 0; i < a.length; ++i) {
+    for (let i = 0; i < a.length; ++i) {
       if (a[i] !== b[i]) return false;
     }
     return true;
@@ -610,8 +622,8 @@ export function _log(msg, args=null, debug=true) {
 
 export function notify(msg, details) {
     if (!mscOptions.showNotifications) return;
-    let Main = imports.ui.main;
-    let MessageTray = imports.ui.messageTray;
+    // let Main = imports.ui.main;
+    // let MessageTray = imports.ui.messageTray;
     let source = new MessageTray.Source(_metadata.name);
     Main.messageTray.add(source);
     let notification = new MessageTray.Notification(

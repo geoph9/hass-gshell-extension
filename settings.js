@@ -1,16 +1,16 @@
 import Gio from 'gi://Gio';
 
-export var PANEL_ICON_PATH = 'default-panel-icon';
-export var VALID_PANEL_ICONS = 'valid-panel-icons';
-export var HASS_URL = 'hass-url';
-export var HASS_ENTITIES_CACHE = 'hass-entities-cache';
-export var HASS_ENABLED_ENTITIES = 'hass-enabled-entities';
-export var HASS_ENABLED_RUNNABLES = 'hass-enabled-runnables';
-export var HASS_ENABLED_SENSOR_IDS = 'hass-enabled-sensor-ids';
-export var SHOW_NOTIFICATIONS_KEY = 'show-notifications';
-export var DO_REFRESH = 'sensors-refresh';
-export var REFRESH_RATE = 'sensors-refresh-seconds';
-export var DEBUG_MODE = 'debug-mode';
+export const PANEL_ICON_PATH = 'default-panel-icon';
+export const VALID_PANEL_ICONS = 'valid-panel-icons';
+export const HASS_URL = 'hass-url';
+export const HASS_ENTITIES_CACHE = 'hass-entities-cache';
+export const HASS_ENABLED_ENTITIES = 'hass-enabled-entities';
+export const HASS_ENABLED_RUNNABLES = 'hass-enabled-runnables';
+export const HASS_ENABLED_SENSOR_IDS = 'hass-enabled-sensor-ids';
+export const SHOW_NOTIFICATIONS_KEY = 'show-notifications';
+export const DO_REFRESH = 'sensors-refresh';
+export const REFRESH_RATE = 'sensors-refresh-seconds';
+export const DEBUG_MODE = 'debug-mode';
 
 export var MscOptions = class MscOptions {
     constructor(metadata, mainDir) {
