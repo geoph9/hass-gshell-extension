@@ -161,6 +161,12 @@ class SettingsPage {
             title: text,
         });
     }
+
+    destroy() {
+        this.page = null;
+        this.group = null;
+        this.rows = [];
+    }
 }
 
 export default class HassPrefs extends ExtensionPreferences  {
@@ -188,6 +194,15 @@ export default class HassPrefs extends ExtensionPreferences  {
         );
         this.build();
         this.window.connect('close-request', () => {
+            this._settings = null;
+            this._mscOptions.destroy();
+            this._mscOptions = null;
+            this.togglablesPage.destroy();
+            this.togglablesPage = null;
+            this.runnablesPage.destroy();
+            this.runnablesPage = null;
+            this.sensorsPage.destroy();
+            this.sensorsPage = null;
             Utils.disable();
         });
     }

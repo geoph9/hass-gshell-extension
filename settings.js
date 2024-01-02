@@ -72,6 +72,7 @@ export var MscOptions = class MscOptions {
 
     destroy() {
         this._connectionIds.forEach(id => this._gsettings.disconnect(id));
+        this._gsettings = null;
     }
 
     // Panel Icons
