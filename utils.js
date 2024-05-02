@@ -64,7 +64,7 @@ export function getTokenSchema() {
     return TOKEN_SCHEMA;
 }
 
-const VALID_TOGGLABLES = ['switch.', 'light.', 'fan.', 'input_boolean.'];
+const VALID_TOGGLABLES = ['switch.', 'light.', 'fan.', 'input_boolean.', 'media_player.'];
 const VALID_RUNNABLES = ['scene.', 'script.'];
 
 /**
@@ -314,14 +314,14 @@ export function getEntitiesByType(type, callback, on_error=null, only_enabled=fa
                         continue;
                     results.push(mapSensor(ent));
                 } else {
-                    let validDomains;
-                    if (type === "togglable") validDomains = VALID_TOGGLABLES;
-                    else if (type === "runnable") validDomains = VALID_RUNNABLES;
-    
-                    if (validDomains.filter(domain => ent.entity_id.startsWith(domain)).length == 0)
-                        continue;
-                    
-                    results.push({'entity_id': ent.entity_id, 'name': ent.name});
+
+                    let entitySupported = false;
+                    if (type === "togglable") entitySupported = isEntitySupported(ent, VALID_TOGGLABLES)
+                    else if (type === "runnable") entitySupported = isEntitySupported(ent, VALID_RUNNABLES)
+
+                    if (entitySupported)
+                        results.push({ 'entity_id': ent.entity_id, 'name': ent.name });
+
                 }
 
             }
@@ -363,6 +363,36 @@ function isSensor(entity) {
         && entity.state !== "unavailable"
     );
 }
+
+/**
+ * Check if entity supported
+ *
+ * @param {Object} entity The entity object
+ * @param {Array} valid_domains Array of valid domain names
+ * @return {Boolean}
+ */
+function isEntitySupported(entity, valid_domains) {
+
+    // Not supported if not in valid domains:
+    if (valid_domains.filter(domain => entity.entity_id.startsWith(domain)).length == 0) return false
+
+    // Custom check for media players:
+    if (entity.entity_id.startsWith('media_player.')) {
+
+        if (!entity.attributes.supported_features) return false
+
+        let supported_features_bin = parseInt(entity.attributes.supported_features).toString(2)
+
+        return (
+            supported_features_bin.length > 8
+            && supported_features_bin.charAt(supported_features_bin.length - 8) === '1'
+            && supported_features_bin.charAt(supported_features_bin.length - 9) === '1'
+        );
+    } else {
+        return true
+    }
+}
+
 
 /**
  * Get sensors
@@ -600,6 +630,9 @@ export function getEntityIcon(domain) {
             break;
         case "fan":
             icon_path += '/icons/fan.svg';
+            break;
+        case "media_player":
+            icon_path += '/icons/media-player.svg';
             break;
         case "switch":
         case "input_boolean":
