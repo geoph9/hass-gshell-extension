@@ -379,13 +379,26 @@ function isEntitySupported(entity, valid_domains) {
     // Custom check for media players:
     if (entity.entity_id.startsWith('media_player.')) {
 
+        /** Check if media_player supports toggle service.
+         *  It can be read from the supported_features attribute, TURN_OFF and TURN_ON features have to be supported
+         *  Decimal values for these features are 128 and 256 respectively:
+         *  https://github.com/home-assistant/core/blob/dev/homeassistant/components/media_player/const.py
+         * 
+         *  To check, supported_features have to be converted to binary, 
+         *    than check if the 8th and 9th position from the right is 1.
+         */
+
         if (!entity.attributes.supported_features) return false
 
+        // Convert supported_features to binary:
         let supported_features_bin = parseInt(entity.attributes.supported_features).toString(2)
 
         return (
+            // Check if enough digits:
             supported_features_bin.length > 8
+            // 8th digit from the right is TURN_ON:
             && supported_features_bin.charAt(supported_features_bin.length - 8) === '1'
+            // 9th digit from the right is TURN_OFF:
             && supported_features_bin.charAt(supported_features_bin.length - 9) === '1'
         );
     } else {
