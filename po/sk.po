@@ -1,0 +1,309 @@
+# Slovak translation for Home Assistant Gnome Extension
+# Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
+# This file is distributed under the same license as the PACKAGE package.
+# Jozef Gaal <preklady@mayday.sk>, 2024.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: Home Assistant Gnome Extension v25 (G47)\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2023-07-06 14:35+0200\n"
+"PO-Revision-Date: 2024-11-02 00:08+0100\n"
+"Last-Translator: Jozef Gaal <preklady@mayday.sk>\n"
+"Language-Team: Jozef Gaal <preklady@mayday.sk>\n"
+"Language: sk_SK\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"X-Generator: Poedit 3.4.2\n"
+
+#: extension.js:230
+msgid "HASS Events"
+msgstr "HASS udalosti"
+
+#: extension.js:234
+msgid "Start Home Assistant"
+msgstr "Spustiť Home Assistant"
+
+#: extension.js:238
+msgid "Stop Home Assistant"
+msgstr "Zastaviť Home Assistant"
+
+#: extension.js:242
+msgid "Close Home Assistant"
+msgstr "Zavrieť Home Assistant"
+
+#: extension.js:247
+msgid "Refresh"
+msgstr "Obnoviť"
+
+#: extension.js:258
+msgid "Preferences"
+msgstr "Predvoľby"
+
+#: extension.js:289
+msgid "Toggle:"
+msgstr "Prepnúť:"
+
+#: prefs.js:37 prefs.js:41
+msgid "General Settings"
+msgstr "Všeobecné nastavenia"
+
+#: prefs.js:49 schemas/org.gnome.shell.extensions.hass-data.gschema.xml:34
+msgid "Refresh sensors"
+msgstr "Obnovovať senzory"
+
+#: prefs.js:55
+msgid "Panel Icon Options:"
+msgstr "Možnosti ikony panela:"
+
+#: prefs.js:79
+msgid "Togglables"
+msgstr "Prepínače"
+
+#: prefs.js:83
+msgid "Choose which togglables should appear in the menu:"
+msgstr "Vyberte, ktoré prepínače sa majú zobraziť v ponuke:"
+
+#: prefs.js:102
+msgid ""
+"No togglable found. Please check your Home-Assistant connection settings."
+msgstr ""
+"Nenašiel sa žiadny prepínač. Skontrolujte nastavenia pripojenia Home-"
+"Assistant."
+
+#: prefs.js:167
+msgid "Sensors"
+msgstr "Senzory"
+
+#: prefs.js:171
+msgid "Choose which sensors should appear on the panel:"
+msgstr "Vyberte, ktoré senzory sa majú zobraziť na paneli:"
+
+#: prefs.js:190
+msgid "No sensor found. Please check your Home-Assistant connection settings."
+msgstr ""
+"Nenašiel sa žiadny senzor. Skontrolujte nastavenia pripojenia Home-Assistant."
+
+#: prefs.js:290
+msgid "Access Token"
+msgstr "Prístupový token"
+
+#: utils.js:303 utils.js:325
+#, javascript-format
+msgid "Error toggling %s"
+msgstr "Chyba pri prepínaní %s"
+
+#: utils.js:304
+#, javascript-format
+msgid "Error occured trying to toggle %s: entity not found."
+msgstr "Pri pokuse o prepnutie %s došlo k chybe: entita nebola nájdená."
+
+#: utils.js:309
+#, javascript-format
+msgid "%s toggled on"
+msgstr "%s zapnuté"
+
+#: utils.js:310
+#, javascript-format
+msgid "%s successfully toggled on."
+msgstr "%s bolo úspešne zapnuté."
+
+#: utils.js:314
+#, javascript-format
+msgid "%s toggled off"
+msgstr "%s vypnuté"
+
+#: utils.js:315
+#, javascript-format
+msgid "%s successfully toggled off."
+msgstr "%s bolo úspešne vypnuté."
+
+#: utils.js:319
+#, javascript-format
+msgid "%s toggled"
+msgstr "%s prepnuté"
+
+#: utils.js:320
+#, javascript-format
+msgid "%s successfully toggled."
+msgstr "%s bolo úspešne prepnuté."
+
+#: utils.js:326
+#, javascript-format
+msgid "Error occured trying to toggle %s."
+msgstr "Pri pokuse o prepnutie %s došlo k chybe."
+
+#: utils.js:344
+msgid "Home-Assistant start event triggered"
+msgstr "Udalosť spustenia Home-Assistant bola spustená"
+
+#: utils.js:345
+msgid "Home-Assistant start event successfully triggered."
+msgstr "Udalosť spustenia Home-Assistant bola úspešne spustená."
+
+#: utils.js:349
+msgid "Home-Assistant stop event triggered"
+msgstr "Udalosť zastavenia Home-Assistant bola spustená"
+
+#: utils.js:350
+msgid "Home-Assistant stop event successfully triggered."
+msgstr "Udalosť zastavenia Home-Assistant bola úspešne spustená."
+
+#: utils.js:354
+msgid "Home-Assistant close event triggered"
+msgstr "Udalosť zatvorenia Home-Assistant bola spustená"
+
+#: utils.js:355
+msgid "Home-Assistant close event successfully triggered."
+msgstr "Udalosť zatvorenia Home-Assistant bola úspešne spustená."
+
+#: utils.js:359
+msgid "Home-Assistant event triggered"
+msgstr "Udalosť Home-Assistant bola spustená"
+
+#: utils.js:360
+msgid "Home-Assistant event successfully triggered."
+msgstr "Udalosť Home-Assistant bola úspešne spustená."
+
+#: utils.js:366
+msgid "Error triggering Home-Assistant start event"
+msgstr "Chyba pri spustení udalosti spustenia Home-Assistant"
+
+#: utils.js:367
+msgid "Error occured triggering Home-Assistant start event."
+msgstr "Pri spustení udalosti spustenia Home-Assistant došlo k chybe."
+
+#: utils.js:371
+msgid "Error triggering Home-Assistant stop event"
+msgstr "Chyba pri spustení udalosti zastavenia Home-Assistant"
+
+#: utils.js:372
+msgid "Error occured triggering Home-Assistant stop event."
+msgstr "Pri spustení udalosti zastavenia Home-Assistant došlo k chybe."
+
+#: utils.js:376
+msgid "Error triggering Home-Assistant close event"
+msgstr "Chyba pri spustení udalosti zatvorenia Home-Assistant"
+
+#: utils.js:377
+msgid "Error occured triggering Home-Assistant close event."
+msgstr "Pri spustení udalosti zatvorenia Home-Assistant došlo k chybe."
+
+#: utils.js:381
+msgid "Error triggering Home-Assistant event"
+msgstr "Chyba pri spustení udalosti Home-Assistant"
+
+#: utils.js:382
+msgid "Error occured triggering Home-Assistant event."
+msgstr "Pri spustení udalosti Home-Assistant došlo k chybe."
+
+#: schemas/org.gnome.shell.extensions.hass-data.gschema.xml:16
+msgid "Panel Icon."
+msgstr "Ikona panela."
+
+#: schemas/org.gnome.shell.extensions.hass-data.gschema.xml:17
+msgid "The default icon that will be visible in the panel."
+msgstr "Predvolená ikona, ktorá bude viditeľná na paneli."
+
+#: schemas/org.gnome.shell.extensions.hass-data.gschema.xml:22
+msgid "Complete list of valid panel icons for the extension."
+msgstr "Úplný zoznam platných ikon panelu pre rozšírenie."
+
+#: schemas/org.gnome.shell.extensions.hass-data.gschema.xml:23
+msgid ""
+"The paths have to be relative to the directory where the 'extension.js' file "
+"is located."
+msgstr ""
+"Cesty musia byť relatívne k adresáru, v ktorom sa nachádza súbor \"extension."
+"js\"."
+
+#: schemas/org.gnome.shell.extensions.hass-data.gschema.xml:28
+msgid "Refresh Rate"
+msgstr "Obnovovacia frekvencia"
+
+#: schemas/org.gnome.shell.extensions.hass-data.gschema.xml:29
+msgid ""
+"The refresh rate for the weather statistics in seconds (works only if "
+"\"Refresh Temperature/Humidity Sensors\" is enabled)."
+msgstr ""
+"Frekvencia obnovovania štatistík počasia v sekundách (funguje len vtedy, ak "
+"je povolená možnosť „Obnovovať snímače teploty/vlhkosti“)."
+
+#: schemas/org.gnome.shell.extensions.hass-data.gschema.xml:35
+msgid ""
+"Whether or not you want to refresh the temperature and/or humidity sensor "
+"values."
+msgstr ""
+"Či chcete alebo nechcete obnovovať hodnoty senzora teploty a/alebo vlhkosti."
+
+#: schemas/org.gnome.shell.extensions.hass-data.gschema.xml:40
+msgid "Show notifications"
+msgstr "Zobrazovať oznámenia"
+
+#: schemas/org.gnome.shell.extensions.hass-data.gschema.xml:41
+msgid "Show notifications when enable/disable togglables or on HASS events."
+msgstr ""
+"Zobraziť oznámenia pri zapnutí/vypnutí prepínačov alebo pri udalostiach HASS."
+
+#: schemas/org.gnome.shell.extensions.hass-data.gschema.xml:46
+msgid "URL"
+msgstr "URL adresa"
+
+#: schemas/org.gnome.shell.extensions.hass-data.gschema.xml:47
+msgid "The url where your hass instance is hosted."
+msgstr "Adresa url, na ktorej je umiestnená vaša inštalácia hass."
+
+#: schemas/org.gnome.shell.extensions.hass-data.gschema.xml:52
+msgid "Home-Assistant entities's state cache."
+msgstr "Vyrovnávacia pamäť stavu entít Home-Assistant."
+
+#: schemas/org.gnome.shell.extensions.hass-data.gschema.xml:53
+msgid ""
+"Home-Assistant entities's state cache. It is meant to be filled "
+"automatically on start-up or after pressing the 'Refresh' button in the "
+"Preferences menu."
+msgstr ""
+"Vyrovnávacia pamäť stavu entít Home-Assistant. Má sa vyplniť automaticky pri "
+"spustení alebo po stlačení tlačidla „Obnoviť“ v ponuke Predvoľby."
+
+#: schemas/org.gnome.shell.extensions.hass-data.gschema.xml:58
+msgid "Entity ids for home-assistant switches."
+msgstr "Identifikátory entít pre prepínače Home-assistant."
+
+#: schemas/org.gnome.shell.extensions.hass-data.gschema.xml:59
+msgid ""
+"Entity ids for home-assistant switches. E.g. switch.livingroom_lights_relay."
+msgstr ""
+"Identifikátory entít pre prepínače Home-assistant. Napr. prepinac."
+"obyvacka_svetlo."
+
+#: schemas/org.gnome.shell.extensions.hass-data.gschema.xml:64
+msgid "Entity ids for home assistant sensors."
+msgstr "Identifikátory entít pre senzory Home Assistant."
+
+#: schemas/org.gnome.shell.extensions.hass-data.gschema.xml:65
+msgid ""
+"Entity ids for home-assistant sensors. E.g. sensor.livingroom_temperature."
+msgstr ""
+"Identifikátory entít pre senzory Home Assistant. Napr. senzor."
+"obyvacka_teplota."
+
+#: schemas/org.gnome.shell.extensions.hass-data.gschema.xml:70
+msgid "Enable debug mode"
+msgstr "Povoliť režim ladenia"
+
+#: schemas/org.gnome.shell.extensions.hass-data.gschema.xml:71
+msgid ""
+"When this mode is enabled, more logged messages could be seen in the journal."
+msgstr ""
+"Keď je tento režim povolený, v protokole sa zobrazí viac zaznamenaných správ."
+
+#: schemas/org.gnome.shell.extensions.hass-data.gschema.xml:82
+msgid "Home Assistant Extension - Shortcut Key"
+msgstr "Rozšírenie Home Assistant - klávesová skratka"
+
+#: schemas/org.gnome.shell.extensions.hass-data.gschema.xml:83
+msgid "Shortcut key on how to open the extension's menu from the tray."
+msgstr "Klávesová skratka na otvorenie ponuky rozšírenia z panela."
