@@ -107,8 +107,17 @@ var HassPanelSensor = GObject.registerClass ({
         );
     }
 
+    // computeLabelText() {
+        // return `${this.entity.state} ${this.entity.unit}`;
+    // }
     computeLabelText() {
-        return `${this.entity.state} ${this.entity.unit}`;
+        let num = Number(this.entity.state);
+        if (isNaN(num)) {
+            return `${this.entity.state} ${this.entity.unit}`;
+        }
+        // Truncate to one decimal place, rounding down
+        let truncated = Math.floor(num * 10) / 10;
+        return `${truncated} ${this.entity.unit}`;
     }
 
     computePlaceholderText() {
