@@ -232,7 +232,7 @@ export function getEntities(callback=null, on_error=null, force_reload=false) {
                 if (Array.isArray(response)) {
                     let entities = response.map(mapEntity);
                     _log("%s entities retreived, sort it by name", [entities.length]);
-                    entities = entities.sort((a,b) => (a.name > b.name) ? 1 : ((b.name > a.name) ? -1 : 0));
+                    entities = entities.sort((a, b) => a.name.localeCompare(b.name));
                     _log("update entities cache");
                     mscOptions.entitiesCache = entities;
                     if (callback)
