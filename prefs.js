@@ -9,6 +9,17 @@ import * as Settings from './settings.js';
 import {ExtensionPreferences, gettext as _} from 'resource:///org/gnome/Shell/Extensions/js/extensions/prefs.js';
 
 
+/**
+ * Case-insensitive substring match (e.g. "cpu" matches "CPU Temperature").
+ */
+function matchesQuery(query, text) {
+    // Coerce to string: an entity may lack a friendly_name, so text can be undefined.
+    query = String(query ?? "").toLowerCase();
+    text = String(text ?? "").toLowerCase();
+    return text.includes(query);
+}
+
+
 class SettingsPage {
     constructor(type, window, mscOptions) {
         if (type !== "togglable" && type !== "runnable" && type !== "sensor")
@@ -19,6 +30,7 @@ class SettingsPage {
         this._mscOptions = mscOptions;
         this.page = null;
         this.group = null;
+        this.searchEntry = null;
         this.rows = [];
     }
 
@@ -52,6 +64,12 @@ class SettingsPage {
         });
 
         this.group = new Adw.PreferencesGroup({ title: _(`Choose which ${this.type}s should appear in the menu:`)});
+        this.searchEntry = new Gtk.SearchEntry({
+            placeholder_text: _("Search…"),
+            valign: Gtk.Align.CENTER,
+        });
+        this.searchEntry.connect('search-changed', () => this.filterRows());
+        this.group.header_suffix = this.searchEntry;
         this.page.add(this.group);
         this.window.add(this.page);
         Utils.connectSettings([Settings.HASS_ENTITIES_CACHE], this.refresh.bind(this));
@@ -125,6 +143,16 @@ class SettingsPage {
             this.rows.push(row);
             this.group.add(row);
         }
+        this.filterRows();
+    }
+
+    filterRows() {
+        let query = this.searchEntry.text;
+        for (let row of this.rows) {
+            // Rows without an entity (e.g. the "no entity found" text row) always stay visible.
+            row.visible = !row._searchFields
+                || row._searchFields.some(field => matchesQuery(query, field));
+        }
     }
 
     deleteRows() {
@@ -138,6 +166,8 @@ class SettingsPage {
         let row = new Adw.ActionRow({
             title: "%s (%s)".format(entity.name, entity.entity_id),
         });
+        // Match search queries against name and entity_id independently.
+        row._searchFields = [entity.name, entity.entity_id];
 
         // Create a switch and bind its value to the `show-indicator` key
         let toggle = new Gtk.CheckButton({
@@ -165,6 +195,7 @@ class SettingsPage {
     destroy() {
         this.page = null;
         this.group = null;
+        this.searchEntry = null;
         this.rows = [];
     }
 }
