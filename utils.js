@@ -208,7 +208,7 @@ function computeURL(path, hass_url=null) {
 function mapEntity(ent) {
     return {
       'entity_id': ent.entity_id,
-      'name': ent.attributes.friendly_name,
+      'name': ent.attributes?.friendly_name ?? ent.entity_id,
       'attributes': ent.attributes,
       'state': ent.state,
     }
