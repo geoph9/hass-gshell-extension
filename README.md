@@ -159,6 +159,35 @@ By default, all togglables will appear. If you only want a subset of the switche
 
 The same applies to the `Runnables` page with scene and script entities.
 
+### Ordering and Grouping the Panel Sensors
+
+The `Sensors` page has two extra groups on top of the sensor selection:
+
+**Order in the panel** lists everything that is shown in the panel, in the order it appears
+(from left to right):
+
+* The up/down arrows move a sensor (or a separator) one position to the left/right.
+* The `+` button on a sensor row places a **separator** right after that sensor, which lets you
+  group the sensors that belong together, e.g. `electricity price · consumption | indoor
+  temperature · outdoor temperature`.
+* The `-` button on a separator row removes it again.
+* Newly selected sensors are appended at the end of the list.
+
+Separators are stored inside the sensor list itself (as the special `__separator__` entry), so
+selecting or unselecting a sensor never moves the separators around. A separator that no longer
+separates two sensors (because the sensors on one side were unselected, or because
+Home-Assistant does not report them at the moment) is not drawn.
+
+**Panel appearance** controls how all of this is rendered:
+
+* `Separator style`: `Line (|)` (default, a thin vertical rule), `Dot (·)`, `Space` or `None`.
+  `None` hides all separators without removing them from the order.
+* `Spacing`: the space in pixels between two neighbouring sensors (default: `4`). A separator is
+  padded with the same value on both sides, so a group boundary is roughly twice as wide as the
+  gap inside a group.
+
+Both settings take effect immediately, no restart of the shell is needed.
+
 ## Security
 
 I am using the `Secret` library in order to store the access token in the running secret service (like gnome-keyring or ksecretservice) [source](https://developer.gnome.org/libsecret/unstable/js-store-example.html). This makes it safer to use your access token since it is more difficult to have it stolen by a third party. So, your token is as safe as your current user (this means that if a third party knows your user password and has access to your machine then they can theoretically get the token, but if that is the case then you probably have more improtant things to worry about).

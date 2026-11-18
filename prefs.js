@@ -32,6 +32,8 @@ class SettingsPage {
         this.group = null;
         this.searchEntry = null;
         this.rows = [];
+        this.orderGroup = null;
+        this.orderRows = [];
     }
 
     get pageConfig() {
@@ -57,13 +59,33 @@ class SettingsPage {
         }
     }
 
+    get groupTitle() {
+        if (this.type === "sensor")
+            return _("Choose which sensors should appear in the panel:");
+        return _(`Choose which ${this.type}s should appear in the menu:`);
+    }
+
     build() {
         this.page = new Adw.PreferencesPage({
             title: this.pageConfig.title,
             icon_name: this.pageConfig.iconName,
         });
 
-        this.group = new Adw.PreferencesGroup({ title: _(`Choose which ${this.type}s should appear in the menu:`)});
+        if (this.type === "sensor") {
+            this.page.add(this.buildLayoutGroup());
+
+            this.orderGroup = new Adw.PreferencesGroup({
+                title: _("Order in the panel"),
+                description: _(
+                    "The sensors are shown in the panel from left to right, in the order below. "
+                    + "Use the arrows to move an entry and the + button to place a separator "
+                    + "after a sensor, in order to group the sensors that belong together."
+                ),
+            });
+            this.page.add(this.orderGroup);
+        }
+
+        this.group = new Adw.PreferencesGroup({ title: this.groupTitle });
         this.searchEntry = new Gtk.SearchEntry({
             placeholder_text: _("Search…"),
             valign: Gtk.Align.CENTER,
@@ -73,7 +95,190 @@ class SettingsPage {
         this.page.add(this.group);
         this.window.add(this.page);
         Utils.connectSettings([Settings.HASS_ENTITIES_CACHE], this.refresh.bind(this));
+        if (this.type === "sensor") {
+            // The order group content depends on both the entities cache and the list of
+            // enabled sensors, which is also changed from this page (checkboxes and arrows).
+            Utils.connectSettings(
+                [Settings.HASS_ENTITIES_CACHE, Settings.HASS_ENABLED_SENSOR_IDS],
+                this.refreshOrder.bind(this)
+            );
+            this.refreshOrder();
+        }
         this.refresh();
+    }
+
+    /**
+     * Build the group holding the panel layout options (separator style and spacing).
+     *
+     * @return {Adw.PreferencesGroup}
+     */
+    buildLayoutGroup() {
+        let group = new Adw.PreferencesGroup({
+            title: _("Panel appearance"),
+            description: _("How the sensors and the separators are drawn in the panel."),
+        });
+
+        let separatorLabels = {
+            'none': _("None"),
+            'space': _("Space"),
+            'dot': _("Dot (·)"),
+            'line': _("Line (|)"),
+        };
+        let model = new Gtk.StringList({
+            strings: Settings.VALID_SENSOR_SEPARATORS.map(value => separatorLabels[value]),
+        });
+
+        let currentIndex = Settings.VALID_SENSOR_SEPARATORS.indexOf(
+            this._mscOptions.sensorSeparator
+        );
+        let comboRow = new Adw.ComboRow({
+            title: _("Separator style"),
+            subtitle: _("How the separators placed below are drawn (\"None\" hides them all)."),
+            model: model,
+        });
+        // Set the current value only once the model is in place, then connect the handler so
+        // that the initial selection does not write back to the settings.
+        comboRow.selected = currentIndex > -1 ? currentIndex : 0;
+        comboRow.connect('notify::selected', () => {
+            let value = Settings.VALID_SENSOR_SEPARATORS[comboRow.selected];
+            if (!value || value === this._mscOptions.sensorSeparator) return;
+            Utils._log("Set panel sensor separator to %s", [value]);
+            this._mscOptions.sensorSeparator = value;
+        });
+        group.add(comboRow);
+
+        let spacingRow = new Adw.ActionRow({
+            title: _("Spacing"),
+            subtitle: _("Space (in pixels) between two sensors. A separator gets it twice."),
+        });
+        let spinButton = new Gtk.SpinButton({
+            adjustment: Gtk.Adjustment.new(this._mscOptions.sensorSpacing, 0, 24, 1, 2, 0),
+            valign: Gtk.Align.CENTER,
+            numeric: true,
+        });
+        spinButton.connect('value-changed', () => {
+            let value = spinButton.get_value_as_int();
+            if (value === this._mscOptions.sensorSpacing) return;
+            Utils._log("Set panel sensor spacing to %s px", [value]);
+            this._mscOptions.sensorSpacing = value;
+        });
+        spacingRow.add_suffix(spinButton);
+        spacingRow.activatable_widget = spinButton;
+        group.add(spacingRow);
+
+        return group;
+    }
+
+    /**
+     * Rebuild the rows of the "Order in the panel" group.
+     *
+     * @param {Array} entries The known sensor entities (fetched asynchronously if not provided)
+     */
+    refreshOrder(entries=null) {
+        if (!this.orderGroup) return;
+        this.deleteOrderRows();
+
+        if (!entries) {
+            Utils.getEntitiesByType(
+                this.type,
+                (results) => this.refreshOrder(results),
+                () => this.refreshOrder([])
+            );
+            return;
+        }
+
+        // Map the entity ids to their friendly name, to be able to label the rows of sensors
+        // that are enabled but currently not reported by Home-Assistant.
+        let names = {};
+        for (let entry of entries)
+            names[entry.entity_id] = entry.name;
+
+        let layout = this._mscOptions.sensorLayout;
+        if (!layout.length) {
+            let row = SettingsPage.createTextRow(
+                _("No sensor selected yet. Select some sensors below to order them here.")
+            );
+            this.orderRows.push(row);
+            this.orderGroup.add(row);
+            return;
+        }
+
+        for (let [idx, item] of layout.entries()) {
+            let row;
+            if (item === Settings.PANEL_SEPARATOR_ITEM) {
+                row = SettingsPage.createSeparatorRow(
+                    idx,
+                    layout.length,
+                    (index, offset) => this.moveLayoutItem(index, offset),
+                    (index) => this.removeLayoutItem(index)
+                );
+            }
+            else {
+                row = SettingsPage.createOrderRow(
+                    names[item] || item,
+                    item,
+                    idx,
+                    layout.length,
+                    (index, offset) => this.moveLayoutItem(index, offset),
+                    (index) => this.insertSeparatorAfter(index)
+                );
+            }
+            this.orderRows.push(row);
+            this.orderGroup.add(row);
+        }
+    }
+
+    /**
+     * Move a sensor or a separator in the panel layout.
+     *
+     * @param {Number} index The current position of the entry
+     * @param {Number} offset The move to apply (-1 to move left, +1 to move right)
+     */
+    moveLayoutItem(index, offset) {
+        let layout = this._mscOptions.sensorLayout;
+        let target = index + offset;
+        if (index < 0 || index >= layout.length || target < 0 || target >= layout.length)
+            return;
+        Utils._log(
+            "Move panel entry %s from position %s to position %s",
+            [layout[index], index, target]
+        );
+        let [moved] = layout.splice(index, 1);
+        layout.splice(target, 0, moved);
+        // Writing the setting triggers a refresh of this group (and of the panel)
+        this._mscOptions.sensorLayout = layout;
+    }
+
+    /**
+     * Place a separator right after the given entry of the panel layout.
+     *
+     * @param {Number} index The position of the entry to place a separator after
+     */
+    insertSeparatorAfter(index) {
+        let layout = this._mscOptions.sensorLayout;
+        if (index < 0 || index >= layout.length) return;
+        Utils._log("Insert a separator after %s (position %s)", [layout[index], index]);
+        layout.splice(index + 1, 0, Settings.PANEL_SEPARATOR_ITEM);
+        this._mscOptions.sensorLayout = layout;
+    }
+
+    /**
+     * Remove an entry (a separator) from the panel layout.
+     *
+     * @param {Number} index The position of the entry to remove
+     */
+    removeLayoutItem(index) {
+        let layout = this._mscOptions.sensorLayout;
+        if (index < 0 || index >= layout.length) return;
+        Utils._log("Remove panel entry %s (position %s)", [layout[index], index]);
+        layout.splice(index, 1);
+        this._mscOptions.sensorLayout = layout;
+    }
+
+    deleteOrderRows() {
+        for (let row of this.orderRows)
+            this.orderGroup.remove(row);
+        this.orderRows = [];
     }
 
     refresh(entries=null) {
@@ -129,11 +334,10 @@ class SettingsPage {
                       );
                       return;
                   }
-                  this._mscOptions.setEnabledByType(this.type, entries.map(
-                      ent => ent.entity_id
-                  ).filter(
-                      ent => currentEntities.includes(ent)
-                  ));
+                  // Keep the list in its current order (newly checked entries are appended at
+                  // the end), so that the order chosen on the "Order in the panel" group is
+                  // preserved.
+                  this._mscOptions.setEnabledByType(this.type, currentEntities);
                   Utils._log(
                       "%s entries enabled: %s",
                       [this._mscOptions.getEnabledByType(this.type).length, this._mscOptions.getEnabledByType(this.type).join(', ')]
@@ -186,6 +390,89 @@ class SettingsPage {
         return row;
     }
 
+    /**
+     * Build the button box shared by the rows of the "Order in the panel" group.
+     *
+     * @param {Number} index The position of the entry in the layout
+     * @param {Number} count The total number of entries in the layout
+     * @param {Function} on_move Called with (index, offset) to move the entry
+     * @return {Gtk.Box}
+     */
+    static createMoveButtons(index, count, on_move) {
+        let box = new Gtk.Box({
+            orientation: Gtk.Orientation.HORIZONTAL,
+            spacing: 6,
+            valign: Gtk.Align.CENTER,
+        });
+
+        let upButton = new Gtk.Button({
+            icon_name: "go-up-symbolic",
+            tooltip_text: _("Move to the left in the panel"),
+            sensitive: index > 0,
+            valign: Gtk.Align.CENTER,
+        });
+        upButton.add_css_class("flat");
+        upButton.connect('clicked', () => on_move(index, -1));
+        box.append(upButton);
+
+        let downButton = new Gtk.Button({
+            icon_name: "go-down-symbolic",
+            tooltip_text: _("Move to the right in the panel"),
+            sensitive: index < count - 1,
+            valign: Gtk.Align.CENTER,
+        });
+        downButton.add_css_class("flat");
+        downButton.connect('clicked', () => on_move(index, 1));
+        box.append(downButton);
+
+        return box;
+    }
+
+    static createOrderRow(name, entity_id, index, count, on_move, on_insert_separator) {
+        let row = new Adw.ActionRow({
+            title: name,
+            subtitle: entity_id,
+        });
+
+        let box = SettingsPage.createMoveButtons(index, count, on_move);
+
+        let insertButton = new Gtk.Button({
+            icon_name: "list-add-symbolic",
+            tooltip_text: _("Place a separator after this sensor"),
+            valign: Gtk.Align.CENTER,
+        });
+        insertButton.add_css_class("flat");
+        insertButton.connect('clicked', () => on_insert_separator(index));
+        box.append(insertButton);
+
+        row.add_suffix(box);
+
+        return row;
+    }
+
+    static createSeparatorRow(index, count, on_move, on_remove) {
+        let row = new Adw.ActionRow({
+            title: _("— Separator —"),
+            subtitle: _("Groups the sensors before and after it"),
+        });
+        row.add_css_class("dim-label");
+
+        let box = SettingsPage.createMoveButtons(index, count, on_move);
+
+        let removeButton = new Gtk.Button({
+            icon_name: "list-remove-symbolic",
+            tooltip_text: _("Remove this separator"),
+            valign: Gtk.Align.CENTER,
+        });
+        removeButton.add_css_class("flat");
+        removeButton.connect('clicked', () => on_remove(index));
+        box.append(removeButton);
+
+        row.add_suffix(box);
+
+        return row;
+    }
+
     static createTextRow(text) {
         return new Adw.ActionRow({
             title: text,
@@ -197,6 +484,8 @@ class SettingsPage {
         this.group = null;
         this.searchEntry = null;
         this.rows = [];
+        this.orderGroup = null;
+        this.orderRows = [];
     }
 }
 
