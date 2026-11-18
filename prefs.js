@@ -272,21 +272,34 @@ export default class HassPrefs extends ExtensionPreferences  {
         const icon_group = new Adw.PreferencesGroup({ title: _('Panel Icon Options:')});
         page.add(icon_group);
 
+        let showIconRow = this.createBooleanSettingRow(Settings.SHOW_PANEL_ICON);
+        icon_group.add(showIconRow);
+
         let validIcons = this._mscOptions.validIcons;
         let currentIcon = this._mscOptions.panelIcon;
         let iconGroup = new Gtk.CheckButton();
+        let iconRows = [];
         for (let icon of validIcons) {
-            icon_group.add(
-              this.createIconRow(
+            let row = this.createIconRow(
                 icon,
                 icon == currentIcon,
                 iconGroup,
                 (icon) => {
                   this._mscOptions.panelIcon = icon;
                 }
-              )
             );
+            iconRows.push(row);
+            icon_group.add(row);
         }
+
+        // Choosing between the icons is pointless while the icon is hidden
+        let updateIconRows = () => {
+            let showIcon = this._mscOptions.showPanelIcon;
+            for (let row of iconRows)
+                row.sensitive = showIcon;
+        };
+        updateIconRows();
+        Utils.connectSettings([Settings.SHOW_PANEL_ICON], updateIconRows);
 
         this.window.add(page);
     }

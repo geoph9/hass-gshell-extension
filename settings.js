@@ -1,6 +1,7 @@
 import Gio from 'gi://Gio';
 
 export const PANEL_ICON_PATH = 'default-panel-icon';
+export const SHOW_PANEL_ICON = 'show-panel-icon';
 export const VALID_PANEL_ICONS = 'valid-panel-icons';
 export const HASS_URL = 'hass-url';
 export const HASS_ENTITIES_CACHE = 'hass-entities-cache';
@@ -74,6 +75,13 @@ export var MscOptions = class MscOptions {
     set panelIcon(icon_path) {
         this._gsettings.set_string(PANEL_ICON_PATH, icon_path);
     }
+    get showPanelIcon() {
+        return this._gsettings.get_boolean(SHOW_PANEL_ICON);
+    }
+    set showPanelIcon(bool_val) {
+        this._gsettings.set_boolean(SHOW_PANEL_ICON, bool_val);
+    }
+
     get validIcons() {
         return this._gsettings.get_strv(VALID_PANEL_ICONS);
     }
