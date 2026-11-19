@@ -105,6 +105,12 @@ By pressing the temperature buttons you can refresh the temperature.
 
 **Note: You can change the panel icon from the preferences menu. Currently only a blue and a white icon is supported. The white icon is the default.**
 
+The icon can also be hidden completely (`Show the panel icon` on the general settings page), which
+is useful when the panel sensors alone are enough and the icon only takes up space. The menu is
+then opened with a **right click on one of the panel sensors** (a left click still refreshes the
+sensor). As a safety net the icon stays visible as long as no sensor is shown in the panel, so
+the menu never becomes unreachable.
+
 ### Opening the Menu
 
 If you click the home assistant icon, you will get the following:
