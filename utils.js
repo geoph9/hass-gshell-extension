@@ -419,13 +419,21 @@ function isEntitySupported(entity, valid_domains) {
 export function getSensors(callback, on_error=null, only_enabled=false, force_reload=false) {
     getEntities(
         function(entities) {
+            let enabledSensors = mscOptions.enabledSensors;
             let sensors = [];
             for (let ent of entities) {
-                if (only_enabled && !mscOptions.enabledSensors.includes(ent.entity_id))
+                if (only_enabled && !enabledSensors.includes(ent.entity_id))
                     continue;
                 if (!isSensor(ent))
                     continue;
                 sensors.push(mapSensor(ent));
+            }
+            if (only_enabled) {
+                // The entities cache is sorted by name: restore the order chosen by the user in
+                // the preferences (which is the order of the enabled sensors setting).
+                sensors.sort(
+                    (a, b) => enabledSensors.indexOf(a.entity_id) - enabledSensors.indexOf(b.entity_id)
+                );
             }
             _log("%s %ssensor entities found", [sensors.length, only_enabled?'enabled ':'']);
             callback(sensors);
