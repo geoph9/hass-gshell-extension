@@ -35,7 +35,15 @@ var HassPanelSensor = GObject.registerClass ({
             style: "spacing: 2px",
         });
         this.set_child(this.label);
-        this.connect("button-press-event", () => this.refresh(true));
+        this.connect("button-press-event", (actor, event) => {
+            // A right click is left to the panel sensor box, which opens the tray menu (the only
+            // way to reach it when the panel icon is hidden). Any other button refreshes the
+            // sensor.
+            if (event.get_button() === Clutter.BUTTON_SECONDARY)
+                return Clutter.EVENT_PROPAGATE;
+            this.refresh(true);
+            return Clutter.EVENT_STOP;
+        });
 
         if (force_reload)
             this.refresh(true);
@@ -343,6 +351,7 @@ var HassMenu = GObject.registerClass ({
             item => item !== this.Settings.PANEL_SEPARATOR_ITEM
         );
         this.doRefresh = this._settings.get_boolean(this.Settings.DO_REFRESH);
+        this.showPanelIcon = this._settings.get_boolean(this.Settings.SHOW_PANEL_ICON);
         this.refreshSeconds = Number(this._settings.get_string(this.Settings.REFRESH_RATE));
         this.sensorSeparator = this._settings.get_string(this.Settings.SENSOR_SEPARATOR);
         this.sensorSpacing = this._settings.get_int(this.Settings.SENSOR_SPACING);
@@ -394,10 +403,39 @@ var HassMenu = GObject.registerClass ({
         this.trayButton.connect("button-press-event", () => this.menu.toggle());
 
         this.box.add_child(this.trayButton);
+        this._updateTrayIconVisibility();
+
+        // A right click on the panel sensors opens the menu too, which keeps it reachable when
+        // the icon is hidden. The sensors let this click through to their box (left clicks still
+        // refresh them).
+        this.panelSensorBox.reactive = true;
+        this.panelSensorBox.connect("button-press-event", (actor, event) => {
+            if (event.get_button() !== Clutter.BUTTON_SECONDARY)
+                return Clutter.EVENT_PROPAGATE;
+            this.menu.toggle();
+            return Clutter.EVENT_STOP;
+        });
 
         // Connect the setting field that contain the selected icon with the _updateTrayIcon()
         // method
         this._connectSettings([this.Settings.PANEL_ICON_PATH], this._updateTrayIcon);
+
+        // Connect the setting field that tells whether the icon has to be shown with the
+        // _updateTrayIconVisibility() method
+        this._connectSettings([this.Settings.SHOW_PANEL_ICON], this._updateTrayIconVisibility);
+    }
+
+    /**
+     * Show or hide the tray icon, according to the preferences.
+     *
+     * As a safety net, the icon is kept visible as long as no sensor is displayed in the panel:
+     * without it, there would be nothing left to click on to open the menu.
+     */
+    _updateTrayIconVisibility() {
+        if (!this.trayButton || !this.panelSensorBox) return;
+        let visible = this.showPanelIcon || !this.panelSensorBox.get_n_children();
+        Utils._log("%s the tray icon", [visible ? "Show" : "Hide"]);
+        this.trayButton.visible = visible;
     }
 
     _updateTrayIcon() {
@@ -578,6 +616,8 @@ var HassMenu = GObject.registerClass ({
                     }
                     this.panelSensorBox.add_child(this.panelSensors[item]);
                 }
+                // The icon stays visible when the panel ends up without any sensor
+                this._updateTrayIconVisibility();
                 Utils._log("Panel sensors rebuilded");
             }.bind(this),
             function() {
@@ -704,6 +744,8 @@ var HassMenu = GObject.registerClass ({
             panelSensor.destroy();
             delete this.panelSensors[panelSensorId];
         }
+        // Without any sensor left, the icon has to come back to keep the menu reachable
+        this._updateTrayIconVisibility();
     }
 
 })

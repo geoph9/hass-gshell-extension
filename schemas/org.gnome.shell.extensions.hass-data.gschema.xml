@@ -84,6 +84,12 @@
       <description>Horizontal space (in pixels) between two sensors in the panel. A separator is padded with the same value on both sides, so it gets twice as much space.</description>
     </key>
 
+    <key type="b" name="show-panel-icon">
+      <default>true</default>
+      <summary>Show the panel icon</summary>
+      <description>When hidden, the menu is opened with a right click on one of the panel sensors. The icon stays visible as long as no sensor is shown in the panel.</description>
+    </key>
+
     <key type="b" name="debug-mode">
         <default>false</default>
         <summary>Enable debug mode</summary>
