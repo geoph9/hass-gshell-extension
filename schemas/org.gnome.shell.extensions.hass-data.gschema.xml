@@ -68,7 +68,20 @@
     <key type="as" name="hass-enabled-sensor-ids">
       <default>[]</default>
       <summary>Entity ids for home assistant sensors.</summary>
-      <description>Entity ids for home-assistant sensors. E.g. sensor.livingroom_temperature.</description>
+      <description>Entity ids for home-assistant sensors, in the order they appear in the panel (from left to right). E.g. sensor.livingroom_temperature. The special value "__separator__" marks a separator placed by the user between two sensors.</description>
+    </key>
+
+    <key type="s" name="hass-sensor-separator">
+      <default>"line"</default>
+      <summary>Separator between panel sensors</summary>
+      <description>Style used to draw the separators placed between the panel sensors: "none" (hide them all), "space", "dot" or "line".</description>
+    </key>
+
+    <key type="i" name="hass-sensor-spacing">
+      <range min="0" max="24"/>
+      <default>4</default>
+      <summary>Spacing between panel sensors</summary>
+      <description>Horizontal space (in pixels) between two sensors in the panel. A separator is padded with the same value on both sides, so it gets twice as much space.</description>
     </key>
 
     <key type="b" name="debug-mode">

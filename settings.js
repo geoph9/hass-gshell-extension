@@ -10,7 +10,40 @@ export const HASS_ENABLED_SENSOR_IDS = 'hass-enabled-sensor-ids';
 export const SHOW_NOTIFICATIONS_KEY = 'show-notifications';
 export const DO_REFRESH = 'sensors-refresh';
 export const REFRESH_RATE = 'sensors-refresh-seconds';
+export const SENSOR_SEPARATOR = 'hass-sensor-separator';
+export const SENSOR_SPACING = 'hass-sensor-spacing';
 export const DEBUG_MODE = 'debug-mode';
+
+// Valid values of the SENSOR_SEPARATOR setting
+export const VALID_SENSOR_SEPARATORS = ['none', 'space', 'dot', 'line'];
+
+/**
+ * Marker used inside the HASS_ENABLED_SENSOR_IDS list to store a separator placed by the user
+ * between two sensors. It contains no dot, so it can never collide with an entity id.
+ */
+export const PANEL_SEPARATOR_ITEM = '__separator__';
+
+/**
+ * Drop the separators of a panel layout that do not separate anything (anymore): a leading or
+ * trailing one, and consecutive ones.
+ *
+ * @param {Array} layout The panel layout to clean up
+ * @return {Array} The cleaned up layout
+ */
+export function normalizeSensorLayout(layout) {
+    let result = [];
+    for (let item of layout) {
+        if (item !== PANEL_SEPARATOR_ITEM) {
+            result.push(item);
+            continue;
+        }
+        if (result.length && result[result.length - 1] !== PANEL_SEPARATOR_ITEM)
+            result.push(item);
+    }
+    if (result.length && result[result.length - 1] === PANEL_SEPARATOR_ITEM)
+        result.pop();
+    return result;
+}
 
 export var MscOptions = class MscOptions {
     constructor(metadata, mainDir) {
@@ -128,11 +161,43 @@ export var MscOptions = class MscOptions {
     }
 
     // Panel extra sensors
-    get enabledSensors() {
+
+    /**
+     * The full panel layout: the enabled sensor ids in panel order, with PANEL_SEPARATOR_ITEM
+     * markers at the positions where the user placed a separator.
+     */
+    get sensorLayout() {
         return this._gsettings.get_strv(HASS_ENABLED_SENSOR_IDS);
     }
+    set sensorLayout(items) {
+        this._gsettings.set_strv(HASS_ENABLED_SENSOR_IDS, items);
+    }
+
+    /**
+     * The enabled sensor ids only, without the separators.
+     */
+    get enabledSensors() {
+        return this.sensorLayout.filter(item => item !== PANEL_SEPARATOR_ITEM);
+    }
     set enabledSensors(entities) {
-        this._gsettings.set_strv(HASS_ENABLED_SENSOR_IDS, entities);
+        // Merge the new list of enabled sensors into the current layout, so that the separators
+        // placed by the user keep their position. Sensors that are not in the layout yet are
+        // appended at the end.
+        let layout = [];
+        let remaining = entities.slice();
+        for (let item of this.sensorLayout) {
+            if (item === PANEL_SEPARATOR_ITEM) {
+                layout.push(item);
+                continue;
+            }
+            let index = remaining.indexOf(item);
+            if (index > -1) {
+                layout.push(item);
+                remaining.splice(index, 1);
+            }
+        }
+        // Separators that no longer separate two sensors are dropped
+        this.sensorLayout = normalizeSensorLayout(layout.concat(remaining));
     }
 
     // abstraction layer for togglables, runnables and sensors 
@@ -153,6 +218,24 @@ export var MscOptions = class MscOptions {
         } else if (type === "sensor") {
             this.enabledSensors = enabledEntities; // calls the setter
         }
+    }
+
+    // Panel sensors layout
+    get sensorSeparator() {
+        let value = this._gsettings.get_string(SENSOR_SEPARATOR);
+        return VALID_SENSOR_SEPARATORS.includes(value) ? value : 'none';
+    }
+    set sensorSeparator(value) {
+        if (!VALID_SENSOR_SEPARATORS.includes(value))
+            throw new Error(`Unsupported sensor separator: ${value}`);
+        this._gsettings.set_string(SENSOR_SEPARATOR, value);
+    }
+
+    get sensorSpacing() {
+        return this._gsettings.get_int(SENSOR_SPACING);
+    }
+    set sensorSpacing(value) {
+        this._gsettings.set_int(SENSOR_SPACING, value);
     }
 
     // Debug mode

@@ -227,7 +227,8 @@ var HassMenu = GObject.registerClass ({
         this.runnablesMenuItems = new TrayMenuItems("runnable", this.menu);
 
         this.panelSensorBox = null;
-        this.panelSensors = [];
+        this.panelSensors = {};
+        this.panelSensorSeparators = [];
         this.refreshSensorsTimeout = null;
 
         this.connectedSettingIds = [];
@@ -337,9 +338,14 @@ var HassMenu = GObject.registerClass ({
 
     _loadSettings() {
         Utils._log("load settings");
-        this.panelSensorIds = this._settings.get_strv(this.Settings.HASS_ENABLED_SENSOR_IDS);
+        this.sensorLayout = this._settings.get_strv(this.Settings.HASS_ENABLED_SENSOR_IDS);
+        this.panelSensorIds = this.sensorLayout.filter(
+            item => item !== this.Settings.PANEL_SEPARATOR_ITEM
+        );
         this.doRefresh = this._settings.get_boolean(this.Settings.DO_REFRESH);
         this.refreshSeconds = Number(this._settings.get_string(this.Settings.REFRESH_RATE));
+        this.sensorSeparator = this._settings.get_string(this.Settings.SENSOR_SEPARATOR);
+        this.sensorSpacing = this._settings.get_int(this.Settings.SENSOR_SPACING);
     }
 
     _connectSettings(settings, callback, args=[]) {
@@ -494,9 +500,16 @@ var HassMenu = GObject.registerClass ({
         // Rebuild panel sensors item a first time (with force reload enabled)
         this._rebuildPanelSensors(true);
 
-        // Connect the setting field that contain enabled sensors with the _rebuildPanelSensors()
-        // method
-        this._connectSettings([this.Settings.HASS_ENABLED_SENSOR_IDS], this._rebuildPanelSensors);
+        // Connect the setting fields that contain the enabled sensors and the panel layout
+        // options with the _rebuildPanelSensors() method
+        this._connectSettings(
+            [
+                this.Settings.HASS_ENABLED_SENSOR_IDS,
+                this.Settings.SENSOR_SEPARATOR,
+                this.Settings.SENSOR_SPACING,
+            ],
+            this._rebuildPanelSensors
+        );
 
         // Configure the refreshing of sensors panel
         this._configPanelSensorsRefresh();
@@ -532,17 +545,38 @@ var HassMenu = GObject.registerClass ({
                     }
                 }
 
-                // Now refresh existing sensors, create new ones and put them in their box
-                for (let [idx, panelSensor] of panelSensors.entries()) {
-                    if (panelSensor.entity_id in this.panelSensors) {
-                        Utils._log("Refresh sensor %s (%s) in panel", [panelSensor.name, panelSensor.entity_id]);
-                        this.panelSensors[panelSensor.entity_id].refresh(force_reload, panelSensor);
+                // Drop the separators of the previous layout, they are recreated below
+                this._deletePanelSensorSeparators();
+
+                // Apply the configured spacing between the panel sensors
+                this.panelSensorBox.set_style(`spacing: ${this.sensorSpacing}px`);
+
+                // Now refresh existing sensors, create new ones and put them in their box,
+                // following the layout (sensor order and separator positions) configured in
+                // the preferences
+                let sensorsById = {};
+                for (let panelSensor of panelSensors)
+                    sensorsById[panelSensor.entity_id] = panelSensor;
+
+                for (let item of this._computePanelLayout(sensorsById)) {
+                    if (item === this.Settings.PANEL_SEPARATOR_ITEM) {
+                        let separator = this._buildPanelSensorSeparator();
+                        if (separator) {
+                            this.panelSensorSeparators.push(separator);
+                            this.panelSensorBox.add_child(separator);
+                        }
+                        continue;
+                    }
+                    let panelSensor = sensorsById[item];
+                    if (item in this.panelSensors) {
+                        Utils._log("Refresh sensor %s (%s) in panel", [panelSensor.name, item]);
+                        this.panelSensors[item].refresh(force_reload, panelSensor);
                     }
                     else {
-                        Utils._log("Add sensor %s (%s) to panel", [panelSensor.name, panelSensor.entity_id]);
-                        this.panelSensors[panelSensor.entity_id] = new HassPanelSensor(panelSensor, force_reload);
+                        Utils._log("Add sensor %s (%s) to panel", [panelSensor.name, item]);
+                        this.panelSensors[item] = new HassPanelSensor(panelSensor, force_reload);
                     }
-                    this.panelSensorBox.add_child(this.panelSensors[panelSensor.entity_id]);
+                    this.panelSensorBox.add_child(this.panelSensors[item]);
                 }
                 Utils._log("Panel sensors rebuilded");
             }.bind(this),
@@ -587,9 +621,86 @@ var HassMenu = GObject.registerClass ({
             panelSensor.refresh(force_reload);
     }
 
+    /**
+     * Compute what has to be shown in the panel, from the layout configured in the preferences.
+     *
+     * Sensors that Home-Assistant does not report (anymore) are dropped, and the separators are
+     * normalized accordingly: no leading or trailing separator and never two in a row, so that
+     * an unavailable sensor never leaves a dangling separator behind.
+     *
+     * @param {Object} sensorsById The currently available sensors, indexed by entity id
+     * @return {Array} The entity ids and separator markers to render, in panel order
+     */
+    _computePanelLayout(sensorsById) {
+        let items = [];
+        for (let item of this.sensorLayout) {
+            if (item === this.Settings.PANEL_SEPARATOR_ITEM) {
+                // Skip a leading separator and collapse consecutive ones
+                if (!items.length || items[items.length - 1] === item)
+                    continue;
+                items.push(item);
+            }
+            else if (item in sensorsById) {
+                items.push(item);
+            }
+        }
+        // Drop a trailing separator
+        if (items.length && items[items.length - 1] === this.Settings.PANEL_SEPARATOR_ITEM)
+            items.pop();
+        return items;
+    }
+
+    /**
+     * Build the widget rendering a separator placed by the user between two panel sensors,
+     * according to the separator style selected in the preferences.
+     *
+     * The visual is wrapped in a padded bin, so that a separator gives more air to the panel
+     * than the plain spacing between two sensors of the same group.
+     *
+     * @return {St.Bin} The separator widget, or null if separators are disabled
+     */
+    _buildPanelSensorSeparator() {
+        let child;
+        switch (this.sensorSeparator) {
+            case "line":
+                child = new St.Widget({
+                    style_class: "hass-sensor-separator",
+                    y_align: Clutter.ActorAlign.CENTER,
+                });
+                break;
+            case "dot":
+                child = new St.Label({
+                    text: "\u00b7",
+                    style_class: "hass-sensor-separator-label",
+                    y_align: Clutter.ActorAlign.CENTER,
+                });
+                break;
+            case "space":
+                child = new St.Widget({ y_align: Clutter.ActorAlign.CENTER });
+                break;
+            default:
+                // "none": all the separators are hidden, without being removed from the layout
+                return null;
+        }
+        return new St.Bin({
+            child: child,
+            y_align: Clutter.ActorAlign.CENTER,
+            style: `padding-left: ${this.sensorSpacing}px; padding-right: ${this.sensorSpacing}px;`,
+        });
+    }
+
+    _deletePanelSensorSeparators() {
+        for (let separator of this.panelSensorSeparators) {
+            if (this.panelSensorBox) this.panelSensorBox.remove_child(separator);
+            separator.destroy();
+        }
+        this.panelSensorSeparators = [];
+    }
+
     _deletePanelSensors() {
+        this._deletePanelSensorSeparators();
         for (let [panelSensorId, panelSensor] of Object.entries(this.panelSensors)) {
-            this.box.remove_child(panelSensor);
+            if (this.panelSensorBox) this.panelSensorBox.remove_child(panelSensor);
             panelSensor.destroy();
             delete this.panelSensors[panelSensorId];
         }
